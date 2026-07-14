@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Cars - DriveGO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-start": "#0ea5e9",
+                        "primary-end": "#0284c7",
+                        "background-dark": "#f0f9ff",
+                        "card-dark": "rgba(255, 255, 255, 0.4)",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        @keyframes fadeIn-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .car-card { opacity: 0; animation: fadeIn-up 0.6s ease-out forwards; }
+        .car-image { filter: drop-shadow(10px 8px 10px rgba(0,0,0,0.1)); transition: 0.3s; }
+        .tilting-card:hover .car-image { filter: drop-shadow(20px 15px 15px rgba(0,0,0,0.15)); }
+        
+        body { 
+            background-color: #dcf1ff; 
+        }
+        /* Clean Light bluish gradient background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(180deg, #bae6fd 0%, #e0f2fe 100%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Subtle mesh overlay for the light theme */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at 15% 30%, rgba(255, 255, 255, 0.6) 0%, transparent 40%),
+                radial-gradient(circle at 85% 20%, rgba(125, 211, 252, 0.4) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 10% 90%, rgba(14, 165, 233, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.6) 0%, transparent 40%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        .glass-morphism-dark {
+          background: rgba(15, 23, 42, 0.6);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Custom CSS for Glassmorphism Effect */
+        .glass-card {
+            background-color: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Custom glowing effect for the welcome text */
+        .welcome-glow {
+            text-shadow: 0 0 8px rgba(14, 165, 233, 0.3), 0 0 15px rgba(2, 132, 199, 0.2);
+        }
+
+        /* 🌊 Wave Animation Keyframes */
+        @keyframes wave {
+            0% { transform: rotate( 0.0deg) }
+            10% { transform: rotate( 14.0deg) }
+            20% { transform: rotate( -8.0deg) }
+            30% { transform: rotate( 14.0deg) }
+            40% { transform: rotate( -4.0deg) }
+            50% { transform: rotate( 10.0deg) }
+            60% { transform: rotate( 0.0deg) }
+            100% { transform: rotate( 0.0deg) }
+        }
+
+        /* Class for the waving emoji */
+        .waving-hand-emoji {
+            transform-origin: 70% 70%; /* Pivot point for realistic wave */
+            display: inline-block;
+            animation: wave 2.5s infinite; /* Loop the animation */
+        }
+
+        /* ── Animated welcome glow keyframe for dark mode ── */
+        @keyframes welcomeGlowPulse {
+            0%, 100% { text-shadow: 0 0 8px rgba(14,165,233,0.4), 0 0 16px rgba(14,165,233,0.2); }
+            50% { text-shadow: 0 0 20px rgba(14,165,233,0.9), 0 0 40px rgba(14,165,233,0.5), 0 0 60px rgba(56,189,248,0.3); }
+        }
+        @keyframes welcomeCardGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(14,165,233,0.2), inset 0 1px 0 rgba(255,255,255,0.04); }
+            50% { box-shadow: 0 0 35px rgba(14,165,233,0.45), 0 0 60px rgba(14,165,233,0.2), inset 0 1px 0 rgba(255,255,255,0.06); }
+        }
+        [data-theme="dark"] .glass-card .welcome-glow {
+            animation: welcomeGlowPulse 2.5s ease-in-out infinite !important;
+        }
+        [data-theme="dark"] .glass-card {
+            animation: welcomeCardGlow 3s ease-in-out infinite !important;
+        }
+    </style>
+<script>
+/* DriveGO Global Theme System */
+(function(){
+    var t = localStorage.getItem('drivego_theme') || 'light';
+    var resolved = (t === 'system') ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t;
+    document.documentElement.setAttribute('data-theme', resolved);
+})();
+</script>
+<style>
+  /* --- SIRI NAV STYLES --- */
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,900;1,900&display=swap');
+
+  :root {
+      --siri-gradient: conic-gradient(from 0deg, #38bdf8, #ffffff, #0ea5e9, #e0f2fe, #38bdf8);
+  }
+
+  .nav-anchor {
+      position: absolute;
+      top: 0;
+      left: max(0px, calc(50% - 500px));
+      display: flex;
+      align-items: center;
+      z-index: 1000;
+      perspective: 2000px;
+  }
+
+  .siri-glow-border {
+      position: absolute;
+      inset: -3px;
+      border-radius: 100px;
+      padding: 3px;
+      background: var(--siri-gradient);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      pointer-events: none;
+  }
+
+  .siri-outer-aura {
+      position: absolute;
+      inset: -5px;
+      border-radius: 100px;
+      background: var(--siri-gradient);
+      filter: blur(15px);
+      opacity: 0;
+      transition: opacity 1s ease;
+      pointer-events: none;
+  }
+
+  .expanded .siri-glow-border {
+      opacity: 1;
+      animation: rotateGlow 4s linear infinite;
+  }
+
+  .expanded .siri-outer-aura {
+      opacity: 0.4;
+      animation: rotateGlow 4s linear infinite;
+  }
+
+  @keyframes rotateGlow {
+      from { filter: hue-rotate(0deg); }
+      to { filter: hue-rotate(360deg); }
+  }
+
+  @keyframes flowGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+  }
+
+  .nav-shell {
+      position: relative;
+      background: linear-gradient(270deg, rgba(255, 255, 255, 0.6), rgba(14, 165, 233, 0.3), rgba(255, 255, 255, 0.7), rgba(56, 189, 248, 0.4));
+      background-size: 300% 300%;
+      animation: flowGradient 8s ease infinite;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 100px;
+      height: 56px;
+      width: 180px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+      transform-style: preserve-3d;
+      box-shadow: 0 8px 32px rgba(31,38,135,0.05);
+      overflow: visible;
+      z-index: 10;
+  }
+
+  .expanded .nav-shell {
+      width: 1000px;
+      max-width: calc(100vw - 32px);
+      background: linear-gradient(270deg, rgba(255, 255, 255, 0.7), rgba(14, 165, 233, 0.4), rgba(255, 255, 255, 0.8), rgba(56, 189, 248, 0.5));
+      background-size: 300% 300%;
+      animation: flowGradient 8s ease infinite;
+      overflow: visible;
+  }
+
+  .logo-box {
+      display: flex;
+      align-items: center;
+      padding-left: 20px;
+      min-width: 160px;
+      z-index: 100;
+  }
+
+  .nav-links {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -40%);
+      display: flex;
+      gap: 0.8rem;
+      opacity: 0;
+      transition: all 0.6s ease;
+      pointer-events: none;
+      white-space: nowrap;
+  }
+
+  .expanded .nav-links {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+      transition-delay: 0.2s;
+  }
+
+  .pro-btn {
+      padding: 10px 16px;
+      border-radius: 50px;
+      color: #475569; 
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s;
+      text-decoration: none;
+  }
+
+  .pro-btn:hover {
+      background: rgba(255, 255, 255, 0.6); 
+      box-shadow: 0 8px 24px rgba(14, 165, 233, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(14, 165, 233, 0.2);
+      color: #0284c7;
+      transform: translateY(-2px);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+  }
+
+  .account-zone {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-left: auto;
+      padding-right: 20px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+  }
+
+  .expanded .account-zone { opacity: 1; transition-delay: 0.4s; }
+
+  .profile-img-container {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      border: 2px solid #f1f5f9;
+      background: white;
+      overflow: hidden;
+      cursor: pointer;
+  }
+  
+  [data-theme="dark"] .nav-shell {
+      background: linear-gradient(270deg, rgba(10, 15, 28, 0.85), rgba(14, 165, 233, 0.2), rgba(10, 15, 28, 0.9), rgba(56, 189, 248, 0.15));
+      background-size: 300% 300%;
+      animation: flowGradient 8s ease infinite;
+      border-color: rgba(71, 85, 105, 0.4);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+  [data-theme="dark"] .expanded .nav-shell {
+      background: linear-gradient(270deg, rgba(10, 15, 28, 0.9), rgba(14, 165, 233, 0.25), rgba(10, 15, 28, 0.95), rgba(56, 189, 248, 0.2));
+      background-size: 300% 300%;
+      animation: flowGradient 8s ease infinite;
+  }
+  [data-theme="dark"] .pro-btn {
+      color: #94a3b8;
+  }
+  [data-theme="dark"] .pro-btn:hover {
+      color: #38bdf8;
+      background: rgba(14, 165, 233, 0.25);
+      box-shadow: 0 8px 24px rgba(14, 165, 233, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+  }
+  [data-theme="dark"] .account-zone a {
+      color: #94a3b8;
+  }
+  [data-theme="dark"] .profile-img-container {
+      border-color: #334155;
+      background: #1e293b;
+  }
+  [data-theme="dark"] .text-go,
+  [data-theme="dark"] .car-swoosh {
+      fill: #ffffff !important;
+  }
+
+</style>
+<style>
+/* === DriveGO Global Dark Mode === */
+[data-theme="dark"] body,
+[data-theme="dark"] .bg-main-mesh {
+    background-color: #0f172a !important;
+    background-image: none !important;
+    color: #e2e8f0 !important;
+}
+[data-theme="dark"] body::before {
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%) !important;
+}
+[data-theme="dark"] body::after { background: none !important; }
+[data-theme="dark"] .glass-panel,
+[data-theme="dark"] [class*="bg-white/4"],
+[data-theme="dark"] [class*="bg-white/5"],
+[data-theme="dark"] [class*="bg-white/6"],
+[data-theme="dark"] [class*="bg-white/3"] {
+    background: rgba(30,41,59,0.88) !important;
+    border-color: rgba(71,85,105,0.45) !important;
+}
+[data-theme="dark"] h1,[data-theme="dark"] h2,[data-theme="dark"] h3 { color: #f1f5f9 !important; }
+[data-theme="dark"] p,[data-theme="dark"] span:not([class*="text-sky"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-yellow"]) { color: inherit; }
+[data-theme="dark"] .text-slate-900 { color: #f1f5f9 !important; }
+[data-theme="dark"] .text-slate-800 { color: #e2e8f0 !important; }
+[data-theme="dark"] .text-slate-700 { color: #cbd5e1 !important; }
+[data-theme="dark"] .text-slate-600 { color: #94a3b8 !important; }
+[data-theme="dark"] .text-slate-500 { color: #64748b !important; }
+[data-theme="dark"] [class*="border-white/"] { border-color: rgba(71,85,105,0.4) !important; }
+[data-theme="dark"] input:not([type="submit"]):not([type="button"]),
+[data-theme="dark"] .input-box,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background: rgba(15,23,42,0.75) !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(71,85,105,0.6) !important;
+}
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder { color: #475569 !important; }
+[data-theme="dark"] header { background: rgba(15,23,42,0.92) !important; border-color: rgba(71,85,105,0.3) !important; }
+[data-theme="dark"] .glass-nav,
+[data-theme="dark"] #nav-container { background: rgba(15,23,42,0.92) !important; border-color: rgba(71,85,105,0.3) !important; }
+[data-theme="dark"] label { color: #cbd5e1 !important; }
+[data-theme="dark"] .bg-white { background: #1e293b !important; }
+[data-theme="dark"] .bg-sky-50 { background: rgba(14,165,233,0.1) !important; }
+[data-theme="dark"] .bg-slate-100,
+[data-theme="dark"] .bg-slate-200 { background: rgba(30,41,59,0.7) !important; }
+[data-theme="dark"] :root {
+    --bg: #0f172a;
+    --glass: linear-gradient(135deg, rgba(30,41,59,0.88), rgba(15,23,42,0.75));
+    --border: rgba(71,85,105,0.45);
+    --border-highlight: rgba(100,116,139,0.6);
+    --card-bg: rgba(30,41,59,0.8);
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+}
+
+/* ── Dark Mode: DriveGO header logo ── */
+[data-theme="dark"] .text-slate-900 { color: #f1f5f9 !important; }
+[data-theme="dark"] header a span.text-slate-700 { color: #e2e8f0 !important; }
+
+/* ── Dark Mode: Logout button ── */
+[data-theme="dark"] #logout-btn,
+[data-theme="dark"] a[href*="logout"] {
+    color: #94a3b8 !important;
+}
+[data-theme="dark"] #logout-btn:hover,
+[data-theme="dark"] a[href*="logout"]:hover {
+    background: rgba(239,68,68,0.15) !important;
+    color: #f87171 !important;
+}
+
+/* ── Dark Mode: Host button hover (same as Vehicles/Services) ── */
+[data-theme="dark"] a[href*="host"]:not(.bg-gradient-to-r) {
+    color: #94a3b8 !important;
+}
+[data-theme="dark"] a[href*="host"]:not(.bg-gradient-to-r):hover {
+    background: rgba(14,165,233,0.15) !important;
+    color: #38bdf8 !important;
+}
+
+/* ── Dark Mode: Vehicle card hover ── */
+[data-theme="dark"] .car-card:hover {
+    border-color: rgba(14,165,233,0.55) !important;
+    background: rgba(14,165,233,0.08) !important;
+    box-shadow: 0 0 30px rgba(14,165,233,0.2), 0 8px 25px rgba(0,0,0,0.3) !important;
+}
+
+/* ── Dark Mode: View Details (BOOK NOW) button ── */
+[data-theme="dark"] .car-card a[href*="booking"] {
+    box-shadow: 0 0 20px rgba(14,165,233,0.3) !important;
+}
+
+/* ── Dark Mode: Welcome glass-card ── */
+[data-theme="dark"] .glass-card {
+    background: rgba(20,30,50,0.75) !important;
+    border-color: rgba(14,165,233,0.35) !important;
+    box-shadow: 0 0 20px rgba(14,165,233,0.2), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+}
+[data-theme="dark"] .glass-card .welcome-glow {
+    text-shadow: 0 0 15px rgba(14,165,233,0.8), 0 0 30px rgba(14,165,233,0.5) !important;
+}
+
+/* ── Dark Mode: header sticky (vehicles/activity) ── */
+[data-theme="dark"] header.bg-white\/40 {
+    background: rgba(10,15,28,0.92) !important;
+    border-color: rgba(71,85,105,0.3) !important;
+}
+
+/* ── Dark Mode: DriveGO header logo span.text-slate-900 and span.text-slate-700 in vehicles ── */
+[data-theme="dark"] header a span { color: #e2e8f0 !important; }
+[data-theme="dark"] header a .text-transparent { color: transparent !important; }
+
+    /* Settings-style back button */
+    .back-btn-v {
+        background: rgba(255,255,255,0.65);
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        border: 1.5px solid rgba(14,165,233,0.22);
+        border-radius: 50%; width: 44px; height: 44px;
+        display: flex; align-items: center; justify-content: center;
+        color: #475569; text-decoration: none; transition: all 0.3s;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.09); flex-shrink: 0;
+    }
+    .back-btn-v:hover {
+        border-color: #0ea5e9; color: #0ea5e9;
+        box-shadow: 0 0 18px rgba(14,165,233,0.4);
+        transform: scale(1.07);
+    }
+    [data-theme="dark"] .back-btn-v {
+        background: rgba(15,23,42,0.78) !important;
+        border-color: rgba(14,165,233,0.35) !important;
+        color: #94a3b8 !important;
+    }
+    [data-theme="dark"] .back-btn-v:hover {
+        border-color: #38bdf8 !important;
+        color: #38bdf8 !important;
+        box-shadow: 0 0 18px rgba(14,165,233,0.4) !important;
+    }
+
+
+        /* ==== Glassmorphic Category Dropdown ==== */
+        .glass-dropdown-wrapper { position: relative; display: inline-block; }
+        .glass-dropdown-trigger {
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(255,255,255,0.72);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1.5px solid rgba(14,165,233,0.3);
+            border-radius: 9999px; padding: 10px 20px;
+            font-size: 14px; font-weight: 700; color: #0f172a;
+            cursor: pointer; transition: all 0.3s;
+            box-shadow: 0 4px 16px rgba(14,165,233,0.16), inset 0 1px 0 rgba(255,255,255,0.9);
+            min-width: 140px; user-select: none;
+        }
+        .glass-dropdown-trigger:hover {
+            border-color: rgba(14,165,233,0.6);
+            box-shadow: 0 0 20px rgba(14,165,233,0.3), inset 0 1px 0 rgba(255,255,255,0.9);
+            transform: translateY(-1px);
+        }
+        .glass-dropdown-trigger .dd-arrow {
+            margin-left: auto; transition: transform 0.3s;
+            flex-shrink: 0;
+        }
+        .glass-dropdown-wrapper.open .dd-arrow { transform: rotate(180deg); }
+        .glass-dropdown-menu {
+            position: absolute; top: calc(100% + 8px); left: 0; z-index: 500;
+            background: rgba(255,255,255,0.88);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1.5px solid rgba(14,165,233,0.22);
+            border-radius: 20px; overflow: hidden;
+            box-shadow: 0 16px 48px rgba(14,165,233,0.18), 0 4px 12px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+            min-width: 180px;
+            opacity: 0; transform: translateY(-8px) scale(0.97);
+            pointer-events: none;
+            transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.4,0,0.2,1);
+        }
+        .glass-dropdown-wrapper.open .glass-dropdown-menu {
+            opacity: 1; transform: translateY(0) scale(1); pointer-events: all;
+        }
+        .glass-dd-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 11px 18px; font-size: 14px; font-weight: 600;
+            color: #334155; cursor: pointer; transition: all 0.18s;
+            border-bottom: 1px solid rgba(14,165,233,0.07);
+        }
+        .glass-dd-item:last-child { border-bottom: none; }
+        .glass-dd-item:hover {
+            background: rgba(14,165,233,0.1);
+            color: #0ea5e9;
+            padding-left: 22px;
+        }
+        .glass-dd-item.selected {
+            background: rgba(14,165,233,0.12);
+            color: #0ea5e9; font-weight: 700;
+        }
+        .glass-dd-item .dd-icon {
+            width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+            background: linear-gradient(135deg, rgba(14,165,233,0.15), rgba(59,130,246,0.1));
+            border: 1px solid rgba(14,165,233,0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px;
+        }
+        /* Dark mode */
+        [data-theme="dark"] .glass-dropdown-trigger {
+            background: rgba(15,23,42,0.82) !important;
+            border-color: rgba(14,165,233,0.35) !important;
+            color: #e2e8f0 !important;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+        }
+        [data-theme="dark"] .glass-dropdown-trigger:hover {
+            border-color: rgba(14,165,233,0.6) !important;
+            box-shadow: 0 0 20px rgba(14,165,233,0.3) !important;
+        }
+        [data-theme="dark"] .glass-dropdown-menu {
+            background: rgba(10,15,28,0.96) !important;
+            border-color: rgba(14,165,233,0.3) !important;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04) !important;
+        }
+        [data-theme="dark"] .glass-dd-item {
+            color: #94a3b8 !important;
+            border-color: rgba(14,165,233,0.08) !important;
+        }
+        [data-theme="dark"] .glass-dd-item:hover, [data-theme="dark"] .glass-dd-item.selected {
+            background: rgba(14,165,233,0.14) !important;
+            color: #38bdf8 !important;
+        }
+</style>
+</head>
+
+<body class="bg-main-mesh font-display text-slate-800">
+    <div class="flex flex-col min-h-screen w-full relative z-10 px-4 sm:px-8 lg:px-12">
+
+    <!-- BEGIN: MainHeader -->
+    <header id="main-header" class="fixed top-4 left-0 right-0 z-[1000] px-4 md:px-12 pointer-events-none">
+        <div class="w-full mx-auto relative h-[72px] px-4 md:px-8 lg:px-12">
+            <div class="nav-anchor pointer-events-auto" id="anchor">
+                <div class="siri-outer-aura"></div>
+                <div class="siri-glow-border"></div>
+
+                <nav class="nav-shell" id="nav" onclick="if(!isExpanded) toggleMenu()">
+                    <div class="logo-box" onclick="if(isExpanded) { toggleMenu(); event.stopPropagation(); }">
+                        <!-- Flawless Unified SVG Logo with Double-Swoosh and Italic GO -->
+                        <svg width="160" height="40" viewBox="0 0 240 60" xmlns="http://www.w3.org/2000/svg">
+                            <style>
+                                .text-drive {
+                                    font-family: 'Montserrat', sans-serif;
+                                    font-weight: 900;
+                                    font-style: italic;
+                                    font-size: 40px;
+                                    fill: #1BA1E2;
+                                    letter-spacing: -2px;
+                                }
+                            .text-go {
+                                font-family: 'Montserrat', sans-serif;
+                                    font-weight: 900;
+                                    font-style: italic;
+                                    font-size: 46px;
+                                    fill: #1E293B;
+                                    letter-spacing: -1px;
+                                }
+                            </style>
+                            
+                            <text x="2" y="52" class="text-drive">Drive</text>
+                            <text x="98" y="52" class="text-go">GO.</text>
+                            
+                            <!-- Aerodynamic Double-Swoosh Car Outline -->
+                            <g transform="translate(92, 4) scale(0.52)">
+                                <!-- Left Swoosh -->
+                                <path class="car-swoosh" d="M 10 38 
+                                         C 8 20, 25 8, 45 4 
+                                         C 70 0, 95 5, 115 15 
+                                         C 125 20, 130 25, 135 30 
+                                         C 125 25, 115 20, 100 16 
+                                         C 80 10, 55 10, 35 18 
+                                         C 22 23, 15 30, 10 38 Z" 
+                                      fill="#1E293B"/>
+                                <!-- Right Swoosh -->
+                                <path class="car-swoosh" d="M 90 22 
+                                         C 105 15, 125 15, 150 20 
+                                         C 165 23, 175 28, 180 40 
+                                         C 173 34, 160 27, 145 23 
+                                         C 125 18, 105 18, 90 22 Z" 
+                                      fill="#1E293B"/>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="nav-links">
+                        <a href="{% url 'index' %}" class="pro-btn" onclick="event.stopPropagation()">Home</a>
+                        <a href="{% url 'vehicles' %}" class="pro-btn !bg-white/60 !text-sky-600 shadow-sm" onclick="event.stopPropagation()">Vehicles</a>
+                        <a href="{% url 'Services' %}" class="pro-btn" onclick="event.stopPropagation()">Services</a>
+                    </div>
+
+                    <div class="account-zone">
+                        <a href="{% url 'host' %}" class="pro-btn mr-2" onclick="event.stopPropagation()">Host</a>
+                        {% if request.user.is_authenticated and not request.user.is_superuser %}
+                        <a href="{% url 'logout' %}" onclick="event.stopPropagation()" class="text-[10px] text-slate-400 font-bold transition-all duration-300 tracking-widest uppercase ml-2 px-3 py-1.5 rounded-full hover:bg-red-500/15 hover:text-red-500 hover:shadow-[0_4px_12px_rgba(239,68,68,0.2)] hover:border-red-500/30 border border-transparent border-t-white/30 hover:-translate-y-0.5">Logout</a>
+                        <div class="relative group cursor-pointer" onclick="window.location.href='{% url 'account' %}'; event.stopPropagation();">
+                            <div class="profile-img-container">
+                                {% if request.user.userprofile.profile_picture %}
+                                  <img src="{{ request.user.userprofile.profile_picture.url }}" alt="avatar" class="w-full h-full object-cover" />
+                                {% else %}
+                                  <div class="w-full h-full bg-sky-100 flex items-center justify-center">
+                                    <span class="font-bold text-sky-600">{{ request.user.first_name|first|default:request.user.username|first|upper }}</span>
+                                  </div>
+                                {% endif %}
+                            </div>
+                            <!-- Glassmorphic Username Tooltip -->
+                            <div class="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none bg-sky-500/15 backdrop-blur-xl border border-sky-500/40 text-sky-600 font-bold text-[10px] px-4 py-1.5 rounded-full shadow-[0_4px_16px_rgba(14,165,233,0.25)] whitespace-nowrap z-50">
+                                {{ request.user.first_name|default:request.user.username }}
+                            </div>
+                        </div>
+                        {% else %}
+                        <a href="{% url 'signin' %}" onclick="event.stopPropagation()" class="text-[10px] text-slate-400 font-bold hover:text-sky-500 transition tracking-widest uppercase">Login</a>
+                        <button onclick="window.location.href='{% url 'signup' %}'; event.stopPropagation();" class="pro-btn bg-sky-500 !text-white hover:bg-sky-600 ml-2" style="padding: 8px 16px; border:none;">Signup</button>
+                        {% endif %}
+                    </div>
+                </nav>    
+            </div>
+        </div>
+    </header>
+    <!-- END: MainHeader -->
+    <!-- END: Floating Glass Navbar -->
+
+    <main class="flex-grow w-full mx-auto px-4 sm:px-8 lg:px-12 pt-28 md:pt-28 space-y-8 pb-32">
+        <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <a href="{% url 'index' %}" class="back-btn-v" title="Back to Home">
+                    <span class="material-symbols-outlined" style="font-size:20px;">arrow_back_ios_new</span>
+                </a>
+                <h1 class="text-3xl font-bold text-slate-900">Available Vehicles</h1>
+            </div>
+
+            <div class="flex-shrink-0">
+                <div class="glass-card flex items-center gap-2 px-5 py-2 rounded-2xl border border-white/60">
+                    <p class="text-lg font-bold text-slate-700 tracking-wide">
+                        Welcome, 
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-start to-primary-end welcome-glow font-black">
+                            {{ request.user }}!
+                        </span>
+                    </p>
+                    <span class="material-symbols-outlined text-primary-start text-2xl welcome-glow waving-hand-emoji">waving_hand</span>
+                </div>
+            </div>
+            <!-- Hidden form for submission -->
+            <form method="get" action="{% url 'vehicles' %}" id="vehicle-filter-form" style="display:none;">
+                <input type="hidden" name="category" id="hidden-category-input" value="{{ selected_category_id|default:'' }}">
+            </form>
+            <!-- Glassmorphic Category Dropdown -->
+            <div class="glass-dropdown-wrapper" id="category-dd-wrapper">
+                <div class="glass-dropdown-trigger" onclick="toggleCategoryDD()" id="dd-trigger">
+                    <!-- SVG icon - always renders -->
+                    <svg id="dd-svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/>
+                        <rect x="9" y="11" width="14" height="10" rx="2"/>
+                        <circle cx="12" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                    </svg>
+                    <span id="dd-label">All</span>
+                    <svg class="dd-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="glass-dropdown-menu" id="category-dd-menu">
+                    <!-- All option -->
+                    <div class="glass-dd-item {% if not selected_category_id %}selected{% endif %}" data-label="All" onclick="selectCategory(this, '', 'All')">
+                        <div class="dd-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2.2" stroke-linecap="round"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/><rect x="9" y="11" width="14" height="10" rx="2"/><circle cx="12" cy="21" r="1"/><circle cx="20" cy="21" r="1"/></svg>
+                        </div>
+                        All
+                    </div>
+                    {% for category in categories %}
+                    <div class="glass-dd-item {% if selected_category_id == category.id %}selected{% endif %}"
+                         data-name="{{ category.name|lower }}"
+                         data-label="{{ category.name }}"
+                         onclick="selectCategory(this, '{{ category.id }}', '{{ category.name }}')">
+                        <div class="dd-icon">
+                            {% with name=category.name|lower %}
+                            {% if name == 'scoty' or name == 'scooter' %}
+                                <span class="material-symbols-outlined dd-cat-icon" style="font-size:15px;color:#0ea5e9;">two_wheeler</span>
+                            {% elif name == 'bike' %}
+                                <span class="material-symbols-outlined dd-cat-icon" style="font-size:15px;color:#0ea5e9;">pedal_bike</span>
+                            {% elif name == 'luxury' %}
+                                <span class="material-symbols-outlined dd-cat-icon" style="font-size:15px;color:#0ea5e9;">star</span>
+                            {% elif name == '3 seater' %}
+                                <span class="material-symbols-outlined dd-cat-icon" style="font-size:15px;color:#0ea5e9;">airline_seat_recline_normal</span>
+                            {% elif name == '4 seater' or name == '5 seater' %}
+                                <span class="material-symbols-outlined dd-cat-icon" style="font-size:15px;color:#0ea5e9;">airport_shuttle</span>
+                            {% elif name == '6 seater' or name == '7 seater' or name == '8 seater' %}
+                                <span class="material-symbols-outlined dd-cat-icon" style="font-size:15px;color:#0ea5e9;">directions_bus</span>
+                            {% elif name == 'cars' or name == 'car' %}
+                                <span class="material-symbols-outlined dd-cat-icon" style="font-size:15px;color:#0ea5e9;">directions_car</span>
+                            {% else %}
+                                <span class="material-symbols-outlined dd-cat-icon" style="font-size:15px;color:#0ea5e9;">directions_car</span>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                        {{ category.name }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6" id="vehicle-list">
+            {% for v in vehicles %}
+                <div class="car-card tilting-card bg-white/40 backdrop-blur-xl rounded-[2rem] p-4 sm:p-6 flex gap-6 items-center border border-white/60 hover:border-sky-400 transition-all shadow-xl">
+                    <div class="relative bg-white/50 rounded-2xl p-2 shadow-inner border border-white/40 overflow-hidden shrink-0">
+                        <div class="absolute inset-0 bg-gradient-to-br from-sky-100/50 to-transparent"></div>
+                        <img src="{{ v.image.url }}" alt="{{ v.name }}" class="w-48 h-32 object-cover car-image rounded-xl relative z-10">
+                    </div>
+                    <div class="flex-grow flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-slate-900">{{ v.name }}</h3>
+                            <p class="text-slate-600 text-sm mt-1 font-medium">{{ v.description }}</p>
+                            <div class="flex items-center gap-1.5 text-sm mt-3 bg-white/50 w-fit px-3 py-1 rounded-lg border border-white/60">
+                                <span class="material-symbols-outlined text-amber-500 text-lg">star</span>
+                                <span class="text-slate-800 font-bold">4.95 <span class="text-slate-500 font-medium ml-1">(152) · 12k kms driven</span></span>
+                            </div>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <p class="text-3xl font-black text-sky-600 drop-shadow-sm">₹{{ v.price }}<span class="text-lg text-slate-500 font-bold">/Hr</span></p>
+                            <a href="{% url 'booking-summary' v.id %}" class="mt-3 inline-block bg-gradient-to-r from-primary-start to-primary-end text-white font-bold py-3 px-6 rounded-xl text-sm hover:shadow-lg hover:shadow-sky-500/40 hover:-translate-y-1 transition-all">BOOK NOW</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="bg-white/40 backdrop-blur-xl border border-white/50 rounded-[2rem] p-12 text-center shadow-xl">
+                    <span class="material-symbols-outlined text-sky-200 text-6xl mb-4">no_crash</span>
+                    <p class="text-xl font-bold text-slate-700">No vehicles found in this category.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <!-- BEGIN: BottomNavigation -->
+    <footer class="fixed bottom-10 left-0 right-0 z-50 flex justify-center pointer-events-none">
+        <nav class="pointer-events-auto glass-morphism-dark rounded-3xl p-2 px-4 flex items-center space-x-2 shadow-2xl border border-white/10" data-purpose="floating-nav">
+            <!-- Home Link -->
+            <a class="flex flex-col items-center justify-center p-3 rounded-2xl text-slate-400 hover:text-white transition-all w-20" href="{% url 'index' %}">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+                <span class="text-[10px] mt-1 font-medium">Home</span>
+            </a>
+            <!-- Services Link -->
+            <a class="flex flex-col items-center justify-center p-3 rounded-2xl bg-sky-500 text-white transition-all w-20" href="{% url 'vehicles' %}">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+                <span class="text-[10px] mt-1 font-medium">Vehicles</span>
+            </a>
+            <!-- Activity Link -->
+            <a class="flex flex-col items-center justify-center p-3 rounded-2xl text-slate-400 hover:text-white transition-all w-20" href="{% url 'activity' %}">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+                <span class="text-[10px] mt-1 font-medium">Activity</span>
+            </a>
+            <!-- Account Link -->
+            <a class="flex flex-col items-center justify-center p-3 rounded-2xl text-slate-400 hover:text-white transition-all w-20" href="{% url 'account' %}">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+                <span class="text-[10px] mt-1 font-medium">Account</span>
+            </a>
+        </nav>
+    </footer>
+    <!-- END: BottomNavigation -->
+</div>
+<script>
+  var isExpanded = false;
+  document.addEventListener('DOMContentLoaded', () => {
+    const nav = document.getElementById('nav');
+    const anchor = document.getElementById('anchor');
+
+    window.toggleMenu = function() {
+        isExpanded = !isExpanded;
+        anchor.classList.toggle('expanded');
+    };
+
+    // CLASSY SUBTLE MOTION
+    anchor.addEventListener('mousemove', (e) => {
+        if (!isExpanded) return;
+        const rect = anchor.getBoundingClientRect();
+        const x = (e.clientX - rect.left) - rect.width / 2;
+        const y = (e.clientY - rect.top) - rect.height / 2;
+        
+        nav.style.transform = `rotateY(${x / 140}deg) rotateX(${-y / 70}deg)`;
+    });
+
+    anchor.addEventListener('mouseleave', () => {
+        if (!isExpanded) return;
+        nav.style.transform = `rotateX(0deg) rotateY(0deg)`;
+    });
+  });
+</script>
+
+<script>
+/* Glassmorphic Category Dropdown */
+const CATEGORY_ICONS = {
+    'all': 'directions_car',
+    'cars': 'directions_car', 'car': 'directions_car',
+    'scoty': 'two_wheeler', 'scooter': 'two_wheeler',
+    'bike': 'pedal_bike',
+    '4 seater': 'airport_shuttle', '5 seater': 'airport_shuttle',
+    '6 seater': 'directions_bus', '7 seater': 'directions_bus',
+    '8 seater': 'directions_bus', '3 seater': 'airline_seat_recline_normal',
+    'luxury': 'star', 'suv': 'directions_car', 'van': 'airport_shuttle',
+};
+
+function getCategoryIcon(name) {
+    return CATEGORY_ICONS[name] || CATEGORY_ICONS[name.split(' ')[0]] || 'directions_car';
+}
+
+function toggleCategoryDD() {
+    const w = document.getElementById('category-dd-wrapper');
+    w.classList.toggle('open');
+}
+
+function selectCategory(el, id, name) {
+    // Set hidden form value
+    document.getElementById('hidden-category-input').value = id;
+    // Update trigger label
+    document.getElementById('dd-label').textContent = name;
+    // Update selected styling
+    document.querySelectorAll('.glass-dd-item').forEach(function(item) {
+        item.classList.remove('selected');
+    });
+    if (el) el.classList.add('selected');
+    // Close dropdown
+    document.getElementById('category-dd-wrapper').classList.remove('open');
+    // Submit form to filter
+    setTimeout(function() {
+        document.getElementById('vehicle-filter-form').submit();
+    }, 120);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Set label from selected item using data-label (avoids icon text leaking into label)
+    const sel = document.querySelector('.glass-dd-item.selected');
+    if (sel) {
+        const label = sel.getAttribute('data-label') || sel.textContent.trim();
+        const ddLabel = document.getElementById('dd-label');
+        if (ddLabel) ddLabel.textContent = label;
+    }
+    // Close on outside click
+    document.addEventListener('click', function(e) {
+        const w = document.getElementById('category-dd-wrapper');
+        if (w && !w.contains(e.target)) w.classList.remove('open');
+    });
+});
+</script>
+
+</body>
+</html>

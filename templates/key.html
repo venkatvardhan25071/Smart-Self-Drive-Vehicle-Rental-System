@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DriveGo — Smart Lock</title>
+<!-- mqtt.js v4 -->
+<script src="https://unpkg.com/mqtt@4.3.7/dist/mqtt.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --locked-color: #00e5ff;
+    --unlocked-color: #ff6b35;
+    --bg: #080c10;
+    --panel: rgba(13, 21, 32, 0.6);
+    --panel2: rgba(0, 0, 0, 0.2);
+    --border: rgba(0,229,255,0.15);
+    --text: #c8dce8;
+    --dim: #4a6272;
+    --font-hud: 'Space Grotesk', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-hud);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Grid bg */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.025) 1px, transparent 1px);
+    background-size: 36px 36px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Central glow */
+  body::after {
+    content: '';
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px; height: 800px; border-radius: 50%;
+    background: radial-gradient(circle, var(--glow-color, rgba(0,229,255,0.08)) 0%, transparent 68%);
+    pointer-events: none; transition: background 1s ease;
+    z-index: 0;
+  }
+
+  /* Scanline overlay */
+  .scanlines {
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);
+    pointer-events: none; z-index: 1;
+  }
+
+  /* Floating particles */
+  .particle {
+    position: fixed; width: 2px; height: 2px;
+    background: rgba(0,229,255,0.6); border-radius: 50%;
+    animation: floatP var(--dur, 8s) linear infinite;
+    pointer-events: none; z-index: 1;
+  }
+  @keyframes floatP {
+    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-10vh) translateX(var(--dx, 20px)); opacity: 0; }
+  }
+
+  .hud-container {
+    position: relative; z-index: 10;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 24px;
+    width: min(500px, 95vw);
+    background: var(--panel);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 24px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,229,255,0.02);
+  }
+
+  .header { text-align: center; }
+  .header .brand { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.5em; font-family: var(--font-mono); margin-bottom: 6px; }
+  .header h1 { font-size: 38px; font-weight: 700; color: #fff; letter-spacing: 0.2em; text-transform: uppercase; line-height: 1; text-shadow: 0 0 20px rgba(0,229,255,0.3); }
+  .header h1 span { color: var(--locked-color); }
+
+  #joinScreen { width: 100%; display: flex; flex-direction: column; gap: 16px; }
+
+  .room-bar {
+    width: 100%; background: var(--panel2);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 16px 20px; display: flex; align-items: center;
+    gap: 12px; font-family: var(--font-mono); font-size: 12px; color: var(--dim);
+  }
+  .room-bar label { white-space: nowrap; letter-spacing: 0.1em; }
+  .room-bar input {
+    flex: 1; background: transparent; border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--locked-color); font-family: var(--font-mono);
+    font-size: 15px; letter-spacing: 0.2em;
+    padding: 4px; outline: none; text-transform: uppercase;
+  }
+  .room-bar input::placeholder { color: var(--dim); letter-spacing: 0.1em; }
+
+  .join-btn {
+    width: 100%; height: 56px; background: rgba(0,229,255,0.05);
+    border: 1px solid var(--locked-color); border-radius: 6px;
+    cursor: pointer; font-family: var(--font-hud); font-size: 18px;
+    font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--locked-color); transition: all 0.3s; position: relative; overflow: hidden;
+    box-shadow: 0 0 15px rgba(0,229,255,0.1);
+  }
+  .join-btn::before { content: ''; position: absolute; inset: 0; background: var(--locked-color); opacity: 0; transition: opacity 0.3s; }
+  .join-btn:hover { box-shadow: 0 0 30px rgba(0,229,255,0.25); background: rgba(0,229,255,0.1); }
+  .join-btn:hover::before { opacity: 0.08; }
+  .join-btn:active::before { opacity: 0.18; }
+
+  .generate-hint {
+    font-family: var(--font-mono); font-size: 11px; color: var(--dim);
+    text-align: center; letter-spacing: 0.05em; cursor: pointer;
+    text-decoration: underline; text-underline-offset: 3px;
+    opacity: 0.7; transition: opacity 0.2s; margin-top: -4px;
+  }
+  .generate-hint:hover { opacity: 1; color: var(--locked-color); }
+
+  #mainHud { width: 100%; display: none; flex-direction: column; gap: 20px; align-items: center; }
+
+  .channel-badge { font-family: var(--font-mono); font-size: 11px; color: var(--dim); text-align: center; letter-spacing: 0.15em; }
+  .channel-badge span { color: var(--locked-color); font-size: 13px; font-weight: bold; }
+  .channel-badge a { color: var(--dim); text-decoration: underline; cursor: pointer; margin-left: 12px; font-size: 10px; transition: 0.2s; }
+  .channel-badge a:hover { color: var(--unlocked-color); }
+
+  .status-panel {
+    width: 100%; background: var(--panel2);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 18px 24px; display: flex;
+    align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .status-indicator { display: flex; align-items: center; gap: 16px; }
+  .status-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--locked-color); box-shadow: 0 0 12px var(--locked-color), 0 0 24px var(--locked-color);
+    flex-shrink: 0; transition: background 0.6s, box-shadow 0.6s;
+  }
+  .status-dot.unlocked { background: var(--unlocked-color); box-shadow: 0 0 12px var(--unlocked-color), 0 0 24px var(--unlocked-color); }
+  .status-dot.connecting { background: var(--dim); box-shadow: none; animation: pulse-dot 1s infinite; }
+  @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .status-text { font-family: var(--font-mono); font-size: 12px; color: var(--dim); letter-spacing: 0.05em; }
+  .status-text strong { display: block; font-family: var(--font-hud); font-size: 20px; font-weight: 700; letter-spacing: 0.15em; color: #fff; text-transform: uppercase; margin-bottom: 2px; }
+
+  .conn-badge {
+    font-family: var(--font-mono); font-size: 10px; font-weight: bold;
+    padding: 4px 10px; border-radius: 4px;
+    border: 1px solid var(--dim); color: var(--dim);
+    letter-spacing: 0.1em; transition: all 0.4s;
+    background: rgba(0,0,0,0.3);
+  }
+  .conn-badge.connected { color: #4cff9f; border-color: #4cff9f; box-shadow: 0 0 12px rgba(76,255,159,0.2); background: rgba(76,255,159,0.05); }
+
+  .car-vis {
+    position: relative; width: 100%; height: 200px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--panel2); border: 1px solid var(--border);
+    border-radius: 6px; overflow: hidden;
+  }
+  
+  .car-float { animation: carFloat 4s ease-in-out infinite; }
+  @keyframes carFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(0.5deg); }
+  }
+
+  .car-svg { width: 320px; filter: drop-shadow(0 0 25px rgba(0,229,255,0.4)); transition: filter 1s ease; }
+
+  .lock-ring {
+    position: absolute; width: 200px; height: 200px;
+    border-radius: 50%; border: 1px solid var(--locked-color);
+    opacity: 0; animation: ring-out 1.5s ease-out; pointer-events: none;
+  }
+  @keyframes ring-out { 0%{opacity:0.6;transform:scale(0.5)} 100%{opacity:0;transform:scale(1.5)} }
+
+  #waitingOverlay {
+    display: none; position: absolute; inset: 0;
+    background: rgba(10,15,25,0.85); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+    flex-direction: column; gap: 12px;
+    font-family: var(--font-mono); font-size: 12px;
+    color: var(--dim); letter-spacing: 0.1em; z-index: 20;
+  }
+  #waitingOverlay.show { display: flex; }
+  .spinner { width: 32px; height: 32px; border: 2px solid var(--border); border-top-color: var(--locked-color); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .lock-btn {
+    position: relative; width: 100%; height: 72px;
+    background: rgba(0,229,255,0.05); border: 1px solid var(--locked-color); border-radius: 6px;
+    cursor: pointer; font-family: var(--font-hud); font-size: 22px;
+    font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--locked-color); transition: all 0.3s; overflow: hidden;
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    box-shadow: 0 0 20px rgba(0,229,255,0.1), inset 0 0 20px rgba(0,229,255,0.05);
+  }
+  .lock-btn::before { content: ''; position: absolute; inset: 0; background: var(--locked-color); opacity: 0; transition: opacity 0.3s; }
+  .lock-btn:hover { box-shadow: 0 0 35px rgba(0,229,255,0.3), inset 0 0 20px rgba(0,229,255,0.1); }
+  .lock-btn:hover::before { opacity: 0.08; }
+  .lock-btn:active::before { opacity: 0.18; }
+  .lock-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .lock-btn .btn-icon { position: relative; font-size: 26px; z-index: 1; }
+  .lock-btn .btn-label { position: relative; z-index: 1; }
+  
+  .lock-btn.is-unlocked { border-color: var(--unlocked-color); color: var(--unlocked-color); background: rgba(255,107,53,0.05); box-shadow: 0 0 20px rgba(255,107,53,0.1), inset 0 0 20px rgba(255,107,53,0.05); }
+  .lock-btn.is-unlocked::before { background: var(--unlocked-color); }
+  .lock-btn.is-unlocked:hover { box-shadow: 0 0 35px rgba(255,107,53,0.3), inset 0 0 20px rgba(255,107,53,0.1); }
+
+  .corner { position: absolute; width: 16px; height: 16px; z-index: 10; }
+  .corner::before, .corner::after { content: ''; position: absolute; background: var(--locked-color); transition: background 0.6s; box-shadow: 0 0 8px var(--locked-color); }
+  .corner::before { width: 100%; height: 1.5px; top: 0; left: 0; }
+  .corner::after  { width: 1.5px; height: 100%; top: 0; left: 0; }
+  .corner.tr { top: 10px; right: 10px; transform: rotate(90deg); }
+  .corner.bl { bottom: 10px; left: 10px; transform: rotate(270deg); }
+  .corner.br { bottom: 10px; right: 10px; transform: rotate(180deg); }
+  .corner.tl { top: 10px; left: 10px; }
+  .corner.unlocked::before, .corner.unlocked::after { background: var(--unlocked-color); box-shadow: 0 0 8px var(--unlocked-color); }
+
+  .log-panel {
+    width: 100%; background: var(--panel2);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 14px 20px; max-height: 120px; overflow-y: auto;
+  }
+  .log-panel::-webkit-scrollbar { width: 4px; }
+  .log-panel::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+  .log-line { font-family: var(--font-mono); font-size: 11px; color: var(--dim); line-height: 1.8; display: flex; gap: 12px; }
+  .log-line .ts { color: #2a4050; min-width: 60px; font-weight: bold; }
+  .log-line.event { color: var(--locked-color); }
+  .log-line.event.unlock { color: var(--unlocked-color); }
+  .log-line.info  { color: #4cff9f; }
+  .log-line.warn  { color: #ffb300; }
+
+  /* Back Button */
+  .back-btn {
+    position: fixed; top: 20px; left: 24px; z-index: 100;
+    background: rgba(13,21,32,0.8); border: 1px solid var(--border); border-radius: 6px;
+    padding: 10px 18px; color: var(--locked-color); font-family: var(--font-mono); font-size: 12px;
+    letter-spacing: 0.15em; text-decoration: none; transition: all 0.3s; backdrop-filter: blur(12px);
+  }
+  .back-btn:hover { border-color: var(--locked-color); box-shadow: 0 0 15px rgba(0,229,255,0.3); background: rgba(0,229,255,0.1); }
+
+  /* Holographic overlays */
+  .holo-overlay {
+    position: absolute; top: 12px; left: 16px;
+    font-family: var(--font-mono); font-size: 9px; color: var(--locked-color);
+    line-height: 2; z-index: 6; text-shadow: 0 0 8px rgba(0,229,255,0.8);
+    opacity: 0.8;
+  }
+  .holo-overlay.unlocked { color: var(--unlocked-color); text-shadow: 0 0 8px rgba(255,107,53,0.8); }
+</style>
+</head>
+<body>
+
+<div class="scanlines"></div>
+<a class="back-btn" href="/activity/">&larr; BACK</a>
+
+<div class="hud-container">
+
+  <div class="header">
+    <div class="brand">Smart Vehicle Access</div>
+    <h1>Drive<span>Go</span></h1>
+  </div>
+
+  <!-- JOIN SCREEN -->
+  <div id="joinScreen">
+    <div class="room-bar">
+      <label>VEHICLE ID</label>
+      <input type="text" id="roomInput" maxlength="20" placeholder="e.g. DEMO123" />
+    </div>
+    <div class="generate-hint" onclick="generateId()">⟳ Generate a random Vehicle ID</div>
+    <button class="join-btn" onclick="joinRoom()">JOIN CHANNEL</button>
+  </div>
+
+  <!-- MAIN HUD -->
+  <div id="mainHud">
+    <div class="channel-badge">
+      CHANNEL: <span id="channelLabel">—</span>
+      <a onclick="leaveRoom()">leave</a>
+    </div>
+
+    <div class="status-panel">
+      <div class="status-indicator">
+        <div class="status-dot connecting" id="statusDot"></div>
+        <div class="status-text">
+          <strong id="lockStateLabel">—</strong>
+          <span id="statusSubtext">connecting...</span>
+        </div>
+      </div>
+      <div class="conn-badge" id="connBadge">OFFLINE</div>
+    </div>
+
+    <div class="car-vis" id="carVis">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      
+      <div class="holo-overlay" id="holoOverlay">
+        <div>SYS_CHECK: OK</div>
+        <div>SEC_PROTOCOL: ACTIVE</div>
+        <div>LINK: ENCRYPTED</div>
+      </div>
+
+      <div id="waitingOverlay" class="show">
+        <div class="spinner"></div>
+        <span>reading current lock state...</span>
+      </div>
+      
+      <div class="car-float">
+        <svg class="car-svg" id="carSvg" viewBox="0 0 320 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Dynamic glow -->
+          <ellipse cx="160" cy="105" rx="140" ry="12" fill="url(#bottomGlow)" opacity="0.6" id="carGlow" />
+
+          <!-- Car body -->
+          <path d="
+            M 30 85 
+            L 20 75
+            C 15 70, 15 60, 25 55
+            L 60 50
+            C 80 48, 95 32, 120 28
+            C 160 22, 200 28, 230 40
+            C 250 48, 275 52, 290 58
+            C 300 62, 305 70, 300 80
+            L 290 85
+            Z
+          " fill="rgba(10,15,25,0.7)" stroke="#00e5ff" stroke-width="1.5" id="carBody" />
+
+          <!-- Windows -->
+          <path d="M 125 30 C 160 26, 190 32, 215 42 L 150 45 Z" fill="rgba(0,229,255,0.15)" stroke="#00e5ff" stroke-width="1" id="win1"/>
+          <path d="M 80 48 C 95 38, 110 32, 120 30 L 140 45 L 85 48 Z" fill="rgba(0,229,255,0.15)" stroke="#00e5ff" stroke-width="1" id="win2"/>
+
+          <!-- Back Wheel -->
+          <circle cx="80" cy="85" r="22" fill="#05080c" stroke="#00e5ff" stroke-width="2" id="wl"/>
+          <circle cx="80" cy="85" r="14" fill="rgba(0,229,255,0.05)" stroke="#00e5ff" stroke-width="1" stroke-dasharray="4 2"/>
+          <circle cx="80" cy="85" r="5" fill="#00e5ff" />
+
+          <!-- Front Wheel -->
+          <circle cx="250" cy="85" r="22" fill="#05080c" stroke="#00e5ff" stroke-width="2" id="wr"/>
+          <circle cx="250" cy="85" r="14" fill="rgba(0,229,255,0.05)" stroke="#00e5ff" stroke-width="1" stroke-dasharray="4 2"/>
+          <circle cx="250" cy="85" r="5" fill="#00e5ff" />
+
+          <!-- Headlight -->
+          <path d="M 275 56 L 295 62 L 290 68 L 270 60 Z" fill="rgba(0,229,255,0.4)" stroke="#00e5ff" stroke-width="1" id="hlight"/>
+          <path d="M 292 64 L 400 40 L 400 100 L 290 68 Z" fill="url(#beamGrad)" opacity="0.3" id="beam"/>
+
+          <!-- Taillight -->
+          <path d="M 25 55 L 18 60 L 18 68 L 26 62 Z" fill="rgba(255,107,53,0.5)" stroke="#ff6b35" stroke-width="1" id="tlight"/>
+
+          <!-- Center Lock -->
+          <g id="lockIcon" transform="translate(150, 48)">
+            <rect x="0" y="8" width="24" height="16" rx="4" fill="rgba(0,229,255,0.2)" stroke="#00e5ff" stroke-width="1.5"/>
+            <path d="M 5 8 L 5 4 C 5 -2, 19 -2, 19 4 L 19 8" fill="none" stroke="#00e5ff" stroke-width="1.5" id="lockShackle"/>
+            <circle cx="12" cy="16" r="2.5" fill="#00e5ff" id="lockDot"/>
+          </g>
+
+          <defs>
+            <radialGradient id="bottomGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#00e5ff" stop-opacity="0.5" id="glowStop1"/>
+              <stop offset="100%" stop-color="#00e5ff" stop-opacity="0" id="glowStop2"/>
+            </radialGradient>
+            <linearGradient id="beamGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#00e5ff" stop-opacity="0.8" id="beamStop1"/>
+              <stop offset="100%" stop-color="#00e5ff" stop-opacity="0" id="beamStop2"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+    </div>
+
+    <button class="lock-btn" id="lockBtn" disabled onclick="toggleLock()">
+      <span class="btn-icon" id="btnIcon">🔒</span>
+      <span class="btn-label" id="btnLabel">Lock Vehicle</span>
+    </button>
+
+    <div class="log-panel" id="logPanel"></div>
+  </div>
+</div>
+
+<script>
+// Floating particles
+(function(){
+  for(let i=0;i<20;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.cssText='left:'+Math.random()*100+'vw;--dur:'+(6+Math.random()*10)+'s;--dx:'+(Math.random()*60-30)+'px;animation-delay:'+(Math.random()*8)+'s';
+    document.body.appendChild(p);
+  }
+})();
+
+let client        = null;
+let currentTopic  = null;
+let isLocked      = true;
+let stateReceived = false;
+let connected     = false;
+
+const TOPIC_PREFIX = 'drivego/lock/v3/';
+
+const BROKERS = [
+  'wss://broker.emqx.io:8084/mqtt',
+  'ws://broker.emqx.io:8083/mqtt',
+  'wss://test.mosquitto.org:8081/mqtt',
+  'ws://broker.hivemq.com:8000/mqtt',
+];
+let brokerIndex = 0;
+
+function generateId() {
+  document.getElementById('roomInput').value =
+    Math.random().toString(36).slice(2, 8).toUpperCase();
+}
+
+function leaveRoom() {
+  if (client) { try { client.end(true); } catch(e){} client = null; }
+  stateReceived = false; connected = false; brokerIndex = 0;
+  document.getElementById('mainHud').style.display    = 'none';
+  document.getElementById('joinScreen').style.display = 'flex';
+  document.getElementById('roomInput').value = '';
+  document.getElementById('logPanel').innerHTML = '';
+}
+
+function joinRoom() {
+  const raw = document.getElementById('roomInput').value.trim().toUpperCase();
+  if (!raw) { alert('Please enter a Vehicle ID first.'); return; }
+
+  currentTopic  = TOPIC_PREFIX + raw;
+  stateReceived = false;
+  connected     = false;
+  brokerIndex   = 0;
+
+  document.getElementById('joinScreen').style.display   = 'none';
+  document.getElementById('mainHud').style.display      = 'flex';
+  document.getElementById('channelLabel').textContent   = raw;
+  document.getElementById('waitingOverlay').classList.add('show');
+  document.getElementById('lockBtn').disabled = true;
+
+  tryConnect();
+}
+
+function tryConnect() {
+  if (brokerIndex >= BROKERS.length) {
+    addLog('warn', 'All brokers failed. Check internet.');
+    setConnStatus('offline');
+    return;
+  }
+
+  const url = BROKERS[brokerIndex];
+  const host = url.replace(/wss?:\/\//, '').split(':')[0];
+  addLog('info', `Trying ${host}...`);
+  setConnStatus('connecting');
+
+  if (client) { try { client.end(true); } catch(e){} client = null; }
+
+  client = mqtt.connect(url, {
+    clientId:        'drivego_' + Math.random().toString(36).slice(2, 10),
+    clean:           true,
+    connectTimeout:  6000,
+    reconnectPeriod: 0,
+  });
+
+  const timer = setTimeout(() => {
+    if (!connected) {
+      addLog('warn', `Timeout on ${host}`);
+      try { client.end(true); } catch(e){}
+      brokerIndex++;
+      tryConnect();
+    }
+  }, 7000);
+
+  client.on('connect', () => {
+    clearTimeout(timer);
+    connected = true;
+    setConnStatus('connected');
+    addLog('info', `Connected via ${host}! Fetching state...`);
+
+    client.subscribe(currentTopic, { qos: 1 }, (err) => {
+      if (err) { addLog('warn', 'Subscribe error: ' + err.message); return; }
+      setTimeout(() => {
+        if (!stateReceived) {
+          addLog('warn', 'No prior state found — defaulting to LOCKED');
+          applyState(true, 'default');
+        }
+      }, 2000);
+    });
+  });
+
+  client.on('message', (topic, payload) => {
+    const msg = payload.toString();
+    if (msg === 'LOCKED')   applyState(true,  stateReceived ? 'remote' : 'retained');
+    if (msg === 'UNLOCKED') applyState(false, stateReceived ? 'remote' : 'retained');
+  });
+
+  client.on('error', (err) => {
+    clearTimeout(timer);
+    addLog('warn', `Error on ${host}: ${err.message}`);
+    try { client.end(true); } catch(e){}
+    brokerIndex++;
+    setTimeout(tryConnect, 500);
+  });
+
+  client.on('close', () => {
+    if (connected) {
+      connected = false;
+      setConnStatus('offline');
+      document.getElementById('lockBtn').disabled = true;
+      addLog('warn', 'Disconnected.');
+    }
+  });
+}
+
+function toggleLock() {
+  if (!client || !connected) return;
+  const payload = isLocked ? 'UNLOCKED' : 'LOCKED';
+  client.publish(currentTopic, payload, { qos: 1, retain: true });
+}
+
+function applyState(locked, source) {
+  if (!stateReceived) {
+    stateReceived = true;
+    document.getElementById('waitingOverlay').classList.remove('show');
+    document.getElementById('lockBtn').disabled = false;
+  }
+  isLocked = locked;
+  updateUI(locked);
+  spawnRing();
+  const label = { remote: '← from remote', retained: '← restored', default: '(safe default)' }[source] || source;
+  addLog('event', `${locked ? 'LOCKED' : 'UNLOCKED'} ${label}`, locked);
+}
+
+function updateUI(locked) {
+  const c  = locked ? '#00e5ff' : '#ff6b35';
+  const c2 = locked ? 'rgba(0,229,255,0.4)' : 'rgba(255,107,53,0.4)';
+  
+  document.body.style.setProperty('--glow-color', locked ? 'rgba(0,229,255,0.08)' : 'rgba(255,107,53,0.08)');
+  document.getElementById('carSvg').style.filter = `drop-shadow(0 0 25px ${c2})`;
+  
+  ['carBody','win1','win2','wl','wr','hlight'].forEach(id => {
+    const el = document.getElementById(id); 
+    if (el) el.setAttribute('stroke', c);
+  });
+  
+  // Wheels interior
+  document.querySelectorAll('#wl + circle, #wr + circle').forEach(el => {
+    el.setAttribute('stroke', c);
+    el.setAttribute('fill', locked ? 'rgba(0,229,255,0.05)' : 'rgba(255,107,53,0.05)');
+  });
+  document.querySelectorAll('#wl ~ circle:last-of-type, #wr ~ circle:last-of-type').forEach(el => {
+    el.setAttribute('fill', c);
+  });
+
+  // Lights
+  document.getElementById('hlight').setAttribute('fill', locked ? 'rgba(0,229,255,0.4)' : 'rgba(255,107,53,0.4)');
+  document.getElementById('beamStop1').setAttribute('stop-color', c);
+  document.getElementById('beamStop2').setAttribute('stop-color', c);
+  document.getElementById('glowStop1').setAttribute('stop-color', c);
+  document.getElementById('glowStop2').setAttribute('stop-color', c);
+
+  // Lock overlay on car
+  const lockIcon = document.getElementById('lockIcon');
+  lockIcon.querySelector('rect').setAttribute('stroke', c);
+  lockIcon.querySelector('rect').setAttribute('fill', locked ? 'rgba(0,229,255,0.2)' : 'rgba(255,107,53,0.2)');
+  lockIcon.querySelector('#lockShackle').setAttribute('stroke', c);
+  lockIcon.querySelector('#lockShackle').setAttribute('d',
+    locked ? 'M 5 8 L 5 4 C 5 -2, 19 -2, 19 4 L 19 8'
+           : 'M 5 8 L 5 0 C 5 -6, 19 -6, 19 0'
+  );
+  lockIcon.querySelector('#lockDot').setAttribute('fill', c);
+
+  document.getElementById('statusDot').className = 'status-dot' + (locked ? '' : ' unlocked');
+  document.querySelectorAll('.corner').forEach(el => {
+    const pos = ['tl','tr','bl','br'].find(p => el.classList.contains(p)) || '';
+    el.className = 'corner ' + pos + (locked ? '' : ' unlocked');
+  });
+  
+  document.getElementById('holoOverlay').className = 'holo-overlay' + (locked ? '' : ' unlocked');
+
+  document.getElementById('lockStateLabel').textContent = locked ? 'LOCKED' : 'UNLOCKED';
+  document.getElementById('statusSubtext').textContent  = locked ? 'vehicle secured & encrypted' : 'vehicle accessible';
+  document.getElementById('btnIcon').textContent  = locked ? '🔓' : '🔒';
+  document.getElementById('btnLabel').textContent = locked ? 'Unlock Vehicle' : 'Lock Vehicle';
+  
+  const btn = document.getElementById('lockBtn');
+  btn.className = 'lock-btn' + (locked ? '' : ' is-unlocked');
+  btn.style.borderColor = c; btn.style.color = c;
+}
+
+function spawnRing() {
+  const vis = document.getElementById('carVis');
+  const ring = document.createElement('div');
+  ring.className = 'lock-ring';
+  ring.style.borderColor = isLocked ? '#00e5ff' : '#ff6b35';
+  vis.appendChild(ring);
+  setTimeout(() => ring.remove(), 1600);
+}
+
+function setConnStatus(state) {
+  const dot = document.getElementById('statusDot'), badge = document.getElementById('connBadge');
+  if (state === 'connected')       { dot.className = 'status-dot'; badge.className = 'conn-badge connected'; badge.textContent = 'LIVE'; }
+  else if (state === 'connecting') { dot.className = 'status-dot connecting'; badge.className = 'conn-badge'; badge.textContent = 'CONNECTING'; }
+  else                             { dot.className = 'status-dot connecting'; badge.className = 'conn-badge'; badge.textContent = 'OFFLINE'; }
+}
+
+function addLog(type, msg, locked) {
+  const panel = document.getElementById('logPanel');
+  const line  = document.createElement('div');
+  line.className = 'log-line ' + type + (type === 'event' && locked === false ? ' unlock' : '');
+  line.innerHTML = `<span class="ts">${new Date().toTimeString().slice(0,8)}</span><span>${msg}</span>`;
+  panel.appendChild(line);
+  panel.scrollTop = panel.scrollHeight;
+  while (panel.children.length > 30) panel.removeChild(panel.firstChild);
+}
+
+document.getElementById('roomInput').addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
+</script>
+</body>
+</html>

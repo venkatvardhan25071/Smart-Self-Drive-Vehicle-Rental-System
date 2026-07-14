@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Tracking - DriveGO</title>
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""
+    />
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #111827; color: #e5e7eb; }
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 16px; }
+        .card { background: #1f2937; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+        select, button { padding: 10px; border-radius: 8px; border: 1px solid #374151; background: #111827; color: #e5e7eb; }
+        button { cursor: pointer; background: #2563eb; border: none; }
+        button:hover { background: #1d4ed8; }
+        #map { height: 430px; width: 100%; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { border-bottom: 1px solid #374151; padding: 10px; text-align: left; }
+        .high { color: #10b981; font-weight: bold; }
+        .medium { color: #f59e0b; font-weight: bold; }
+        .low { color: #f97316; font-weight: bold; }
+        .unavailable { color: #ef4444; font-weight: bold; }
+        .muted { color: #9ca3af; }
+    </style>
+<script>
+/* DriveGO Global Theme System */
+(function(){
+    var t = localStorage.getItem('drivego_theme') || 'light';
+    var resolved = (t === 'system') ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t;
+    document.documentElement.setAttribute('data-theme', resolved);
+})();
+</script>
+<style>
+/* === DriveGO Global Dark Mode === */
+[data-theme="dark"] body,
+[data-theme="dark"] .bg-main-mesh {
+    background-color: #0f172a !important;
+    background-image: none !important;
+    color: #e2e8f0 !important;
+}
+[data-theme="dark"] body::before {
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%) !important;
+}
+[data-theme="dark"] body::after { background: none !important; }
+[data-theme="dark"] .glass-panel,
+[data-theme="dark"] [class*="bg-white/4"],
+[data-theme="dark"] [class*="bg-white/5"],
+[data-theme="dark"] [class*="bg-white/6"],
+[data-theme="dark"] [class*="bg-white/3"] {
+    background: rgba(30,41,59,0.88) !important;
+    border-color: rgba(71,85,105,0.45) !important;
+}
+[data-theme="dark"] h1,[data-theme="dark"] h2,[data-theme="dark"] h3 { color: #f1f5f9 !important; }
+[data-theme="dark"] p,[data-theme="dark"] span:not([class*="text-sky"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-yellow"]) { color: inherit; }
+[data-theme="dark"] .text-slate-900 { color: #f1f5f9 !important; }
+[data-theme="dark"] .text-slate-800 { color: #e2e8f0 !important; }
+[data-theme="dark"] .text-slate-700 { color: #cbd5e1 !important; }
+[data-theme="dark"] .text-slate-600 { color: #94a3b8 !important; }
+[data-theme="dark"] .text-slate-500 { color: #64748b !important; }
+[data-theme="dark"] [class*="border-white/"] { border-color: rgba(71,85,105,0.4) !important; }
+[data-theme="dark"] input:not([type="submit"]):not([type="button"]),
+[data-theme="dark"] .input-box,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background: rgba(15,23,42,0.75) !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(71,85,105,0.6) !important;
+}
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder { color: #475569 !important; }
+[data-theme="dark"] header { background: rgba(15,23,42,0.92) !important; border-color: rgba(71,85,105,0.3) !important; }
+[data-theme="dark"] nav { background: rgba(15,23,42,0.9) !important; }
+[data-theme="dark"] .glass-nav,
+[data-theme="dark"] #nav-container { background: rgba(15,23,42,0.92) !important; border-color: rgba(71,85,105,0.3) !important; }
+[data-theme="dark"] label { color: #cbd5e1 !important; }
+[data-theme="dark"] .bg-white { background: #1e293b !important; }
+[data-theme="dark"] .bg-sky-50 { background: rgba(14,165,233,0.1) !important; }
+[data-theme="dark"] .bg-slate-100,
+[data-theme="dark"] .bg-slate-200 { background: rgba(30,41,59,0.7) !important; }
+[data-theme="dark"] :root {
+    --bg: #0f172a;
+    --glass: linear-gradient(135deg, rgba(30,41,59,0.88), rgba(15,23,42,0.75));
+    --border: rgba(71,85,105,0.45);
+    --border-highlight: rgba(100,116,139,0.6);
+    --card-bg: rgba(30,41,59,0.8);
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Smart Driver Location Tracking</h1>
+    <p class="muted">Select a place to see live vehicle availability signals on the map.</p>
+
+    <div class="card">
+        <form method="get" action="{% url 'location-tracking' %}">
+            <label for="hub"><strong>Select Place:</strong></label>
+            <select id="hub" name="hub" required>
+                <option value="">-- Choose Place --</option>
+                {% for hub in hubs %}
+                    <option value="{{ hub.id }}" {% if selected_hub and selected_hub.id == hub.id %}selected{% endif %}>
+                        {{ hub.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit">Show Availability</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div id="map"></div>
+    </div>
+
+    <div class="card">
+        <h3>Availability Signals{% if selected_hub %} - {{ selected_hub.name }}{% endif %}</h3>
+        {% if signals %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Vehicle</th>
+                        <th>Signal</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in signals %}
+                        <tr>
+                            <td>{{ s.vehicle.name }}</td>
+                            <td class="{{ s.signal }}">{{ s.signal|title }}</td>
+                            <td>{% if s.is_available %}Available{% else %}Not Available{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="muted">No signals to show. Select a place first or add data from admin.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+></script>
+<script>
+    const map = L.map('map').setView([20.5937, 78.9629], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const hubId = "{{ selected_hub.id|default:'' }}";
+    if (hubId) {
+        fetch(`/location-signals-api/?hub=${hubId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data.signals || !data.signals.length) return;
+
+                const first = data.signals[0];
+                map.setView([first.lat, first.lng], 13);
+
+                data.signals.forEach(item => {
+                    const status = item.is_available ? "Available" : "Not Available";
+                    const popup = `<strong>${item.vehicle_name}</strong><br/>Signal: ${item.signal}<br/>Status: ${status}`;
+                    L.marker([item.lat, item.lng]).addTo(map).bindPopup(popup);
+                });
+            })
+            .catch(() => {});
+    }
+</script>
+</body>
+</html>

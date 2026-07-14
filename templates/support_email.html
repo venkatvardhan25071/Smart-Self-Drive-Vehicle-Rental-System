@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Support - DriveGO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-glow: rgba(14, 165, 233, 0.3);
+            --bg-dark: #f0f9ff;
+            --card-dark: rgba(255, 255, 255, 0.4);
+            --border-color: rgba(255, 255, 255, 0.5);
+        }
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+              radial-gradient(at 0% 0%, hsla(199, 89%, 84%, 1) 0px, transparent 50%),
+              radial-gradient(at 100% 0%, hsla(187, 92%, 90%, 1) 0px, transparent 50%),
+              radial-gradient(at 100% 100%, hsla(217, 91%, 95%, 1) 0px, transparent 50%),
+              radial-gradient(at 0% 100%, hsla(199, 89%, 84%, 1) 0px, transparent 50%),
+              radial-gradient(at 50% 50%, hsla(210, 100%, 98%, 1) 0px, transparent 50%);
+            color: #1e293b;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: var(--card-dark);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        }
+        .input-box {
+            background: rgba(255,255,255,0.5);
+            border: 1px solid var(--border-color);
+            color: #1e293b;
+            transition: all 0.3s;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .input-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+    </style>
+<script>
+/* DriveGO Global Theme System */
+(function(){
+    var t = localStorage.getItem('drivego_theme') || 'light';
+    var resolved = (t === 'system') ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t;
+    document.documentElement.setAttribute('data-theme', resolved);
+})();
+</script>
+<style>
+/* === DriveGO Global Dark Mode === */
+[data-theme="dark"] body,
+[data-theme="dark"] .bg-main-mesh {
+    background-color: #0f172a !important;
+    background-image: none !important;
+    color: #e2e8f0 !important;
+}
+[data-theme="dark"] body::before {
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%) !important;
+}
+[data-theme="dark"] body::after { background: none !important; }
+[data-theme="dark"] .glass-panel,
+[data-theme="dark"] [class*="bg-white/4"],
+[data-theme="dark"] [class*="bg-white/5"],
+[data-theme="dark"] [class*="bg-white/6"],
+[data-theme="dark"] [class*="bg-white/3"] {
+    background: rgba(30,41,59,0.88) !important;
+    border-color: rgba(71,85,105,0.45) !important;
+}
+[data-theme="dark"] h1,[data-theme="dark"] h2,[data-theme="dark"] h3 { color: #f1f5f9 !important; }
+[data-theme="dark"] p,[data-theme="dark"] span:not([class*="text-sky"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-yellow"]) { color: inherit; }
+[data-theme="dark"] .text-slate-900 { color: #f1f5f9 !important; }
+[data-theme="dark"] .text-slate-800 { color: #e2e8f0 !important; }
+[data-theme="dark"] .text-slate-700 { color: #cbd5e1 !important; }
+[data-theme="dark"] .text-slate-600 { color: #94a3b8 !important; }
+[data-theme="dark"] .text-slate-500 { color: #64748b !important; }
+[data-theme="dark"] [class*="border-white/"] { border-color: rgba(71,85,105,0.4) !important; }
+[data-theme="dark"] input:not([type="submit"]):not([type="button"]),
+[data-theme="dark"] .input-box,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background: rgba(15,23,42,0.75) !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(71,85,105,0.6) !important;
+}
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder { color: #475569 !important; }
+[data-theme="dark"] header { background: rgba(15,23,42,0.92) !important; border-color: rgba(71,85,105,0.3) !important; }
+[data-theme="dark"] nav { background: rgba(15,23,42,0.9) !important; }
+[data-theme="dark"] .glass-nav,
+[data-theme="dark"] #nav-container { background: rgba(15,23,42,0.92) !important; border-color: rgba(71,85,105,0.3) !important; }
+[data-theme="dark"] label { color: #cbd5e1 !important; }
+[data-theme="dark"] .bg-white { background: #1e293b !important; }
+[data-theme="dark"] .bg-sky-50 { background: rgba(14,165,233,0.1) !important; }
+[data-theme="dark"] .bg-slate-100,
+[data-theme="dark"] .bg-slate-200 { background: rgba(30,41,59,0.7) !important; }
+[data-theme="dark"] :root {
+    --bg: #0f172a;
+    --glass: linear-gradient(135deg, rgba(30,41,59,0.88), rgba(15,23,42,0.75));
+    --border: rgba(71,85,105,0.45);
+    --border-highlight: rgba(100,116,139,0.6);
+    --card-bg: rgba(30,41,59,0.8);
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+}
+</style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    <!-- Abstract Background -->
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[10%] left-[20%] w-[500px] h-[500px] bg-[#bae6fd]/40 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="glass-panel w-full max-w-lg p-8 relative z-10">
+        <a href="{% url 'support' %}" class="absolute top-6 left-6 text-slate-500 hover:text-slate-800 transition">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        
+        <div class="text-center mb-8 mt-2">
+            <div class="w-16 h-16 bg-white/60 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/80 shadow-[0_4px_15px_rgba(14,165,233,0.15)]">
+                <span class="material-symbols-outlined text-[#0ea5e9] text-3xl">mail</span>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800">Email Support</h2>
+            <p class="text-sm text-slate-500 mt-2">We typically reply within 15 minutes.</p>
+        </div>
+
+        <form method="POST" action="{% url 'support_email' %}" class="space-y-5" onsubmit="alert('Email support ticket submitted! We will contact you shortly.');">
+            {% csrf_token %}
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Your Email</label>
+                <input type="email" name="email" required class="input-box w-full p-4 rounded-xl text-slate-800 font-medium" placeholder="you@example.com">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Subject</label>
+                <input type="text" name="subject" required class="input-box w-full p-4 rounded-xl text-slate-800 font-medium" placeholder="Brief subject of your issue">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Message</label>
+                <textarea name="message" rows="5" required class="input-box w-full p-4 rounded-xl resize-none text-slate-800 font-medium" placeholder="Explain your issue in detail..."></textarea>
+            </div>
+            <button type="submit" class="w-full bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-bold py-4 rounded-xl shadow-[0_4px_15px_rgba(14,165,233,0.3)] transition-all flex justify-center items-center gap-2">
+                <span class="material-symbols-outlined">send</span> Send Message
+            </button>
+        </form>
+    </div>
+</body>
+</html>

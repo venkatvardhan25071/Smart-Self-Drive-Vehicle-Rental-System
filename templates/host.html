@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earn with DriveGO - Host Vehicle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <style>
+        .bg-main-mesh {
+          background-color: #f0f9ff;
+          background-image: 
+            radial-gradient(at 0% 0%, hsla(199, 89%, 84%, 1) 0px, transparent 50%),
+            radial-gradient(at 100% 0%, hsla(187, 92%, 90%, 1) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, hsla(217, 91%, 95%, 1) 0px, transparent 50%),
+            radial-gradient(at 0% 100%, hsla(199, 89%, 84%, 1) 0px, transparent 50%),
+            radial-gradient(at 50% 50%, hsla(210, 100%, 98%, 1) 0px, transparent 50%);
+        }
+        :root {
+            --primary: #0ea5e9;
+            --primary-glow: rgba(14, 165, 233, 0.5);
+            --bg-dark: #f0f9ff;
+            --card-dark: rgba(255, 255, 255, 0.4);
+            --border-color: rgba(255, 255, 255, 0.5);
+        }
+        body {
+            background-color: var(--bg-dark);
+            color: #0f172a;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: var(--card-dark);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+        }
+        .input-box {
+            background: rgba(255,255,255,0.5);
+            border: 1px solid var(--border-color);
+            color: #0f172a;
+            transition: all 0.3s;
+        }
+        .input-box::placeholder { color: #64748b; }
+        .input-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+            background: rgba(255,255,255,0.8);
+        }
+        .type-btn {
+            background: rgba(255,255,255,0.5);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+            color: #64748b;
+        }
+        .type-btn:hover { background: rgba(255,255,255,0.8); }
+        .type-btn.active {
+            background: rgba(14, 165, 233, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+    </style>
+<script>
+/* DriveGO Global Theme System */
+(function(){
+    var t = localStorage.getItem('drivego_theme') || 'light';
+    var resolved = (t === 'system') ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t;
+    document.documentElement.setAttribute('data-theme', resolved);
+})();
+</script>
+<style>
+/* === DriveGO Global Dark Mode === */
+[data-theme="dark"] body,
+[data-theme="dark"] .bg-main-mesh {
+    background-color: #0f172a !important;
+    background-image: none !important;
+    color: #e2e8f0 !important;
+}
+[data-theme="dark"] body::before {
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%) !important;
+}
+[data-theme="dark"] body::after { background: none !important; }
+[data-theme="dark"] .glass-panel,
+[data-theme="dark"] [class*="bg-white/4"],
+[data-theme="dark"] [class*="bg-white/5"],
+[data-theme="dark"] [class*="bg-white/6"],
+[data-theme="dark"] [class*="bg-white/3"] {
+    background: rgba(30,41,59,0.88) !important;
+    border-color: rgba(71,85,105,0.45) !important;
+}
+[data-theme="dark"] h1,[data-theme="dark"] h2,[data-theme="dark"] h3 { color: #f1f5f9 !important; }
+[data-theme="dark"] p,[data-theme="dark"] span:not([class*="text-sky"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-yellow"]) { color: inherit; }
+[data-theme="dark"] .text-slate-900 { color: #f1f5f9 !important; }
+[data-theme="dark"] .text-slate-800 { color: #e2e8f0 !important; }
+[data-theme="dark"] .text-slate-700 { color: #cbd5e1 !important; }
+[data-theme="dark"] .text-slate-600 { color: #94a3b8 !important; }
+[data-theme="dark"] .text-slate-500 { color: #64748b !important; }
+[data-theme="dark"] [class*="border-white/"] { border-color: rgba(71,85,105,0.4) !important; }
+[data-theme="dark"] input:not([type="submit"]):not([type="button"]),
+[data-theme="dark"] .input-box,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background: rgba(15,23,42,0.75) !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(71,85,105,0.6) !important;
+}
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder { color: #475569 !important; }
+[data-theme="dark"] header { background: rgba(15,23,42,0.92) !important; border-color: rgba(71,85,105,0.3) !important; }
+[data-theme="dark"] nav { background: rgba(15,23,42,0.9) !important; }
+[data-theme="dark"] .glass-nav,
+[data-theme="dark"] #nav-container { background: rgba(15,23,42,0.92) !important; border-color: rgba(71,85,105,0.3) !important; }
+[data-theme="dark"] label { color: #cbd5e1 !important; }
+[data-theme="dark"] .bg-white { background: #1e293b !important; }
+[data-theme="dark"] .bg-sky-50 { background: rgba(14,165,233,0.1) !important; }
+[data-theme="dark"] .bg-slate-100,
+[data-theme="dark"] .bg-slate-200 { background: rgba(30,41,59,0.7) !important; }
+[data-theme="dark"] :root {
+    --bg: #0f172a;
+    --glass: linear-gradient(135deg, rgba(30,41,59,0.88), rgba(15,23,42,0.75));
+    --border: rgba(71,85,105,0.45);
+    --border-highlight: rgba(100,116,139,0.6);
+    --card-bg: rgba(30,41,59,0.8);
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+}
+</style>
+</head>
+<body class="min-h-screen py-10 px-4 bg-main-mesh">
+    <div class="max-w-2xl mx-auto glass-panel p-8 sm:p-12 relative">
+        <a href="{% url 'index' %}" class="absolute top-6 left-6 text-slate-500 hover:text-slate-900 transition-colors cursor-pointer flex items-center gap-1">
+            <span class="material-symbols-outlined">arrow_back_ios_new</span> Home
+        </a>
+
+        <div class="text-center mt-6 mb-10">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-sky-100 border border-sky-300 shadow-[0_0_25px_rgba(14,165,233,0.3)] mb-4">
+                <span class="material-symbols-outlined text-4xl text-sky-500">add_circle</span>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Earn with DriveGO</h1>
+            <p class="text-slate-600 mt-3 text-sm sm:text-base">Fill in the details below to list your vehicle on our platform and start earning today.</p>
+        </div>
+
+        <form method="POST" action="{% url 'host' %}" enctype="multipart/form-data" class="space-y-8" onsubmit="alert('Vehicle successfully submitted for review! We will contact you soon.');">
+            {% csrf_token %}
+            
+            <!-- Vehicle Type Selection -->
+            <div>
+                <label class="block text-sm font-bold text-slate-600 mb-3 uppercase tracking-wider">Vehicle Type</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <button type="button" onclick="setType('Car')" id="btn-car" class="type-btn active rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer">
+                        <span class="material-symbols-outlined text-3xl">directions_car</span>
+                        <span class="font-bold">Car</span>
+                    </button>
+                    <button type="button" onclick="setType('Bike')" id="btn-bike" class="type-btn rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer text-slate-500">
+                        <span class="material-symbols-outlined text-3xl">two_wheeler</span>
+                        <span class="font-bold">Bike</span>
+                    </button>
+                </div>
+                <input type="hidden" name="vehicle_type" id="vehicle_type" value="Car">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Brand / Make</label>
+                    <input type="text" name="brand" required class="input-box w-full p-4 rounded-xl" placeholder="e.g. Hyundai, Honda">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Model Name</label>
+                    <input type="text" name="model_name" required class="input-box w-full p-4 rounded-xl" placeholder="e.g. Creta, Activa 6G">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Registration Number</label>
+                    <input type="text" name="registration_number" required class="input-box w-full p-4 rounded-xl uppercase" placeholder="e.g. MH 01 AB 1234">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Rental Price (per day)</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">₹</span>
+                        <input type="number" name="rental_price" required class="input-box w-full p-4 pl-10 rounded-xl" placeholder="2500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Zone -->
+            <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Vehicle Photo</label>
+                <label class="block w-full bg-white/40 border-2 border-dashed border-sky-300 rounded-xl p-8 text-center cursor-pointer hover:bg-white/60 transition-colors group">
+                    <div class="w-16 h-16 rounded-full bg-sky-100 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform shadow-sm">
+                        <span id="upload-icon" class="material-symbols-outlined text-3xl text-sky-500">add_a_photo</span>
+                    </div>
+                    <p id="upload-text" class="text-slate-700 font-semibold">Click to upload or drag and drop</p>
+                    <p class="text-xs text-slate-500 mt-2">PNG, JPG up to 5MB</p>
+                    <input type="file" name="vehicle_photo" class="hidden" accept="image/*" onchange="updatePhotoText(this)">
+                </label>
+            </div>
+
+            <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold text-lg py-5 rounded-xl shadow-[0_5px_20px_rgba(14,165,233,0.3)] transition-all flex justify-center items-center gap-2 mt-4">
+                Host Vehicle <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        function setType(type) {
+            document.getElementById('vehicle_type').value = type;
+            
+            const btnCar = document.getElementById('btn-car');
+            const btnBike = document.getElementById('btn-bike');
+            
+            if (type === 'Car') {
+                btnCar.classList.add('active');
+                btnCar.classList.remove('text-slate-400');
+                btnBike.classList.remove('active');
+                btnBike.classList.add('text-slate-400');
+            } else {
+                btnBike.classList.add('active');
+                btnBike.classList.remove('text-slate-400');
+                btnCar.classList.remove('active');
+                btnCar.classList.add('text-slate-400');
+            }
+        }
+
+        function updatePhotoText(input) {
+            if (input.files && input.files.length > 0) {
+                document.getElementById('upload-text').innerText = input.files[0].name;
+                document.getElementById('upload-text').classList.add('text-[#13a4ec]');
+                const icon = document.getElementById('upload-icon');
+                icon.innerText = "check_circle";
+                icon.classList.add("text-green-500");
+                icon.classList.remove("text-[#13a4ec]");
+            }
+        }
+    </script>
+</body>
+</html>

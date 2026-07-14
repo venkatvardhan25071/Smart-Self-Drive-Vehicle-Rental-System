@@ -1,0 +1,158 @@
+
+
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveGO Navbar</title>
+    
+    
+    <!-- Fonts and Icons from your new example -->
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    
+    <!-- Load Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- Custom Tailwind CSS Configuration from your new example -->
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-start": "#13a4ec",
+                        "primary-end": "#0b8bc7",
+                        "background-dark": "#121212",
+                        "card-dark": "#1e1e1e",
+                        "slate": {
+                            200: '#e2e8f0',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                        }
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "xl": "1rem",
+                    },
+                    boxShadow: {
+                        'primary-glow': '0 0 15px 2px rgba(19, 164, 236, 0.4)',
+                    }
+                },
+            },
+        }
+    </script>
+
+    <style>
+        /* Style for the mobile menu transition */
+        #mobile-menu {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        /* Style for Material Icons */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            /* Fix for icon vertical alignment */
+            line-height: 1; 
+        }
+    </style>
+</head>
+<body class="bg-background-dark font-display text-slate-200">
+
+    <!-- 
+      Navbar Component
+      - Styled using the classes and config from your new example.
+      - Dark, blurred, sticky background.
+    -->
+    <header class="bg-card-dark/80 backdrop-blur-sm sticky top-0 z-50 shadow-lg shadow-black/20">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                
+                <!-- Gradient Logo -->
+                <a href="#" class="text-3xl font-extrabold">
+                    <span class="text-white">Drive</span><span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-start to-primary-end">GO</span>
+                </a>
+
+                <!-- Mobile Menu Button (Hamburger) -->
+                <!-- Hidden on medium screens and up (md:hidden) -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-white focus:outline-none">
+                        <!-- Using Material Icon for style consistency -->
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
+                </div>
+
+                <!-- Desktop Navigation Links -->
+                <!-- Hidden on small screens (hidden), flex on medium and up (md:flex) -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <!-- "Host" Button: Styled like "Become a Host" -->
+                    <a href="#" class="border-2 border-primary-start text-primary-start font-bold py-2 px-5 rounded-full hover:bg-primary-start hover:text-white hover:shadow-primary-glow transition-all duration-300 ease-in-out">
+                        Host
+                    </a>
+                    <!-- "Login" Button: New style matching the theme -->
+                    <a href="#" class="border-2 border-slate-500/50 text-slate-200 font-bold py-2 px-5 rounded-full hover:bg-slate-200 hover:text-card-dark transition-all duration-300 ease-in-out">
+                        Login
+                    </a>
+                    <!-- "Signup" Button: Styled like "Logout" -->
+                    <a href="#" class="bg-gradient-to-r from-primary-start to-primary-end text-white font-bold py-2 px-5 rounded-full hover:shadow-primary-glow hover:scale-105 transform transition-all duration-300 ease-in-out">
+                        Signup
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Mobile Menu (Dropdown) -->
+        <!-- Hidden by default, toggled with JS -->
+        <div id="mobile-menu" class="md:hidden hidden bg-card-dark opacity-0 transform -translate-y-2">
+            <div class="flex flex-col items-center space-y-4 py-4 px-4">
+                <a href="#" class="block text-primary-start font-bold py-2 px-4 rounded-full hover:bg-primary-start/10 w-full text-center">
+                    Host
+                </a>
+                <a href="#" class="block text-slate-200 font-bold py-2 px-4 rounded-full hover:bg-white/10 w-full text-center">
+                    Login
+                </a>
+                <a href="#" class="block bg-gradient-to-r from-primary-start to-primary-end text-white font-bold py-2 px-5 rounded-full hover:shadow-primary-glow w-full text-center">
+                    Signup
+                </a>
+            </div>
+        </div>
+    </header>
+    {% block content %} {% endblock %}
+
+    <!-- Simple script to toggle the mobile menu -->
+    <script>
+        const menuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        menuButton.addEventListener('click', () => {
+            const isHidden = mobileMenu.classList.contains('hidden');
+            
+            if (isHidden) {
+                // Show menu
+                mobileMenu.classList.remove('hidden');
+                // Use setTimeout to allow the 'hidden' class to be removed before starting transition
+                setTimeout(() => {
+                    mobileMenu.classList.remove('opacity-0', '-translate-y-2');
+                    mobileMenu.classList.add('opacity-100', 'translate-y-0');
+                }, 10);
+            } else {
+                // Hide menu
+                mobileMenu.classList.add('opacity-0', '-translate-y-2');
+                mobileMenu.classList.remove('opacity-100', 'translate-y-0');
+                // Wait for transition to finish before adding 'hidden'
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                }, 300); // 300ms matches the transition duration
+            }
+        });
+    </script>
+    
+    
+
+
+</body>
+</html>

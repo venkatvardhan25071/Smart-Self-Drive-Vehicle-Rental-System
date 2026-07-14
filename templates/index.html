@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DriveGO - Futuristic Vehicle Rental</title>
+<!-- Apply saved theme to prevent flash -->
+<script>(function(){var t=localStorage.getItem('drivego_theme')||'light';document.documentElement.setAttribute('data-theme',t==='system'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t);})();</script>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+/* ── Dark Mode: Page background ── */
+[data-theme="dark"] .bg-main-mesh { background-color: #0f172a !important; background-image: none !important; }
+[data-theme="dark"] body { color: #e2e8f0 !important; }
+/* DriveGO Logo GO color */
+.logo-go { color: #0f172a; font-style: italic; }
+[data-theme="dark"] .logo-go { color: #ffffff; }
+/* ── Dark Mode: Top header nav ── */
+[data-theme="dark"] .glass-nav,
+[data-theme="dark"] #nav-container {
+    background: rgba(10,15,28,0.92) !important;
+    border-color: rgba(71,85,105,0.4) !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+    backdrop-filter: blur(24px) !important;
+}
+/* Top nav pill container */
+[data-theme="dark"] nav.hidden.lg\:flex {
+    background: rgba(30,41,59,0.7) !important;
+    border-color: rgba(71,85,105,0.45) !important;
+}
+/* Nav link text in dark */
+[data-theme="dark"] .nav-link {
+    color: #94a3b8 !important;
+}
+[data-theme="dark"] .nav-link:hover {
+    background: rgba(14,165,233,0.15) !important;
+    color: #38bdf8 !important;
+}
+[data-theme="dark"] .nav-link.active {
+    background: rgba(14,165,233,0.2) !important;
+    color: #38bdf8 !important;
+    box-shadow: 0 0 12px rgba(14,165,233,0.25), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+}
+/* Header action links */
+[data-theme="dark"] .text-slate-800,
+[data-theme="dark"] .text-slate-700 { color: #e2e8f0 !important; }
+[data-theme="dark"] .text-slate-600 { color: #94a3b8 !important; }
+/* ── Dark Mode: Vehicle cards ── */
+[data-theme="dark"] .pro-glass-card {
+    background: rgba(20,30,50,0.7) !important;
+    border-color: rgba(71,85,105,0.4) !important;
+}
+[data-theme="dark"] .pro-glass-banner { background: rgba(10,20,40,0.7) !important; }
+
+/* ── Dark Mode: BOTTOM NAVIGATION ── */
+/* The nav bar itself */
+[data-theme="dark"] footer nav[data-purpose="floating-nav"] {
+    background: rgba(10,15,28,0.92) !important;
+    border-color: rgba(71,85,105,0.5) !important;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(71,85,105,0.3), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+    backdrop-filter: blur(28px) !important;
+}
+/* Inactive bottom nav icons & labels */
+[data-theme="dark"] footer nav[data-purpose="floating-nav"] a:not(.bg-sky-500) {
+    color: #94a3b8 !important;
+}
+[data-theme="dark"] footer nav[data-purpose="floating-nav"] a:not(.bg-sky-500):hover {
+    color: #38bdf8 !important;
+    background: rgba(14,165,233,0.12) !important;
+}
+/* Active bottom nav tab */
+[data-theme="dark"] footer nav[data-purpose="floating-nav"] a.bg-sky-500 {
+    background: linear-gradient(135deg, #0ea5e9, #3b82f6) !important;
+    box-shadow: 0 0 20px rgba(14,165,233,0.5), 0 4px 12px rgba(0,0,0,0.3) !important;
+    color: #fff !important;
+}
+/* Mobile menu dark */
+[data-theme="dark"] #mobile-menu-dropdown {
+    background: rgba(10,15,28,0.97) !important;
+    border-color: rgba(71,85,105,0.4) !important;
+}
+[data-theme="dark"] #mobile-menu-dropdown a {
+    color: #94a3b8 !important;
+}
+[data-theme="dark"] #mobile-menu-dropdown a:first-child,
+[data-theme="dark"] #mobile-menu-dropdown a.bg-white\/60 {
+    background: rgba(30,41,59,0.8) !important;
+    border-color: rgba(71,85,105,0.4) !important;
+    color: #e2e8f0 !important;
+}
+[data-theme="dark"] #mobile-menu-dropdown a:hover {
+    background: rgba(14,165,233,0.12) !important;
+    color: #38bdf8 !important;
+}
+[data-theme="dark"] .h-px.bg-slate-200\/60 {
+    background: rgba(71,85,105,0.4) !important;
+}
+/* Mobile toggle button */
+[data-theme="dark"] #mobile-menu-btn {
+    background: rgba(30,41,59,0.85) !important;
+    border-color: rgba(71,85,105,0.5) !important;
+    color: #94a3b8 !important;
+}
+/* Search bar dark */
+[data-theme="dark"] .glass-morphism {
+    background: rgba(20,30,50,0.75) !important;
+    border-color: rgba(71,85,105,0.5) !important;
+}
+[data-theme="dark"] input.bg-transparent { color: #e2e8f0 !important; }
+[data-theme="dark"] input.bg-transparent::placeholder { color: #475569 !important; }
+
+/* ── Dark Mode: Chatbox ── */
+[data-theme="dark"] #dg-chatbox {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(71,85,105,0.4) !important;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.5), 0 2px 8px rgba(14,165,233,0.2) !important;
+  backdrop-filter: blur(16px);
+}
+[data-theme="dark"] .dgcb-header { border-bottom: 1px solid rgba(71,85,105,0.4) !important; }
+[data-theme="dark"] .dgcb-header-title { color: #e2e8f0 !important; }
+[data-theme="dark"] .dgcb-close { color: #94a3b8 !important; }
+[data-theme="dark"] .dgcb-close:hover { background: rgba(71,85,105,0.4) !important; color: #e2e8f0 !important; }
+[data-theme="dark"] .dgcb-messages { background: linear-gradient(180deg, rgba(15, 23, 42, 0.8) 0%, rgba(10, 15, 28, 0.8) 100%) !important; }
+[data-theme="dark"] .dgcb-bubble { background: rgba(30, 41, 59, 0.8) !important; color: #e2e8f0 !important; border: 1px solid rgba(71,85,105,0.3) !important; box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important; }
+[data-theme="dark"] .dgcb-bubble.user { background: linear-gradient(135deg, #0ea5e9, #0284c7) !important; color: #fff !important; border: none !important; }
+[data-theme="dark"] .dgcb-footer { background: rgba(15, 23, 42, 0.95) !important; border-top: 1px solid rgba(71,85,105,0.4) !important; }
+[data-theme="dark"] .dgcb-footer input { color: #e2e8f0 !important; }
+[data-theme="dark"] .dgcb-footer input::placeholder { color: #64748b !important; }
+</style>
+<!-- Google Fonts for a clean, modern look -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style data-purpose="custom-configuration">
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    /* Glassmorphism utility for the bluish aesthetic */
+    .glass-morphism {
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .glass-morphism-dark {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .glass-nav {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-nav.scrolled {
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 10px 40px -10px rgba(0,0,0,0.1);
+      border-color: rgba(255, 255, 255, 0.8);
+      transform: translateY(-4px);
+    }
+    .nav-link.active {
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    @keyframes shimmer {
+      100% { transform: translateX(100%); }
+    }
+    .animate-shimmer {
+      animation: shimmer 2s infinite;
+    }
+    
+    /* ══════ ULTIMATE 3D NEON TOGGLE ══════ */
+    .admin-toggle-wrapper {
+      position: fixed;
+      top: 25px;
+      left: 25px;
+      z-index: 9999;
+      perspective: 1200px;
+    }
+    .admin-toggle-btn {
+      width: 60px;
+      height: 60px;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform-style: preserve-3d;
+      box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.3),
+        inset 0 0 20px rgba(14, 165, 233, 0.1);
+      overflow: hidden;
+    }
+    .admin-toggle-btn::before {
+      content: '';
+      position: absolute;
+      inset: -50%;
+      background: conic-gradient(from 0deg, transparent, rgba(14, 165, 233, 0.3), transparent 60%);
+      animation: rotate-neon 4s linear infinite;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    @keyframes rotate-neon {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .admin-toggle-btn:hover {
+      transform: rotateX(15deg) rotateY(20deg) scale(1.1);
+      border-color: rgba(14, 165, 233, 0.5);
+      box-shadow: 
+        -15px 20px 50px rgba(0, 0, 0, 0.4),
+        0 0 30px rgba(14, 165, 233, 0.4),
+        inset 0 0 30px rgba(14, 165, 233, 0.2);
+    }
+    .admin-toggle-btn:hover::before {
+      opacity: 1;
+    }
+    .admin-toggle-btn svg {
+      width: 32px;
+      height: 32px;
+      fill: #e2e8f0;
+      filter: drop-shadow(0 0 10px rgba(14, 165, 233, 0.8));
+      transition: all 0.5s ease;
+      transform: translateZ(30px);
+      z-index: 2;
+    }
+    .admin-toggle-btn:hover svg {
+      fill: #38bdf8;
+      transform: translateZ(50px) scale(1.2);
+    }
+    .admin-toggle-btn:active {
+      transform: scale(0.9) translateZ(0);
+    }
+    
+    /* Core Glow Pulse */
+    @keyframes core-pulse {
+      0%, 100% { opacity: 0.4; transform: translateZ(10px) scale(1); }
+      50% { opacity: 0.8; transform: translateZ(15px) scale(1.1); }
+    }
+    .admin-toggle-btn .core-glow {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: radial-gradient(circle, rgba(14, 165, 233, 0.4) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: core-pulse 3s ease-in-out infinite;
+      z-index: 1;
+    }
+  </style>
+<style data-purpose="page-background">
+    /* Futuristic Bluish Glass Background */
+    .bg-main-mesh {
+      background-color: #f0f9ff;
+      background-image: 
+        radial-gradient(at 0% 0%, hsla(199, 89%, 84%, 1) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(187, 92%, 90%, 1) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, hsla(217, 91%, 95%, 1) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, hsla(199, 89%, 84%, 1) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, hsla(210, 100%, 98%, 1) 0px, transparent 50%);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Floating blobs for depth */
+    .bg-blob {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: -1;
+      opacity: 0.4;
+    }
+    .blob-1 { top: -10%; left: -10%; background: #bae6fd; }
+    .blob-2 { bottom: -10%; right: -10%; background: #7dd3fc; }
+  </style>
+<style data-purpose="card-3d-effects">
+    /* 3D-effect glassmorphic background for vehicle cards */
+    .pro-glass-card {
+      position: relative;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 2rem;
+      transition: box-shadow 0.4s ease, border-color 0.4s ease, background 0.4s ease, transform 0.1s ease-out;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    
+    .pro-glass-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .pro-glass-card:hover {
+      box-shadow: 0 25px 40px -15px rgba(14, 165, 233, 0.5), 0 0 25px rgba(14, 165, 233, 0.3);
+      border-color: rgba(14, 165, 233, 0.6);
+      background: rgba(14, 165, 233, 0.1);
+    }
+
+    .pro-glass-card:hover::before {
+      opacity: 1;
+    }
+
+    /* Active click pop animation */
+    .pro-glass-card:active {
+      transform: perspective(1000px) rotateX(0) rotateY(0) scale3d(0.95, 0.95, 0.95) !important;
+      box-shadow: 0 5px 10px rgba(14, 165, 233, 0.2);
+    }
+
+    .vehicle-image-container {
+      position: relative;
+      z-index: 2;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .pro-glass-card:hover .vehicle-image-container {
+      transform: translateZ(40px) scale(1.05);
+    }
+
+    .vehicle-image-glow {
+      filter: drop-shadow(0 20px 20px rgba(0, 0, 0, 0.2));
+      transition: filter 0.4s ease;
+    }
+
+    .pro-glass-card:hover .vehicle-image-glow {
+      filter: drop-shadow(0 25px 25px rgba(14, 165, 233, 0.6));
+    }
+
+    .card-label-glass {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(8px);
+      padding: 16px 20px;
+      transform: translateY(100%) translateZ(20px);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 3;
+      border-top: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .pro-glass-card:hover .card-label-glass {
+      transform: translateY(0) translateZ(20px);
+    }
+    
+    .card-category {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #38bdf8;
+      font-weight: 800;
+      margin-bottom: 2px;
+      display: block;
+    }
+    
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Subtle background circle for depth */
+    .depth-circle {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 150px; height: 150px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(14,165,233,0.15) 0%, rgba(255,255,255,0) 70%);
+      z-index: 0;
+      transition: all 0.5s ease;
+    }
+    .pro-glass-card:hover .depth-circle {
+      width: 250px; height: 250px;
+      background: radial-gradient(circle, rgba(14,165,233,0.4) 0%, rgba(255,255,255,0) 70%);
+    }
+
+    /* Pro Glass Banner Styles */
+    .pro-glass-banner {
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: box-shadow 0.4s ease, border-color 0.4s ease, transform 0.1s ease-out;
+      transform-style: preserve-3d;
+      will-change: transform;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+    .pro-glass-banner:hover {
+      box-shadow: 0 30px 60px -15px rgba(14, 165, 233, 0.5), 0 0 40px rgba(14, 165, 233, 0.2);
+      border-color: rgba(14, 165, 233, 0.5);
+    }
+    .banner-content-3d {
+      transform: translateZ(40px);
+      transition: transform 0.4s ease;
+      transform-style: preserve-3d;
+    }
+    .pro-glass-banner:hover .banner-content-3d {
+      transform: translateZ(60px);
+    }
+    .floating-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(50px);
+      animation: float-orb 6s infinite ease-in-out alternate;
+      z-index: 0;
+      opacity: 0.4;
+    }
+    @keyframes float-orb {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(40px, -40px) scale(1.3); }
+    }
+  </style>
+<style data-purpose="loader">
+  /* Advanced Glassmorphic Loader */
+  #global-loader {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
+  }
+  .loader-core {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .loader-ring-outer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-top-color: #0ea5e9;
+    border-right-color: #0ea5e9;
+    animation: spin-smooth 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+    filter: drop-shadow(0 0 10px rgba(14, 165, 233, 0.6));
+  }
+  .loader-ring-inner {
+    position: absolute;
+    width: 75%;
+    height: 75%;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-bottom-color: #a855f7;
+    border-left-color: #a855f7;
+    animation: spin-smooth-reverse 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+    filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.6));
+  }
+  .loader-text-pro {
+    position: absolute;
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, #e0f2fe 0%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: pulse-glow-text 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.4));
+  }
+  @keyframes spin-smooth { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  @keyframes spin-smooth-reverse { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
+  @keyframes pulse-glow-text { 0%, 100% { opacity: 0.6; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.05); } }
+  
+
+  .logo-glow {
+      background: linear-gradient(135deg, #38bdf8 0%, #e0f2fe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.5));
+      animation: logo-pulse-glow 2.5s infinite alternate;
+      display: inline-block;
+  }
+  @keyframes logo-pulse-glow {
+      0% { filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.3)); transform: scale(1); }
+      100% { filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.8)); transform: scale(1.02); }
+  }
+
+  /* --- SIRI NAV STYLES --- */
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,900;1,900&display=swap');
+
+  :root {
+      --siri-gradient: conic-gradient(from 0deg, #38bdf8, #ffffff, #0ea5e9, #e0f2fe, #38bdf8);
+  }
+
+  .nav-anchor {
+      position: absolute;
+      top: 0;
+      left: max(0px, calc(50% - 500px));
+      display: flex;
+      align-items: center;
+      z-index: 1000;
+      perspective: 2000px;
+  }
+
+  .siri-glow-border {
+      position: absolute;
+      inset: -3px;
+      border-radius: 100px;
+      padding: 3px;
+      background: var(--siri-gradient);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      pointer-events: none;
+  }
+
+  .siri-outer-aura {
+      position: absolute;
+      inset: -5px;
+      border-radius: 100px;
+      background: var(--siri-gradient);
+      filter: blur(15px);
+      opacity: 0;
+      transition: opacity 1s ease;
+      pointer-events: none;
+  }
+
+  .expanded .siri-glow-border {
+      opacity: 1;
+      animation: rotateGlow 4s linear infinite;
+  }
+
+  .expanded .siri-outer-aura {
+      opacity: 0.4;
+      animation: rotateGlow 4s linear infinite;
+  }
+
+  @keyframes rotateGlow {
+      from { filter: hue-rotate(0deg); }
+      to { filter: hue-rotate(360deg); }
+  }
+
+  @keyframes flowGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+  }
+
+  .nav-shell {
+      position: relative;
+      background: linear-gradient(270deg, rgba(255, 255, 255, 0.6), rgba(14, 165, 233, 0.3), rgba(255, 255, 255, 0.7), rgba(56, 189, 248, 0.4));
+      background-size: 300% 300%;
+      animation: flowGradient 8s ease infinite;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 100px;
+      height: 56px;
+      width: 180px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+      transform-style: preserve-3d;
+      box-shadow: 0 8px 32px rgba(31,38,135,0.05);
+      overflow: visible;
+      z-index: 10;
+  }
+
+  .expanded .nav-shell {
+      width: 1000px;
+      max-width: calc(100vw - 32px);
+      background: linear-gradient(270deg, rgba(255, 255, 255, 0.7), rgba(14, 165, 233, 0.4), rgba(255, 255, 255, 0.8), rgba(56, 189, 248, 0.5));
+      background-size: 300% 300%;
+      animation: flowGradient 8s ease infinite;
+      overflow: visible;
+  }
+
+  .logo-box {
+      display: flex;
+      align-items: center;
+      padding-left: 20px;
+      min-width: 160px;
+      z-index: 100;
+  }
+
+  .nav-links {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -40%);
+      display: flex;
+      gap: 0.8rem;
+      opacity: 0;
+      transition: all 0.6s ease;
+      pointer-events: none;
+      white-space: nowrap;
+  }
+
+  .expanded .nav-links {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+      transition-delay: 0.2s;
+  }
+
+  .pro-btn {
+      padding: 10px 16px;
+      border-radius: 50px;
+      color: #475569; 
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s;
+      text-decoration: none;
+  }
+
+  .pro-btn:hover {
+      background: rgba(255, 255, 255, 0.6); 
+      box-shadow: 0 8px 24px rgba(14, 165, 233, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(14, 165, 233, 0.2);
+      color: #0284c7;
+      transform: translateY(-2px);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+  }
+
+  .account-zone {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-left: auto;
+      padding-right: 20px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+  }
+
+  .expanded .account-zone { opacity: 1; transition-delay: 0.4s; }
+
+  .profile-img-container {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      border: 2px solid #f1f5f9;
+      background: white;
+      overflow: hidden;
+      cursor: pointer;
+  }
+  
+  [data-theme="dark"] .nav-shell {
+      background: linear-gradient(270deg, rgba(10, 15, 28, 0.85), rgba(14, 165, 233, 0.2), rgba(10, 15, 28, 0.9), rgba(56, 189, 248, 0.15));
+      background-size: 300% 300%;
+      animation: flowGradient 8s ease infinite;
+      border-color: rgba(71, 85, 105, 0.4);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+  [data-theme="dark"] .expanded .nav-shell {
+      background: linear-gradient(270deg, rgba(10, 15, 28, 0.9), rgba(14, 165, 233, 0.25), rgba(10, 15, 28, 0.95), rgba(56, 189, 248, 0.2));
+      background-size: 300% 300%;
+      animation: flowGradient 8s ease infinite;
+  }
+  [data-theme="dark"] .pro-btn {
+      color: #94a3b8;
+  }
+  [data-theme="dark"] .pro-btn:hover {
+      color: #38bdf8;
+      background: rgba(14, 165, 233, 0.25);
+      box-shadow: 0 8px 24px rgba(14, 165, 233, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+  }
+  [data-theme="dark"] .account-zone a {
+      color: #94a3b8;
+  }
+  [data-theme="dark"] .profile-img-container {
+      border-color: #334155;
+      background: #1e293b;
+  }
+  [data-theme="dark"] .text-go,
+  [data-theme="dark"] .car-swoosh {
+      fill: #ffffff !important;
+  }
+</style>
+</head>
+<body class="bg-main-mesh text-slate-800">
+<div class="admin-toggle-wrapper">
+    <a href="/admin/" class="admin-toggle-btn" id="admin-toggle">
+        <div class="core-glow"></div>
+        <!-- Futuristic Cyber Icon (CPU/Chip) -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 9H9v6h6V9zm-2 4h-2v-2h2v2zm8-2V9h-2V7c0-1.1-.9-2-2-2h-2V3h-2v2h-2V3H9v2H7c-1.1 0-2 .9-2 2v2H3v2h2v2H3v2h2v2c0 1.1.9 2 2 2h2v2h2v-2h2v2h2v-2h2c1.1 0 2-.9 2-2v-2h2v-2h-2v-2h2zm-4 6H7V7h10v10z"/>
+        </svg>
+    </a>
+</div>
+<div id="global-loader">
+  <div class="loader-core">
+    <div class="loader-ring-outer"></div>
+    <div class="loader-ring-inner"></div>
+    <div class="loader-text-pro">DriveGO</div>
+  </div>
+</div>
+<script>
+  window.addEventListener('load', function() {
+    const loader = document.getElementById('global-loader');
+    setTimeout(() => {
+        loader.style.opacity = '0';
+        setTimeout(() => { loader.style.visibility = 'hidden'; }, 600);
+    }, 100); // Fast display
+  });
+</script>
+<!-- Background Decorative Blobs -->
+<div class="bg-blob blob-1"></div>
+<div class="bg-blob blob-2"></div>
+<!-- BEGIN: MainHeader -->
+<header id="main-header" class="fixed top-4 left-0 right-0 z-[1000] px-4 md:px-12 pointer-events-none">
+    <div class="w-full mx-auto relative h-[72px] px-4 md:px-8 lg:px-12">
+        <div class="nav-anchor pointer-events-auto" id="anchor">
+            <div class="siri-outer-aura"></div>
+            <div class="siri-glow-border"></div>
+
+            <nav class="nav-shell" id="nav" onclick="if(!isExpanded) toggleMenu()">
+                <div class="logo-box" onclick="if(isExpanded) { toggleMenu(); event.stopPropagation(); }">
+                    <!-- Flawless Unified SVG Logo with Double-Swoosh and Italic GO -->
+                    <svg width="160" height="40" viewBox="0 0 240 60" xmlns="http://www.w3.org/2000/svg">
+                        <style>
+                            .text-drive {
+                                font-family: 'Montserrat', sans-serif;
+                                font-weight: 900;
+                                font-style: italic;
+                                font-size: 40px;
+                                fill: #1BA1E2;
+                                letter-spacing: -2px;
+                            }
+                        .text-go {
+                            font-family: 'Montserrat', sans-serif;
+                                font-weight: 900;
+                                font-style: italic;
+                                font-size: 46px;
+                                fill: #1E293B;
+                                letter-spacing: -1px;
+                            }
+                        </style>
+                        
+                        <text x="2" y="52" class="text-drive">Drive</text>
+                        <text x="98" y="52" class="text-go">GO.</text>
+                        
+                        <!-- Aerodynamic Double-Swoosh Car Outline -->
+                        <g transform="translate(92, 4) scale(0.52)">
+                            <!-- Left Swoosh -->
+                            <path class="car-swoosh" d="M 10 38 
+                                     C 8 20, 25 8, 45 4 
+                                     C 70 0, 95 5, 115 15 
+                                     C 125 20, 130 25, 135 30 
+                                     C 125 25, 115 20, 100 16 
+                                     C 80 10, 55 10, 35 18 
+                                     C 22 23, 15 30, 10 38 Z" 
+                                  fill="#1E293B"/>
+                            <!-- Right Swoosh -->
+                            <path class="car-swoosh" d="M 90 22 
+                                     C 105 15, 125 15, 150 20 
+                                     C 165 23, 175 28, 180 40 
+                                     C 173 34, 160 27, 145 23 
+                                     C 125 18, 105 18, 90 22 Z" 
+                                  fill="#1E293B"/>
+                        </g>
+                    </svg>
+                </div>
+
+                <div class="nav-links">
+                    <a href="{% url 'index' %}" class="pro-btn" onclick="event.stopPropagation()">Home</a>
+                    <a href="{% url 'vehicles' %}" class="pro-btn" onclick="event.stopPropagation()">Vehicles</a>
+                    <a href="{% url 'Services' %}" class="pro-btn" onclick="event.stopPropagation()">Services</a>
+                </div>
+
+                <div class="account-zone">
+                    <a href="{% url 'host' %}" class="pro-btn mr-2" onclick="event.stopPropagation()">Host</a>
+                    {% if request.user.is_authenticated and not request.user.is_superuser %}
+                    <a href="{% url 'logout' %}" onclick="event.stopPropagation()" class="text-[10px] text-slate-400 font-bold transition-all duration-300 tracking-widest uppercase ml-2 px-3 py-1.5 rounded-full hover:bg-red-500/15 hover:text-red-500 hover:shadow-[0_4px_12px_rgba(239,68,68,0.2)] hover:border-red-500/30 border border-transparent border-t-white/30 hover:-translate-y-0.5">Logout</a>
+                    <div class="relative group cursor-pointer" onclick="window.location.href='{% url 'account' %}'; event.stopPropagation();">
+                        <div class="profile-img-container">
+                            {% if request.user.userprofile.profile_picture %}
+                              <img src="{{ request.user.userprofile.profile_picture.url }}" alt="avatar" class="w-full h-full object-cover" />
+                            {% else %}
+                              <div class="w-full h-full bg-sky-100 flex items-center justify-center">
+                                <span class="font-bold text-sky-600">{{ request.user.first_name|first|default:request.user.username|first|upper }}</span>
+                              </div>
+                            {% endif %}
+                        </div>
+                        <!-- Glassmorphic Username Tooltip -->
+                        <div class="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none bg-sky-500/15 backdrop-blur-xl border border-sky-500/40 text-sky-600 font-bold text-[10px] px-4 py-1.5 rounded-full shadow-[0_4px_16px_rgba(14,165,233,0.25)] whitespace-nowrap z-50">
+                            {{ request.user.first_name|default:request.user.username }}
+                        </div>
+                    </div>
+                    {% else %}
+                    <a href="{% url 'signin' %}" onclick="event.stopPropagation()" class="text-[10px] text-slate-400 font-bold hover:text-sky-500 transition tracking-widest uppercase">Login</a>
+                    <button onclick="window.location.href='{% url 'signup' %}'; event.stopPropagation();" class="pro-btn bg-sky-500 !text-white hover:bg-sky-600 ml-2" style="padding: 8px 16px; border:none;">Signup</button>
+                    {% endif %}
+                </div>
+            </nav>    
+        </div>
+    </div>
+</header>
+<!-- END: MainHeader -->
+<main class="pt-32 pb-40 px-4 md:px-12 w-full mx-auto space-y-16">
+<!-- BEGIN: HeroSearchSection -->
+<section class="flex flex-col items-center text-center space-y-8" data-purpose="search-module">
+<h1 class="text-sky-300/80 font-medium tracking-wide">Where to next?</h1>
+<div class="w-full max-w-3xl glass-morphism rounded-full p-2 flex items-center shadow-xl border border-white/50">
+<div class="flex items-center pl-6 flex-grow">
+<svg class="h-5 w-5 text-sky-500" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<input class="bg-transparent border-none focus:ring-0 text-slate-700 placeholder-slate-400 w-full ml-3 text-lg" placeholder="Search vehicle or location..." type="text"/>
+</div>
+<button onclick="window.location.href='{% url 'vehicles' %}'" class="bg-sky-500 hover:bg-sky-600 text-white font-semibold py-4 px-10 rounded-full transition-all shadow-md">
+          Explore
+        </button>
+</div>
+</section>
+<!-- END: HeroSearchSection -->
+<!-- BEGIN: SuggestionsSection -->
+<div class="w-full max-w-[1400px] mx-auto space-y-16">
+<section data-purpose="suggestions-grid">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="text-slate-400 text-sm font-semibold uppercase tracking-widest">Suggestions</h2>
+<p class="text-2xl font-bold text-slate-800">Tailored for your journey</p>
+</div>
+<a class="text-sky-500 font-medium flex items-center hover:underline" href="{% url 'vehicles' %}">
+          See all 
+          <svg class="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</a>
+</div>
+<!-- Vehicle Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+<!-- Card 1: Standard Cars -->
+<div onclick="window.location.href='{% url 'vehicles' %}'" class="pro-glass-card h-[280px] w-full flex items-center justify-center p-4 cursor-pointer group">
+  <div class="depth-circle"></div>
+  <div class="vehicle-image-container w-full h-full flex items-center justify-center p-2">
+    <img alt="Standard Cars" class="w-full h-auto object-contain vehicle-image-glow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVA0QAJyjCoJqQl0aykiaaEafzXGbiTszDWdujtJm4DkZjbKRDcCyGrrHwKPFHb8_SXntOY4JUzW2Xy2hplfA9xmKPXtQV74IkF57kO3OSzejXPttIdA04_v___T1P9PFRYuFqmzMAYmpH3HcXDGaLG5RztRbsyd-m5NhobFcHdIRMzOK8uU392hgkAFyj_aRV3Qq1V_LAkqYo_VfdvnDZ7gE_NIig3jBLxjDXriZMT7bzaJLQPZ1hil3z9q310M4o2J8LKo80plQR"/>
+  </div>
+  <div class="card-label-glass">
+    <span class="card-category">Everyday Comfort</span>
+    <h3 class="card-title">Standard Cars</h3>
+  </div>
+</div>
+
+<!-- Card 2: Luxury -->
+<div onclick="window.location.href='{% url 'vehicles' %}?category=Luxury'" class="pro-glass-card h-[280px] w-full flex items-center justify-center p-4 cursor-pointer group">
+  <div class="depth-circle"></div>
+  <div class="vehicle-image-container w-full h-full flex items-center justify-center p-2">
+    <img alt="Luxury Supercars" class="w-full h-auto object-contain vehicle-image-glow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDN9GeXSdZJkA3VzZ8Wb9wIIaFalgsSOftNmroeu9Pp5M9IqAFwxTzTWpjutkYng3IpJIOSuTyg2D07f77H5nig_RIaOkbYOOl_OgcOVSqijUag7ELV5P0SwLrYIafbrYR0W63ebTbE1bfPshFGq5MjlpSNYLEBXISFf3qpQ69xAj_A0K7--6CxsVdmRrCAvCCBwo0qq_ra4-FwnhCyXALTDYdqohkJnp6cpikkeXcUN0Z06wGZs6_GLFAOKglLfLHqQ1u5-0-CLNZa"/>
+  </div>
+  <div class="card-label-glass">
+    <span class="card-category">Premium Experience</span>
+    <h3 class="card-title">Luxury Exotics</h3>
+  </div>
+</div>
+
+<!-- Card 3: Bikes -->
+<div onclick="window.location.href='{% url 'vehicles' %}?category=Bike'" class="pro-glass-card h-[280px] w-full flex items-center justify-center p-4 cursor-pointer group">
+  <div class="depth-circle"></div>
+  <div class="vehicle-image-container w-full h-full flex items-center justify-center p-2">
+    <img alt="Sportbikes" class="w-full h-auto object-contain vehicle-image-glow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBNCqNW_6d0VE5YwvTj6rWWFevGIMz6u0mcaQ9i9aJF6ivzDAlLp_U67e49duDQwDesGNdiUgPpy89xoPszQSA_98pS_Kc4jGMWaCXVuz36TfgciiC87J0lx5LwD8tDQECVipt6NTLALwsGs6n-k7Ez2DOip2RdUnJQFI4Krsuski2iT9qyusAJRka44IMGEizEzGBiENazQRbpvkL3VGPLM91ENDjEJE_FQK-hl4W2OMucqBDY4gRCgQplig-y2uILYjv1Yz_9NOX"/>
+  </div>
+  <div class="card-label-glass">
+    <span class="card-category">High Performance</span>
+    <h3 class="card-title">Sport Bikes</h3>
+  </div>
+</div>
+
+<!-- Card 4: Scooters -->
+<div onclick="window.location.href='{% url 'vehicles' %}?category=Scoty'" class="pro-glass-card h-[280px] w-full flex items-center justify-center p-4 cursor-pointer group">
+  <div class="depth-circle"></div>
+  <div class="vehicle-image-container w-full h-full flex items-center justify-center p-2">
+    <img alt="Electric Scooters" class="w-full h-auto object-contain vehicle-image-glow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSkOVFf3jrTphsHwmldb1NrgVqDHsFXYVlH846L1JBXT-hP_ozxbhwz3ouNYqgv-jWOmi6An9qudoMSThL6TNo154cw8_gZQHJ2a9wUa8syAad6QORNs0A38vq0mY6cTwwYn01JIxYN-P5qwQmrEwhopFcFpgmWCGeFCTRUpEuFVqp3TmWf8NG5IXSNRSDy4YgUAc2a8DaVfr9CO-D5gpS_FM6WMU0qV0kr8JWICBtXrmZasl3Ui0URmLkwIpaTEKe3TWtVHZaPMF_"/>
+  </div>
+  <div class="card-label-glass">
+    <span class="card-category">City Commute</span>
+    <h3 class="card-title">Electric Scooters</h3>
+  </div>
+</div>
+
+</div>
+</section>
+<!-- END: SuggestionsSection -->
+<!-- BEGIN: MembershipBanner -->
+<section class="relative" data-purpose="promo-banner">
+  <div class="pro-glass-banner w-full rounded-[2.5rem] overflow-hidden min-h-[350px] flex shadow-2xl relative cursor-pointer">
+    
+    <!-- Dynamic Animated Background Layer -->
+    <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none rounded-[2.5rem]">
+       <!-- Moving Orbs -->
+       <div class="floating-orb bg-sky-400 w-80 h-80 top-[-100px] left-[-50px]"></div>
+       <div class="floating-orb bg-blue-600 w-96 h-96 bottom-[-100px] right-[-50px]" style="animation-delay: -3s;"></div>
+       <div class="floating-orb bg-indigo-500 w-72 h-72 top-[50%] left-[50%] mix-blend-screen" style="animation-delay: -1.5s;"></div>
+       
+       <!-- Glass Overlay Gradient -->
+       <div class="absolute inset-0 bg-gradient-to-r from-blue-900/60 via-blue-800/40 to-[#0a2351]/70 mix-blend-overlay"></div>
+       
+       <!-- Right Side Decorative Graphic -->
+       <div class="absolute right-0 bottom-0 top-0 w-1/2 flex flex-col justify-center items-end pr-10 opacity-30 transition-opacity duration-500 hover:opacity-50">
+         <div class="w-full h-32 border-2 border-sky-400/50 rounded-l-full mb-4"></div>
+         <div class="w-3/4 h-32 border-2 border-sky-400/50 rounded-l-full mb-4"></div>
+         <div class="w-1/2 h-32 border-2 border-sky-400/50 rounded-l-full"></div>
+       </div>
+    </div>
+
+    <!-- Content Layer (3D translated) -->
+    <div class="banner-content-3d w-full md:w-2/3 z-10 p-8 md:p-14 flex flex-col justify-center items-start text-white space-y-6">
+      <div class="flex items-center space-x-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.05)]" style="transform: translateZ(20px);">
+        <svg class="h-4 w-4 text-sky-300" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path clip-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 4.925-3.067 9.13-7.4 10.744a.75.75 0 01-.52 0C5.733 16.13 2.666 11.925 2.666 7c0-.681.057-1.35.166-2.001zm11.53 3.28a.75.75 0 00-1.06-1.06l-3.385 3.385-1.336-1.336a.75.75 0 10-1.06 1.06l1.866 1.866a.75.75 0 001.06 0l3.915-3.915z" fill-rule="evenodd"></path>
+        </svg>
+        <span class="text-xs font-bold uppercase tracking-widest text-sky-100">Exclusive Offer</span>
+      </div>
+      <h2 class="text-4xl md:text-6xl font-black tracking-tight drop-shadow-2xl" style="transform: translateZ(30px);">Get DriveGO One</h2>
+      <p class="text-white/90 text-lg max-w-md font-medium leading-relaxed drop-shadow-md" style="transform: translateZ(20px);">Unlock premium vehicles, zero security deposit, and priority roadside assistance for a flat monthly fee.</p>
+      <button onclick="window.location.href='{% url 'membership' %}'" class="bg-white text-blue-900 font-extrabold text-lg py-4 px-10 rounded-full hover:bg-sky-50 transition-all shadow-[0_10px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_15px_30px_rgba(255,255,255,0.2)] hover:-translate-y-1 mt-4" style="transform: translateZ(40px);">
+        Learn More
+      </button>
+    </div>
+  </div>
+</section>
+</div>
+<!-- END: MembershipBanner -->
+</main>
+<!-- BEGIN: BottomNavigation -->
+<footer class="fixed bottom-10 left-0 right-0 z-50 flex justify-center pointer-events-none">
+<nav class="pointer-events-auto glass-morphism-dark rounded-3xl p-2 px-4 flex items-center space-x-2 shadow-2xl border border-white/10" data-purpose="floating-nav">
+<!-- Home Link -->
+<a class="flex flex-col items-center justify-center p-3 rounded-2xl bg-sky-500 text-white transition-all w-20" href="{% url 'index' %}">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="text-[10px] mt-1 font-medium">Home</span>
+</a>
+<!-- Services Link -->
+<a class="flex flex-col items-center justify-center p-3 rounded-2xl text-slate-400 hover:text-white transition-all w-20" href="{% url 'Services' %}">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="text-[10px] mt-1 font-medium">Services</span>
+</a>
+<!-- Activity Link -->
+<a class="flex flex-col items-center justify-center p-3 rounded-2xl text-slate-400 hover:text-white transition-all w-20" href="{% url 'activity' %}">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="text-[10px] mt-1 font-medium">Activity</span>
+</a>
+<!-- Account Link -->
+<a class="flex flex-col items-center justify-center p-3 rounded-2xl text-slate-400 hover:text-white transition-all w-20" href="{% url 'account' %}">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="text-[10px] mt-1 font-medium">Account</span>
+</a>
+</nav>
+</footer>
+<!-- END: BottomNavigation -->
+
+<!-- Navbar Interactions Script -->
+<script>
+  var isExpanded = false;
+  document.addEventListener('DOMContentLoaded', () => {
+    const nav = document.getElementById('nav');
+    const anchor = document.getElementById('anchor');
+
+    window.toggleMenu = function() {
+        isExpanded = !isExpanded;
+        anchor.classList.toggle('expanded');
+    };
+
+    // CLASSY SUBTLE MOTION
+    anchor.addEventListener('mousemove', (e) => {
+        if (!isExpanded) return;
+        const rect = anchor.getBoundingClientRect();
+        const x = (e.clientX - rect.left) - rect.width / 2;
+        const y = (e.clientY - rect.top) - rect.height / 2;
+        
+        nav.style.transform = `rotateY(${x / 140}deg) rotateX(${-y / 70}deg)`;
+    });
+
+    anchor.addEventListener('mouseleave', () => {
+        if (!isExpanded) return;
+        nav.style.transform = `rotateX(0deg) rotateY(0deg)`;
+    });
+
+    // 3D Tilt Effect for Pro Glass Elements
+    const tiltElements = document.querySelectorAll('.pro-glass-card, .pro-glass-banner');
+    tiltElements.forEach(el => {
+      const isBanner = el.classList.contains('pro-glass-banner');
+      const maxRotate = isBanner ? 2 : 4; 
+      
+      el.addEventListener('mousemove', e => {
+        const rect = el.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        const rotateX = ((y - centerY) / centerY) * -maxRotate;
+        const rotateY = ((x - centerX) / centerX) * maxRotate;
+        
+        el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.01, 1.01, 1.01)`;
+      });
+      
+      el.addEventListener('mouseleave', () => {
+        el.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+      });
+    });
+  });
+</script>
+
+<!-- Chat FAB + Inline Chatbox (Bottom Right) -->
+<style>
+.chat-fab{
+  position:fixed;bottom:28px;right:24px;z-index:999;
+  width:62px;height:62px;border-radius:50%;
+  background:linear-gradient(135deg,#29b6f6 0%,#0288d1 100%);
+  box-shadow:0 0 0 6px rgba(14,165,233,0.18),0 8px 28px rgba(14,165,233,0.45);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;border:none;
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.chat-fab:hover{
+  transform:translateY(-3px) scale(1.06);
+  box-shadow:0 0 0 10px rgba(14,165,233,0.15),0 16px 40px rgba(14,165,233,0.55);
+  background:linear-gradient(135deg,#38bdf8 0%,#0ea5e9 100%);
+}
+.chat-fab svg{width:28px;height:28px;fill:#fff;transition:transform 0.3s;}
+.chat-fab:hover svg{transform:scale(1.1);}
+/* Chatbox panel */
+#dg-chatbox{
+  position:fixed;bottom:102px;right:24px;z-index:998;
+  width:340px;max-height:520px;
+  background:#fff;border-radius:18px;
+  box-shadow:0 12px 48px rgba(0,0,0,0.18),0 2px 8px rgba(14,165,233,0.12);
+  display:flex;flex-direction:column;overflow:hidden;
+  opacity:0;transform:translateY(16px) scale(0.97);pointer-events:none;
+  transition:all 0.28s cubic-bezier(0.4,0,0.2,1);
+}
+#dg-chatbox.open{
+  opacity:1;transform:translateY(0) scale(1);pointer-events:all;
+}
+.dgcb-header{
+  padding:16px 20px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid #f1f5f9;
+}
+.dgcb-header-title{font-size:15px;font-weight:700;color:#0f172a;}
+.dgcb-close{
+  width:28px;height:28px;border-radius:50%;background:transparent;border:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:#64748b;font-size:18px;line-height:1;
+  transition:background 0.2s;
+}
+.dgcb-close:hover{background:#f1f5f9;color:#0f172a;}
+.dgcb-messages{
+  flex:1;padding:16px;overflow-y:auto;min-height:200px;max-height:340px;
+  background:linear-gradient(180deg,#f8fafc 0%,#f0f9ff 100%);
+  display:flex;flex-direction:column;gap:10px;
+}
+.dgcb-bubble{
+  background:#fff;border-radius:14px 14px 14px 4px;
+  padding:12px 15px;font-size:14px;line-height:1.55;color:#1e293b;
+  box-shadow:0 1px 4px rgba(0,0,0,0.07);max-width:92%;align-self:flex-start;
+  animation:bubblePop 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes bubblePop{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.dgcb-bubble.user{
+  background:linear-gradient(135deg,#0ea5e9,#0284c7);
+  color:#fff;border-radius:14px 14px 4px 14px;align-self:flex-end;
+}
+.dgcb-footer{
+  padding:12px 16px;border-top:1px solid #f1f5f9;display:flex;align-items:center;gap:10px;background:#fff;
+}
+.dgcb-footer input{
+  flex:1;border:none;outline:none;font-size:14px;color:#1e293b;
+  background:transparent;font-family:inherit;
+}
+.dgcb-footer input::placeholder{color:#94a3b8;}
+.dgcb-send{
+  width:34px;height:34px;border-radius:50%;background:none;border:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:#0ea5e9;transition:all 0.2s;
+}
+.dgcb-send:hover{background:#e0f2fe;color:#0284c7;}
+.dgcb-mic{color:#94a3b8;display:flex;align-items:center;cursor:pointer;transition:color 0.2s;}
+.dgcb-mic:hover{color:#0ea5e9;}
+[data-theme="dark"] .chat-fab{background:linear-gradient(135deg,#0ea5e9 0%,#0284c7 100%)!important;}
+#logout-btn{transition:all 0.3s!important;}
+#logout-btn:hover{background:rgba(239,68,68,0.12)!important;color:#ef4444!important;box-shadow:0 0 18px rgba(239,68,68,0.22)!important;}
+[data-theme="dark"] #logout-btn:hover{background:rgba(239,68,68,0.18)!important;color:#f87171!important;}
+</style>
+
+<!-- Chatbox Panel -->
+<div id="dg-chatbox">
+  <div class="dgcb-header">
+    <span class="dgcb-header-title">DriveGO AI</span>
+    <button class="dgcb-close" onclick="toggleChat()" title="Close">&times;</button>
+  </div>
+  <div class="dgcb-messages" id="dgcb-messages">
+    <div class="dgcb-bubble">
+      Welcome back, <strong>{{ request.user.first_name|default:request.user.username|default:"there" }}!</strong> &#x1F697; How can I assist with your booking today?
+    </div>
+  </div>
+  <div class="dgcb-footer">
+    <style>
+      .glass-mic-btn {
+        position: relative;
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(14, 165, 233, 0.1);
+        border: 1px solid rgba(14, 165, 233, 0.2);
+        color: #0ea5e9;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 10;
+      }
+      .glass-mic-btn:hover {
+        background: rgba(14, 165, 233, 0.2);
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+        transform: scale(1.05);
+      }
+      .glass-mic-btn.listening {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: rgba(239, 68, 68, 0.4);
+        color: #ef4444;
+        animation: micPulse 1.5s infinite;
+      }
+      .mic-ripple {
+        position: absolute;
+        inset: -2px;
+        border-radius: 50%;
+        border: 2px solid #ef4444;
+        opacity: 0;
+        transform: scale(1);
+        pointer-events: none;
+      }
+      .glass-mic-btn.listening .mic-ripple {
+        animation: micRippleAnim 1.5s infinite cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      @keyframes micPulse {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+        50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+      }
+      @keyframes micRippleAnim {
+        0% { transform: scale(1); opacity: 0.8; }
+        100% { transform: scale(1.8); opacity: 0; }
+      }
+    </style>
+    <button class="glass-mic-btn" onclick="startVoiceRecognition()" title="Voice Input" type="button">
+      <div class="mic-ripple"></div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="relative z-10"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
+    <input type="text" id="dgcb-input" placeholder="Ask anything about rentals..." onkeydown="if(event.key==='Enter')sendChat()" />
+    <button class="dgcb-send" onclick="sendChat()" title="Send">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- Chat FAB Button -->
+<button class="chat-fab" onclick="toggleChat()" title="Chat with DriveGO AI">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 2H4C2.9 2 2 2.9 2 4v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 12H6l-2 2V4h16v10z"/>
+  </svg>
+</button>
+
+<script>
+function startVoiceRecognition() {
+  if (!('webkitSpeechRecognition' in window)) {
+    alert("Speech recognition is not supported in this browser.");
+    return;
+  }
+  var recognition = new webkitSpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  var micBtn = document.querySelector('.glass-mic-btn');
+  micBtn.classList.add('listening');
+
+  recognition.start();
+
+  recognition.onresult = function(event) {
+    var transcript = event.results[0][0].transcript;
+    document.getElementById('dgcb-input').value = transcript;
+    sendChat();
+  };
+
+  recognition.onerror = function(event) {
+    console.error("Speech recognition error", event.error);
+    micBtn.classList.remove('listening');
+  };
+
+  recognition.onend = function() {
+    micBtn.classList.remove('listening');
+  };
+}
+
+function toggleChat(){
+  var box=document.getElementById('dg-chatbox');
+  box.classList.toggle('open');
+  if(box.classList.contains('open')){
+    setTimeout(()=>document.getElementById('dgcb-input').focus(),280);
+  }
+}
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+async function sendChat(){
+  var inp=document.getElementById('dgcb-input');
+  var msg=inp.value.trim();
+  if(!msg)return;
+  var msgs=document.getElementById('dgcb-messages');
+  // User bubble
+  var ub=document.createElement('div');
+  ub.className='dgcb-bubble user';
+  ub.textContent=msg;
+  msgs.appendChild(ub);
+  inp.value='';
+  msgs.scrollTop=msgs.scrollHeight;
+  
+  // Create an indicator for typing
+  var typingBubble = document.createElement('div');
+  typingBubble.className = 'dgcb-bubble';
+  typingBubble.innerHTML = '<em>Thinking...</em>';
+  msgs.appendChild(typingBubble);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  try {
+    const formData = new FormData();
+    formData.append('message', msg);
+    
+    let csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfToken) formData.append('csrfmiddlewaretoken', csrfToken.value);
+
+    const response = await fetch('/chat/', {
+      method: 'POST',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: formData
+    });
+    
+    const data = await response.json();
+    msgs.removeChild(typingBubble);
+    
+    var rb = document.createElement('div');
+    rb.className = 'dgcb-bubble';
+    if (data.response) {
+      rb.innerHTML = data.response;
+    } else {
+      rb.innerHTML = 'Sorry, I am having trouble connecting to the AI. Please try again.';
+    }
+    msgs.appendChild(rb);
+  } catch (err) {
+    msgs.removeChild(typingBubble);
+    var errb = document.createElement('div');
+    errb.className = 'dgcb-bubble';
+    errb.innerHTML = 'Sorry, I am having trouble connecting to the AI. Please try again.';
+    msgs.appendChild(errb);
+  }
+  msgs.scrollTop=msgs.scrollHeight;
+}
+</script>
+</body>
+</html>

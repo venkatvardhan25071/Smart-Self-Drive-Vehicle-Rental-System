@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>My Account - DriveGO</title>
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script>
+        // Apply saved theme immediately (prevents flash)
+        (function(){
+            var t = localStorage.getItem('drivego_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t);
+        })();
+    </script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: { 
+                        "primary": "#0ea5e9", 
+                        "background-light": "#f0f9ff", 
+                        "background-dark": "#f0f9ff",
+                        "card-dark": "rgba(255, 255, 255, 0.4)"
+                    },
+                    fontFamily: { "display": ["Inter", "sans-serif"] },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        body { min-height: max(884px, 100dvh); }
+        /* --- SIRI NAV STYLES --- */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,900;1,900&display=swap');
+        
+        :root {
+            --siri-gradient: conic-gradient(from 0deg, #38bdf8, #ffffff, #0ea5e9, #e0f2fe, #38bdf8);
+        }
+        
+        .nav-anchor {
+            position: absolute;
+            top: 0;
+            left: max(0px, calc(50% - 500px));
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+            perspective: 2000px;
+        }
+        
+        .siri-glow-border {
+            position: absolute;
+            inset: -3px;
+            border-radius: 100px;
+            padding: 3px;
+            background: var(--siri-gradient);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            pointer-events: none;
+        }
+        
+        .siri-outer-aura {
+            position: absolute;
+            inset: -5px;
+            border-radius: 100px;
+            background: var(--siri-gradient);
+            filter: blur(15px);
+            opacity: 0;
+            transition: opacity 1s ease;
+            pointer-events: none;
+        }
+        
+        .expanded .siri-glow-border {
+            opacity: 1;
+            animation: rotateGlow 4s linear infinite;
+        }
+        
+        .expanded .siri-outer-aura {
+            opacity: 0.4;
+            animation: rotateGlow 4s linear infinite;
+        }
+        
+        @keyframes rotateGlow {
+            from { filter: hue-rotate(0deg); }
+            to { filter: hue-rotate(360deg); }
+        }
+        
+        @keyframes flowGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .nav-shell {
+            position: relative;
+            background: linear-gradient(270deg, rgba(255, 255, 255, 0.6), rgba(14, 165, 233, 0.3), rgba(255, 255, 255, 0.7), rgba(56, 189, 248, 0.4));
+            background-size: 300% 300%;
+            animation: flowGradient 8s ease infinite;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 100px;
+            height: 56px;
+            width: 180px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+            transform-style: preserve-3d;
+            box-shadow: 0 8px 32px rgba(31,38,135,0.05);
+            overflow: visible;
+            z-index: 10;
+        }
+        
+        .expanded .nav-shell {
+            width: 1000px;
+            max-width: calc(100vw - 32px);
+            background: linear-gradient(270deg, rgba(255, 255, 255, 0.7), rgba(14, 165, 233, 0.4), rgba(255, 255, 255, 0.8), rgba(56, 189, 248, 0.5));
+            background-size: 300% 300%;
+            animation: flowGradient 8s ease infinite;
+            overflow: visible;
+        }
+        
+        .logo-box {
+            display: flex;
+            align-items: center;
+            padding-left: 20px;
+            min-width: 160px;
+            z-index: 100;
+        }
+        
+        .nav-links {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -40%);
+            display: flex;
+            gap: 0.8rem;
+            opacity: 0;
+            transition: all 0.6s ease;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        
+        .expanded .nav-links {
+            opacity: 1;
+            transform: translate(-50%, -50%);
+            pointer-events: auto;
+            transition-delay: 0.2s;
+        }
+        
+        .pro-btn {
+            padding: 10px 16px;
+            border-radius: 50px;
+            color: #475569; 
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        
+        .pro-btn:hover {
+            background: rgba(14, 165, 233, 0.15); 
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            color: #0ea5e9;
+            transform: translateY(-1px);
+        }
+        
+        .account-zone {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-left: auto;
+            padding-right: 20px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .expanded .account-zone { opacity: 1; transition-delay: 0.4s; }
+        
+        .profile-img-container {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            border: 2px solid #f1f5f9;
+            background: white;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        [data-theme="dark"] .nav-shell {
+            background: linear-gradient(270deg, rgba(10, 15, 28, 0.85), rgba(14, 165, 233, 0.2), rgba(10, 15, 28, 0.9), rgba(56, 189, 248, 0.15));
+            background-size: 300% 300%;
+            animation: flowGradient 8s ease infinite;
+            border-color: rgba(71, 85, 105, 0.4);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+        [data-theme="dark"] .expanded .nav-shell {
+            background: linear-gradient(270deg, rgba(10, 15, 28, 0.9), rgba(14, 165, 233, 0.25), rgba(10, 15, 28, 0.95), rgba(56, 189, 248, 0.2));
+            background-size: 300% 300%;
+            animation: flowGradient 8s ease infinite;
+        }
+        [data-theme="dark"] .pro-btn {
+            color: #94a3b8;
+        }
+        [data-theme="dark"] .pro-btn:hover {
+            color: #38bdf8;
+            background: rgba(14, 165, 233, 0.15);
+        }
+        .bg-main-mesh {
+          background-color: #f0f9ff;
+          background-image: 
+            radial-gradient(at 0% 0%, hsla(199, 89%, 84%, 1) 0px, transparent 50%),
+            radial-gradient(at 100% 0%, hsla(187, 92%, 90%, 1) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, hsla(217, 91%, 95%, 1) 0px, transparent 50%),
+            radial-gradient(at 0% 100%, hsla(199, 89%, 84%, 1) 0px, transparent 50%),
+            radial-gradient(at 50% 50%, hsla(210, 100%, 98%, 1) 0px, transparent 50%);
+        }
+        .glass-morphism-dark {
+          background: rgba(255, 255, 255, 0.4);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        /* Dark mode */
+        [data-theme="dark"] body, [data-theme="dark"] .bg-main-mesh {
+            background-color: #0f172a !important;
+            background-image: none !important;
+            color: #e2e8f0 !important;
+        }
+        [data-theme="dark"] .bg-white\/40 { background: rgba(30,41,59,0.85) !important; }
+        [data-theme="dark"] .bg-white\/20 { background: rgba(30,41,59,0.5) !important; }
+        [data-theme="dark"] .text-slate-900 { color: #f1f5f9 !important; }
+        [data-theme="dark"] .text-slate-800 { color: #e2e8f0 !important; }
+        [data-theme="dark"] .text-slate-600 { color: #94a3b8 !important; }
+        [data-theme="dark"] .border-white\/50, [data-theme="dark"] .border-white\/20 { border-color: rgba(71,85,105,0.5) !important; }
+        [data-theme="dark"] .glass-morphism-dark { background: rgba(15,23,42,0.9) !important; border-color: rgba(71,85,105,0.3) !important; }
+        [data-theme="dark"] .text-slate-500 { color: #64748b !important; }
+    </style>
+</head>
+
+<body class="bg-main-mesh font-display text-slate-800">
+    <div class="flex flex-col min-h-screen relative z-10 max-w-7xl mx-auto md:px-12">
+
+    <header id="main-header" class="fixed top-4 left-0 right-0 z-[1000] px-4 md:px-12 pointer-events-none">
+        <div class="max-w-7xl mx-auto relative h-[72px]">
+            <div class="nav-anchor pointer-events-auto" id="anchor">
+                <div class="siri-outer-aura"></div>
+                <div class="siri-glow-border"></div>
+    
+                <nav class="nav-shell" id="nav" onclick="if(!isExpanded) toggleMenu()">
+                    <div class="logo-box" onclick="if(isExpanded) { toggleMenu(); event.stopPropagation(); }">
+                        <!-- Flawless Unified SVG Logo with Double-Swoosh and Italic GO -->
+                        <svg width="160" height="40" viewBox="0 0 240 60" xmlns="http://www.w3.org/2000/svg">
+                            <style>
+                                .text-drive {
+                                    font-family: 'Montserrat', sans-serif;
+                                    font-weight: 900;
+                                    font-style: italic;
+                                    font-size: 40px;
+                                    fill: #1BA1E2;
+                                    letter-spacing: -2px;
+                                }
+                            .text-go {
+                                font-family: 'Montserrat', sans-serif;
+                                    font-weight: 900;
+                                    font-style: italic;
+                                    font-size: 46px;
+                                    fill: #1E293B;
+                                    letter-spacing: -1px;
+                                }
+                            </style>
+                            
+                            <text x="2" y="52" class="text-drive">Drive</text>
+                            <text x="98" y="52" class="text-go">GO.</text>
+                            
+                            <!-- Aerodynamic Double-Swoosh Car Outline -->
+                            <g transform="translate(92, 4) scale(0.52)">
+                                <!-- Left Swoosh -->
+                                <path class="car-swoosh" d="M 10 38 
+                                         C 8 20, 25 8, 45 4 
+                                         C 70 0, 95 5, 115 15 
+                                         C 125 20, 130 25, 135 30 
+                                         C 125 25, 115 20, 100 16 
+                                         C 80 10, 55 10, 35 18 
+                                         C 22 23, 15 30, 10 38 Z" 
+                                      fill="#1E293B"/>
+                                <!-- Right Swoosh -->
+                                <path class="car-swoosh" d="M 90 22 
+                                         C 105 15, 125 15, 150 20 
+                                         C 165 23, 175 28, 180 40 
+                                         C 173 34, 160 27, 145 23 
+                                         C 125 18, 105 18, 90 22 Z" 
+                                      fill="#1E293B"/>
+                            </g>
+                        </svg>
+                    </div>
+    
+                    <div class="nav-links">
+                        <a href="{% url 'index' %}" class="pro-btn" onclick="event.stopPropagation()">Home</a>
+                        <a href="{% url 'vehicles' %}" class="pro-btn" onclick="event.stopPropagation()">Vehicles</a>
+                        <a href="{% url 'Services' %}" class="pro-btn" onclick="event.stopPropagation()">Services</a>
+                    </div>
+    
+                    <div class="account-zone">
+                        <a href="{% url 'host' %}" class="pro-btn mr-2" onclick="event.stopPropagation()">Host</a>
+                        {% if request.user.is_authenticated and not request.user.is_superuser %}
+                        <a href="{% url 'logout' %}" onclick="event.stopPropagation()" class="text-[10px] text-slate-400 font-bold transition-all duration-300 tracking-widest uppercase ml-2 px-3 py-1.5 rounded-full hover:bg-red-500/15 hover:text-red-500 hover:shadow-[0_4px_12px_rgba(239,68,68,0.2)] hover:border-red-500/30 border border-transparent border-t-white/30 hover:-translate-y-0.5">Logout</a>
+                        <div class="relative group cursor-pointer" onclick="window.location.href='{% url 'account' %}'; event.stopPropagation();">
+                            <div class="profile-img-container">
+                                {% if request.user.userprofile.profile_picture %}
+                                  <img src="{{ request.user.userprofile.profile_picture.url }}" alt="avatar" class="w-full h-full object-cover" />
+                                {% else %}
+                                  <div class="w-full h-full bg-sky-100 flex items-center justify-center">
+                                    <span class="font-bold text-sky-600">{{ request.user.first_name|first|default:request.user.username|first|upper }}</span>
+                                  </div>
+                                {% endif %}
+                            </div>
+                            <!-- Glassmorphic Username Tooltip -->
+                            <div class="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none bg-sky-500/15 backdrop-blur-xl border border-sky-500/40 text-sky-600 font-bold text-[10px] px-4 py-1.5 rounded-full shadow-[0_4px_16px_rgba(14,165,233,0.25)] whitespace-nowrap z-50">
+                                {{ request.user.first_name|default:request.user.username }}
+                            </div>
+                        </div>
+                        {% else %}
+                        <a href="{% url 'signin' %}" onclick="event.stopPropagation()" class="text-[10px] text-slate-400 font-bold hover:text-sky-500 transition tracking-widest uppercase">Login</a>
+                        <button onclick="window.location.href='{% url 'signup' %}'; event.stopPropagation();" class="pro-btn bg-sky-500 !text-white hover:bg-sky-600 ml-2" style="padding: 8px 16px; border:none;">Signup</button>
+                        {% endif %}
+                    </div>
+                </nav>    
+            </div>
+        </div>
+    </header>
+    <script>
+      var isExpanded = false;
+      document.addEventListener('DOMContentLoaded', () => {
+        const nav = document.getElementById('nav');
+        const anchor = document.getElementById('anchor');
+    
+        window.toggleMenu = function() {
+            isExpanded = !isExpanded;
+            anchor.classList.toggle('expanded');
+        };
+    
+        anchor.addEventListener('mousemove', (e) => {
+            if (!isExpanded) return;
+            const rect = anchor.getBoundingClientRect();
+            const x = (e.clientX - rect.left) - rect.width / 2;
+            const y = (e.clientY - rect.top) - rect.height / 2;
+            nav.style.transform = `rotateY(${x / 140}deg) rotateX(${-y / 70}deg)`;
+        });
+    
+        anchor.addEventListener('mouseleave', () => {
+            if (!isExpanded) return;
+            nav.style.transform = `rotateX(0deg) rotateY(0deg)`;
+        });
+      });
+    </script>
+        
+        <main class="flex-grow p-4 pt-28 md:pt-28 space-y-6 pb-32">
+            <h1 class="text-3xl font-bold text-slate-900">My Account</h1>
+
+            <div class="flex items-center gap-4 bg-white/40 backdrop-blur-xl border border-white/50 p-6 rounded-[2rem] shadow-xl">
+                <div class="w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg flex-shrink-0">
+                    {% if request.user.userprofile.profile_picture %}
+                        <img id="account-avatar" src="{{ request.user.userprofile.profile_picture.url }}" alt="Profile" class="w-full h-full object-cover" />
+                    {% else %}
+                        <div class="w-full h-full bg-sky-100 flex items-center justify-center">
+                            <span class="font-black text-sky-500 text-3xl">{{ request.user.first_name|first|default:request.user.username|first|upper }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <div>
+                    <p class="font-bold text-xl text-slate-800">{{ request.user.first_name|default:request.user.username }}</p>
+                    <p class="text-sm text-slate-600">{{ request.user.email }}</p>
+                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 mt-1 inline-block">✓ Verified Member</span>
+                </div>
+            </div>
+            
+            <div class="bg-white/40 backdrop-blur-xl border border-white/50 rounded-[2rem] shadow-xl overflow-hidden">
+                <a href="{% url 'profile' %}" class="flex items-center gap-4 p-5 border-b border-white/20 hover:bg-white/20 transition-colors">
+                    <span class="material-symbols-outlined text-sky-500">account_circle</span>
+                    <p class="flex-grow font-medium text-slate-800">Edit Profile</p>
+                    <span class="material-symbols-outlined text-slate-400">chevron_right</span>
+                </a>
+                <a href="{% url 'payment' %}" class="flex items-center gap-4 p-5 border-b border-white/20 hover:bg-white/20 transition-colors">
+                    <span class="material-symbols-outlined text-sky-500">credit_card</span>
+                    <p class="flex-grow font-medium text-slate-800">Payment Methods</p>
+                    <span class="material-symbols-outlined text-slate-400">chevron_right</span>
+                </a>
+                <a href="{% url 'settings' %}"  class="flex items-center gap-4 p-5 border-b border-white/20 hover:bg-white/20 transition-colors">
+                    <span class="material-symbols-outlined text-sky-500">settings</span>
+                    <p class="flex-grow font-medium text-slate-800">Settings</p>
+                    <span class="material-symbols-outlined text-slate-400">chevron_right</span>
+                </a>
+                <a href="{% url 'help' %}" class="flex items-center gap-4 p-5 hover:bg-white/20 transition-colors">
+                    <span class="material-symbols-outlined text-sky-500">help</span>
+                    <p class="flex-grow font-medium text-slate-800">Help & Support</p>
+                    <span class="material-symbols-outlined text-slate-400">chevron_right</span>
+                </a>
+            </div>
+
+             <div class="mt-8">
+                 <a href="{% url 'logout' %}" class="flex items-center justify-center gap-4 p-5 bg-red-500/10 hover:bg-red-500/20 rounded-2xl border border-red-500/20 transition-colors shadow-lg">
+                    <span class="material-symbols-outlined text-red-500">logout</span>
+                    <p class="font-bold text-red-500">Log Out</p>
+                </a>
+            </div>
+        </main>
+
+        <!-- BEGIN: BottomNavigation -->
+        <footer class="fixed bottom-10 left-0 right-0 z-50 flex justify-center pointer-events-none">
+            <nav class="pointer-events-auto bg-white/40 backdrop-blur-xl rounded-3xl p-2 px-4 flex items-center space-x-2 shadow-2xl border border-white/50" data-purpose="floating-nav">
+                <!-- Home Link -->
+                <a class="flex flex-col items-center justify-center p-3 rounded-2xl text-slate-500 hover:text-sky-600 transition-all w-20" href="{% url 'index' %}">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    <span class="text-[10px] mt-1 font-medium">Home</span>
+                </a>
+                <!-- Services Link -->
+                <a class="flex flex-col items-center justify-center p-3 rounded-2xl text-slate-500 hover:text-sky-600 transition-all w-20" href="{% url 'Services' %}">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    <span class="text-[10px] mt-1 font-medium">Services</span>
+                </a>
+                <!-- Activity Link -->
+                <a class="flex flex-col items-center justify-center p-3 rounded-2xl text-slate-500 hover:text-sky-600 transition-all w-20" href="{% url 'activity' %}">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    <span class="text-[10px] mt-1 font-medium">Activity</span>
+                </a>
+                <!-- Account Link -->
+                <a class="flex flex-col items-center justify-center p-3 rounded-2xl bg-sky-500 text-white transition-all w-20" href="{% url 'account' %}">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    <span class="text-[10px] mt-1 font-medium">Account</span>
+                </a>
+            </nav>
+        </footer>
+        <!-- END: BottomNavigation -->
+    </div>
+<script>
+  const menuBtn=document.getElementById('mobile-menu-btn'),menuDropdown=document.getElementById('mobile-menu-dropdown'),menuOpen=document.getElementById('menu-icon-open'),menuClose=document.getElementById('menu-icon-close');
+  if(menuBtn){menuBtn.addEventListener('click',()=>{menuDropdown.classList.toggle('hidden');menuOpen.classList.toggle('hidden');menuClose.classList.toggle('hidden');});}
+</script>
+</body>
+</html>

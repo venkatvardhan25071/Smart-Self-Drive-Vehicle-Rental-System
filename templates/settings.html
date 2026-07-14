@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Settings - DriveGO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <script>
+        /* Apply theme BEFORE anything renders */
+        (function(){
+            var t = localStorage.getItem('drivego_theme') || 'light';
+            var r = (t === 'system') ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t;
+            document.documentElement.setAttribute('data-theme', r);
+        })();
+    </script>
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-glow: rgba(14, 165, 233, 0.4);
+            --bg: #dcf1ff;
+            --glass: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.3));
+            --border: rgba(255,255,255,0.6);
+            --border-highlight: rgba(255,255,255,1);
+            --card-bg: rgba(255,255,255,0.5);
+            --text-main: #0f172a;
+            --text-muted: #475569;
+        }
+        /* === DARK MODE === */
+        [data-theme="dark"] {
+            --glass: linear-gradient(135deg, rgba(30,41,59,0.88), rgba(15,23,42,0.75));
+            --border: rgba(71,85,105,0.45);
+            --border-highlight: rgba(100,116,139,0.6);
+            --card-bg: rgba(30,41,59,0.8);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+        [data-theme="dark"] body { background-color: #0f172a !important; color: #f1f5f9 !important; }
+        [data-theme="dark"] body::before { background: linear-gradient(180deg,#0f172a 0%,#1e293b 100%) !important; }
+        [data-theme="dark"] body::after { background: none !important; }
+        [data-theme="dark"] h3 { color: #f1f5f9 !important; }
+        [data-theme="dark"] a { color: var(--text-main) !important; }
+        [data-theme="dark"] .menu-row:hover { background: rgba(51,65,85,0.6) !important; }
+        [data-theme="dark"] .toggle-track { background: #334155; }
+        [data-theme="dark"] .toggle-track.on { background: #0ea5e9; }
+
+        .material-symbols-outlined { font-variation-settings: 'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24; }
+        body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+        body::before { content:''; position:fixed; top:0;left:0;right:0;bottom:0; background:linear-gradient(180deg,#bae6fd 0%,#e0f2fe 100%); z-index:-1; pointer-events:none; }
+        body::after { content:''; position:fixed; top:0;left:0;right:0;bottom:0; background:radial-gradient(circle at 15% 30%,rgba(255,255,255,.6) 0%,transparent 40%),radial-gradient(circle at 85% 20%,rgba(125,211,252,.4) 0%,transparent 40%),radial-gradient(circle at 50% 50%,rgba(255,255,255,.4) 0%,transparent 50%); z-index:-1; pointer-events:none; }
+
+        .container { max-width: 640px; width:100%; display:flex; flex-direction:column; gap:20px; position:relative; z-index:1; margin-bottom:30px; }
+
+        .glass-panel { background:var(--glass); backdrop-filter:blur(30px); -webkit-backdrop-filter:blur(30px); border:1px solid var(--border); border-top:1.5px solid var(--border-highlight); border-left:1.5px solid var(--border-highlight); border-radius:28px; padding:24px 28px; box-shadow:0 15px 35px rgba(0,0,0,0.12); position:relative; overflow:hidden; }
+        .glass-panel::before { content:''; position:absolute; top:0;left:-150%;width:50%;height:100%; background:linear-gradient(to right,transparent,rgba(255,255,255,0.15),transparent); transform:skewX(-25deg); animation:shine 8s infinite; pointer-events:none; }
+        @keyframes shine { 0%{left:-150%} 20%{left:200%} 100%{left:200%} }
+
+        h3 { margin:0 0 16px 0; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); }
+
+        /* Menu row */
+        .menu-row { display:flex; align-items:center; gap:16px; padding:16px; border-radius:16px; text-decoration:none; color:var(--text-main); transition:0.3s; cursor:pointer; }
+        .menu-row:hover { background:rgba(14,165,233,0.08); }
+        .menu-icon { width:42px; height:42px; border-radius:12px; background:linear-gradient(135deg,rgba(14,165,233,0.15),rgba(59,130,246,0.1)); border:1px solid rgba(14,165,233,0.2); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .menu-label { flex:1; }
+        .menu-label p { margin:0; font-weight:700; font-size:15px; }
+        .menu-label span { font-size:12px; color:var(--text-muted); }
+        .divider { border:none; border-top:1px solid var(--border); margin:4px 0; }
+
+        /* Toggle switch */
+        .toggle-track { width:46px; height:26px; border-radius:13px; background:#cbd5e1; position:relative; cursor:pointer; transition:background 0.3s; flex-shrink:0; }
+        .toggle-track.on { background:var(--primary); }
+        .toggle-thumb { position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:white; transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); box-shadow:0 1px 4px rgba(0,0,0,0.25); }
+        .toggle-track.on .toggle-thumb { transform:translateX(20px); }
+
+        /* Theme selector */
+        .theme-switcher { display:flex; gap:8px; background:rgba(0,0,0,0.06); border-radius:16px; padding:6px; }
+        .theme-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 8px; border-radius:12px; border:none; background:none; font-family:inherit; font-size:13px; font-weight:700; color:var(--text-muted); cursor:pointer; transition:0.3s; }
+        .theme-btn.active { background:linear-gradient(135deg,#0ea5e9,#3b82f6); color:white; box-shadow:0 4px 12px rgba(14,165,233,0.35); }
+
+        /* Back btn */
+        .back-btn { background:var(--glass); border:1px solid var(--border); border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; color:var(--text-muted); text-decoration:none; transition:0.3s; backdrop-filter:blur(10px); flex-shrink:0; }
+        .back-btn:hover { border-color:var(--primary); color:var(--primary); box-shadow:0 0 12px var(--primary-glow); }
+
+        /* Toast */
+        #toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px); background:linear-gradient(135deg,#0ea5e9,#3b82f6); color:white; font-weight:700; padding:14px 24px; border-radius:999px; box-shadow:0 8px 25px rgba(14,165,233,0.4); opacity:0; transition:all 0.4s; z-index:999; font-family:inherit; display:flex; align-items:center; gap:8px; pointer-events:none; }
+        #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+        /* Confirm Modal */
+        .modal-overlay { position:fixed; inset:0; background:rgba(15,23,42,0.5); backdrop-filter:blur(12px); display:none; justify-content:center; align-items:center; z-index:1000; }
+        .modal-card { background:linear-gradient(135deg,rgba(255,255,255,0.92),rgba(255,255,255,0.75)); backdrop-filter:blur(30px); border:1px solid var(--border); border-top:1.5px solid var(--border-highlight); border-radius:28px; padding:32px; max-width:340px; width:100%; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.15); }
+        .btn-modal { padding:14px 20px; border-radius:14px; border:1px solid var(--border); background:rgba(255,255,255,0.5); color:var(--text-main); font-weight:700; cursor:pointer; font-size:14px; font-family:inherit; transition:0.3s; flex:1; }
+        .btn-modal:hover { border-color:var(--primary); color:var(--primary); }
+        .btn-modal.confirm { background:linear-gradient(135deg,#ef4444,#dc2626); border:none; color:white; box-shadow:0 6px 20px rgba(239,68,68,0.35); }
+        .btn-modal.confirm:hover { transform:translateY(-2px); box-shadow:0 10px 25px rgba(239,68,68,0.5); }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <div style="display:flex; align-items:center; gap:14px;">
+        <a href="{% url 'account' %}" class="back-btn">
+            <span class="material-symbols-outlined" style="font-size:20px;">arrow_back_ios_new</span>
+        </a>
+        <h2 style="margin:0; font-size:26px; font-weight:800; color:var(--text-main);">Settings</h2>
+    </div>
+
+    <!-- Appearance -->
+    <div class="glass-panel">
+        <h3>Appearance</h3>
+
+        <!-- Theme Switcher -->
+        <p style="font-weight:700; font-size:15px; margin:0 0 12px; color:var(--text-main);">Theme</p>
+        <div class="theme-switcher" id="theme-switcher">
+            <button class="theme-btn" data-theme="light" onclick="applyTheme('light')">
+                <span class="material-symbols-outlined" style="font-size:18px;">light_mode</span> Light
+            </button>
+            <button class="theme-btn" data-theme="dark" onclick="applyTheme('dark')">
+                <span class="material-symbols-outlined" style="font-size:18px;">dark_mode</span> Dark
+            </button>
+            <button class="theme-btn" data-theme="system" onclick="applyTheme('system')">
+                <span class="material-symbols-outlined" style="font-size:18px;">smartphone</span> System
+            </button>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin:10px 0 0;">Changes apply instantly across ALL DriveGO pages.</p>
+    </div>
+
+    <!-- Notifications -->
+    <div class="glass-panel">
+        <h3>Notifications</h3>
+        <div class="menu-row" style="padding:12px 0;">
+            <div class="menu-icon"><span class="material-symbols-outlined" style="color:var(--primary);">notifications</span></div>
+            <div class="menu-label"><p>Push Notifications</p><span>Booking updates & alerts</span></div>
+            <div class="toggle-track on" id="toggle-push" onclick="toggleSwitch(this,'push')"><div class="toggle-thumb"></div></div>
+        </div>
+        <hr class="divider">
+        <div class="menu-row" style="padding:12px 0;">
+            <div class="menu-icon"><span class="material-symbols-outlined" style="color:var(--primary);">mail</span></div>
+            <div class="menu-label"><p>Email Notifications</p><span>Promos and newsletters</span></div>
+            <div class="toggle-track" id="toggle-email" onclick="toggleSwitch(this,'email')"><div class="toggle-thumb"></div></div>
+        </div>
+        <hr class="divider">
+        <div class="menu-row" style="padding:12px 0;">
+            <div class="menu-icon"><span class="material-symbols-outlined" style="color:var(--primary);">location_on</span></div>
+            <div class="menu-label"><p>Location Access</p><span>For finding nearby vehicles</span></div>
+            <span style="font-size:12px; font-weight:700; color:#059669; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); padding:4px 10px; border-radius:99px;">Enabled</span>
+        </div>
+    </div>
+
+    <!-- Security -->
+    <div class="glass-panel">
+        <h3>Security & Privacy</h3>
+        <a href="{% url 'changepassword' %}" class="menu-row">
+            <div class="menu-icon"><span class="material-symbols-outlined" style="color:var(--primary);">lock</span></div>
+            <div class="menu-label"><p>Change Password</p><span>Update your login credentials</span></div>
+            <span class="material-symbols-outlined" style="color:var(--text-muted); font-size:20px;">chevron_right</span>
+        </a>
+        <hr class="divider">
+        <a href="{% url 'profile' %}" class="menu-row">
+            <div class="menu-icon"><span class="material-symbols-outlined" style="color:var(--primary);">person</span></div>
+            <div class="menu-label"><p>Edit Profile</p><span>Update your personal info</span></div>
+            <span class="material-symbols-outlined" style="color:var(--text-muted); font-size:20px;">chevron_right</span>
+        </a>
+        <hr class="divider">
+        <div class="menu-row" onclick="">
+            <div class="menu-icon"><span class="material-symbols-outlined" style="color:var(--primary);">policy</span></div>
+            <div class="menu-label"><p>Privacy Policy</p><span>How we handle your data</span></div>
+            <span class="material-symbols-outlined" style="color:var(--text-muted); font-size:20px;">chevron_right</span>
+        </div>
+    </div>
+
+    <!-- Data & Storage -->
+    <div class="glass-panel">
+        <h3>Data & Storage</h3>
+        <div class="menu-row" id="clearCacheBtn" onclick="document.getElementById('confirmModal').style.display='flex';">
+            <div class="menu-icon" style="background:rgba(239,68,68,0.1); border-color:rgba(239,68,68,0.2);">
+                <span class="material-symbols-outlined" style="color:#ef4444;">delete</span>
+            </div>
+            <div class="menu-label">
+                <p style="color:#ef4444;">Clear Cache</p>
+                <span>Free up storage space</span>
+            </div>
+            <span class="material-symbols-outlined" style="color:#ef4444; font-size:20px;">chevron_right</span>
+        </div>
+    </div>
+
+    <!-- Account Actions -->
+    <div class="glass-panel" style="padding:20px 28px;">
+        <a href="{% url 'logout' %}" style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-weight:800; padding:16px; border-radius:18px; text-decoration:none; transition:0.3s; font-size:15px;">
+            <span class="material-symbols-outlined">logout</span> Log Out
+        </a>
+    </div>
+
+    <!-- App Info -->
+    <div style="text-align:center; padding:8px 0 20px;">
+        <p style="font-size:12px; color:var(--text-muted); margin:0;">DriveGO v2.0.0 &nbsp;•&nbsp; Build 2026</p>
+    </div>
+</div>
+
+<!-- Clear Cache Modal -->
+<div id="confirmModal" class="modal-overlay" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal-card">
+        <span class="material-symbols-outlined" style="font-size:48px; color:#ef4444; display:block; margin-bottom:12px;">delete_forever</span>
+        <p style="font-weight:800; font-size:18px; margin:0 0 8px; color:var(--text-main);">Clear Cache?</p>
+        <p style="font-size:13px; color:var(--text-muted); margin:0 0 24px;">This will clear all locally stored preferences. This action cannot be undone.</p>
+        <div style="display:flex; gap:12px;">
+            <button class="btn-modal" onclick="document.getElementById('confirmModal').style.display='none'">Cancel</button>
+            <button class="btn-modal confirm" onclick="clearCache()">Clear Now</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast">
+    <span class="material-symbols-outlined" style="font-size:18px;">check_circle</span>
+    <span id="toast-msg">Done!</span>
+</div>
+
+<script>
+    const THEME_KEY = 'drivego_theme';
+
+    function applyTheme(theme) {
+        localStorage.setItem(THEME_KEY, theme);
+        const resolved = theme === 'system'
+            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+            : theme;
+        document.documentElement.setAttribute('data-theme', resolved);
+
+        // Update button styles
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.theme === theme);
+        });
+        showToast('Theme updated to ' + theme.charAt(0).toUpperCase() + theme.slice(1));
+    }
+
+    function toggleSwitch(el, key) {
+        el.classList.toggle('on');
+        localStorage.setItem('dg_notif_' + key, el.classList.contains('on') ? '1' : '0');
+    }
+
+    function clearCache() {
+        const theme = localStorage.getItem(THEME_KEY);
+        localStorage.clear();
+        if (theme) localStorage.setItem(THEME_KEY, theme);
+        document.getElementById('confirmModal').style.display = 'none';
+        showToast('Cache cleared successfully');
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        document.getElementById('toast-msg').textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // On load: restore UI states
+    document.addEventListener('DOMContentLoaded', () => {
+        // Theme buttons
+        const saved = localStorage.getItem(THEME_KEY) || 'light';
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.theme === saved);
+        });
+
+        // Notification toggles
+        ['push','email'].forEach(key => {
+            const el = document.getElementById('toggle-' + key);
+            const v = localStorage.getItem('dg_notif_' + key);
+            if (v === '0' && el) el.classList.remove('on');
+        });
+    });
+
+    // System theme watcher
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        if (localStorage.getItem(THEME_KEY) === 'system') applyTheme('system');
+    });
+</script>
+</body>
+</html>

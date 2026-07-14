@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Help & Support - DriveGO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <script>
+        (function(){var t=localStorage.getItem('drivego_theme')||'light';var r=(t==='system')?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;document.documentElement.setAttribute('data-theme',r);})();
+    </script>
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-glow: rgba(14,165,233,0.4);
+            --bg: #dcf1ff;
+            --glass: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.3));
+            --border: rgba(255,255,255,0.6);
+            --border-highlight: rgba(255,255,255,1);
+            --card-bg: rgba(255,255,255,0.5);
+            --text-main: #0f172a;
+            --text-muted: #475569;
+        }
+        [data-theme="dark"] { --glass: linear-gradient(135deg,rgba(30,41,59,0.88),rgba(15,23,42,0.75)); --border: rgba(71,85,105,0.45); --border-highlight: rgba(100,116,139,0.6); --card-bg: rgba(30,41,59,0.8); --text-main: #f1f5f9; --text-muted: #94a3b8; }
+        [data-theme="dark"] body { background-color: #0f172a !important; color: #f1f5f9 !important; }
+        [data-theme="dark"] body::before { background: linear-gradient(180deg,#0f172a 0%,#1e293b 100%) !important; }
+        [data-theme="dark"] body::after { background: none !important; }
+        [data-theme="dark"] h3 { color: #f1f5f9 !important; }
+        [data-theme="dark"] summary p { color: #e2e8f0 !important; }
+        [data-theme="dark"] .faq-answer { color: #94a3b8 !important; }
+        [data-theme="dark"] .divider { border-color: rgba(71,85,105,0.4) !important; }
+
+        .material-symbols-outlined { font-variation-settings: 'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24; }
+        body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+        body::before { content: ''; position: fixed; top:0; left:0; right:0; bottom:0; background: linear-gradient(180deg, #bae6fd 0%, #e0f2fe 100%); z-index:-1; pointer-events:none; }
+        body::after { content: ''; position: fixed; top:0; left:0; right:0; bottom:0; background: radial-gradient(circle at 15% 30%, rgba(255,255,255,.6) 0%,transparent 40%), radial-gradient(circle at 85% 20%, rgba(125,211,252,.4) 0%,transparent 40%), radial-gradient(circle at 50% 50%, rgba(255,255,255,.4) 0%,transparent 50%); z-index:-1; pointer-events:none; }
+
+        .container { max-width: 640px; width: 100%; display: flex; flex-direction: column; gap: 20px; position: relative; z-index: 1; margin-bottom: 30px; }
+
+        .glass-panel { background: var(--glass); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1px solid var(--border); border-top: 1.5px solid var(--border-highlight); border-left: 1.5px solid var(--border-highlight); border-radius: 28px; padding: 24px 28px; box-shadow: 0 15px 35px rgba(0,0,0,0.12); position: relative; overflow: hidden; }
+        .glass-panel::before { content: ''; position: absolute; top:0; left:-150%; width:50%; height:100%; background: linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent); transform: skewX(-25deg); animation: shine 8s infinite; pointer-events: none; }
+        @keyframes shine { 0%{left:-150%} 20%{left:200%} 100%{left:200%} }
+
+        h3 { margin: 0 0 18px 0; font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
+
+        /* FAQ */
+        .faq-item { border-bottom: 1px solid var(--border); }
+        .faq-item:last-child { border-bottom: none; }
+        summary { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; cursor: pointer; list-style: none; }
+        summary::-webkit-details-marker { display: none; }
+        summary p { margin: 0; font-weight: 600; font-size: 15px; color: var(--text-main); transition: color 0.3s; }
+        details[open] summary p { color: var(--primary); }
+        .chevron { transition: transform 0.3s ease; color: var(--text-muted); font-size: 20px !important; }
+        details[open] .chevron { transform: rotate(90deg); }
+        .faq-answer { font-size: 14px; color: var(--text-muted); padding-bottom: 16px; line-height: 1.6; }
+
+        /* Contact items */
+        .contact-item { display: flex; align-items: center; gap: 14px; padding: 16px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; text-decoration: none; color: var(--text-main); transition: 0.3s; }
+        .contact-item:hover { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); transform: translateY(-2px); }
+        .contact-icon { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, rgba(14,165,233,0.15), rgba(59,130,246,0.1)); border: 1px solid rgba(14,165,233,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+        /* Action buttons */
+        .btn-action { width: 100%; background: linear-gradient(135deg, #0ea5e9, #3b82f6); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 16px; border-radius: 18px; font-weight: 800; cursor: pointer; transition: 0.4s; font-size: 15px; font-family: inherit; box-shadow: 0 8px 25px rgba(14,165,233,0.4); display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; }
+        .btn-action:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(14,165,233,0.6); }
+        .btn-ghost { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border); padding: 14px; border-radius: 18px; font-weight: 700; cursor: pointer; transition: 0.4s; font-size: 14px; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; margin-top: 10px; }
+        .btn-ghost:hover { border-color: var(--primary); color: var(--primary); background: rgba(14,165,233,0.05); }
+
+        .back-btn { background: var(--glass); border: 1px solid var(--border); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); cursor: pointer; text-decoration: none; transition: 0.3s; backdrop-filter: blur(10px); flex-shrink:0; }
+        .back-btn:hover { border-color: var(--primary); color: var(--primary); box-shadow: 0 0 12px var(--primary-glow); }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <div style="display:flex; align-items:center; gap:14px;">
+        <a href="{% url 'account' %}" class="back-btn">
+            <span class="material-symbols-outlined" style="font-size:20px;">arrow_back_ios_new</span>
+        </a>
+        <h1 style="margin:0; font-size:26px; font-weight:800; color:var(--text-main);">Help & Support</h1>
+    </div>
+
+    <!-- Hero Banner -->
+    <div class="glass-panel" style="text-align:center; padding:32px 28px;">
+        <div style="width:70px; height:70px; background:linear-gradient(135deg,#0ea5e9,#3b82f6); border-radius:20px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 8px 25px rgba(14,165,233,0.4);">
+            <span class="material-symbols-outlined" style="color:white; font-size:36px;">support_agent</span>
+        </div>
+        <p style="font-weight:800; font-size:20px; margin:0 0 6px; color:var(--text-main);">DriveGO Support</p>
+        <p style="font-size:13px; color:var(--text-muted); margin:0;">24/7 Premium Assistance — we're always here for you.</p>
+    </div>
+
+    <!-- FAQ -->
+    <div class="glass-panel">
+        <h3>
+            <span class="material-symbols-outlined" style="color:var(--primary);">quiz</span>
+            Frequently Asked Questions
+        </h3>
+        <details class="faq-item">
+            <summary>
+                <p>How do I book a vehicle?</p>
+                <span class="material-symbols-outlined chevron">chevron_right</span>
+            </summary>
+            <div class="faq-answer">Navigate to the home screen, select a vehicle, choose your pickup/return dates and location, then confirm and pay. It takes under 2 minutes!</div>
+        </details>
+        <details class="faq-item">
+            <summary>
+                <p>What documents are required?</p>
+                <span class="material-symbols-outlined chevron">chevron_right</span>
+            </summary>
+            <div class="faq-answer">You'll need to upload a valid Driving License and Aadhaar Card during your first booking for verification.</div>
+        </details>
+        <details class="faq-item">
+            <summary>
+                <p>How does billing work?</p>
+                <span class="material-symbols-outlined chevron">chevron_right</span>
+            </summary>
+            <div class="faq-answer">You're charged per day based on the vehicle rate. Taxes and fees are shown at checkout. A refundable security deposit may apply.</div>
+        </details>
+        <details class="faq-item">
+            <summary>
+                <p>Can I cancel my booking?</p>
+                <span class="material-symbols-outlined chevron">chevron_right</span>
+            </summary>
+            <div class="faq-answer">Yes, you can cancel from the Activity page. Cancellations made 24 hours before pickup are eligible for a full refund.</div>
+        </details>
+        <details class="faq-item">
+            <summary>
+                <p>What if the vehicle breaks down?</p>
+                <span class="material-symbols-outlined chevron">chevron_right</span>
+            </summary>
+            <div class="faq-answer">Call us immediately at our 24/7 helpline. Roadside assistance is included for all DriveGO bookings at no extra cost.</div>
+        </details>
+    </div>
+
+    <!-- Contact Us -->
+    <div class="glass-panel">
+        <h3>
+            <span class="material-symbols-outlined" style="color:var(--primary);">contact_support</span>
+            Contact Us
+        </h3>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+            <a href="{% url 'support_call' %}" class="contact-item">
+                <div class="contact-icon"><span class="material-symbols-outlined" style="color:var(--primary);">call</span></div>
+                <div>
+                    <p style="margin:0; font-weight:700; font-size:15px;">Request a Call</p>
+                    <p style="margin:2px 0 0; font-size:12px; color:var(--text-muted);">We'll call you back promptly</p>
+                </div>
+                <span class="material-symbols-outlined" style="margin-left:auto; color:var(--text-muted);">chevron_right</span>
+            </a>
+            <a href="{% url 'support_email' %}" class="contact-item">
+                <div class="contact-icon"><span class="material-symbols-outlined" style="color:var(--primary);">mail</span></div>
+                <div>
+                    <p style="margin:0; font-weight:700; font-size:15px;">Email Support</p>
+                    <p style="margin:2px 0 0; font-size:12px; color:var(--text-muted);">support@drivego.in</p>
+                </div>
+                <span class="material-symbols-outlined" style="margin-left:auto; color:var(--text-muted);">chevron_right</span>
+            </a>
+            <a href="{% url 'chat' %}" class="contact-item">
+                <div class="contact-icon"><span class="material-symbols-outlined" style="color:var(--primary);">chat</span></div>
+                <div>
+                    <p style="margin:0; font-weight:700; font-size:15px;">Live Chat</p>
+                    <p style="margin:2px 0 0; font-size:12px; color:var(--text-muted);">Chat with a support agent now</p>
+                </div>
+                <span class="material-symbols-outlined" style="margin-left:auto; color:var(--text-muted);">chevron_right</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Report Issue -->
+    <div class="glass-panel" style="padding:20px 28px;">
+        <a href="{% url 'report_issue' %}" class="btn-action">
+            <span class="material-symbols-outlined">flag</span>
+            Report an Issue
+        </a>
+        <a href="{% url 'account' %}" class="btn-ghost">
+            <span class="material-symbols-outlined">arrow_back</span>
+            Back to Account
+        </a>
+    </div>
+
+    <!-- App Info -->
+    <div style="text-align:center; padding:10px 0 20px;">
+        <p style="font-size:12px; color:var(--text-muted); margin:0;">DriveGO v2.0.0 &nbsp;•&nbsp; Build 2026 &nbsp;•&nbsp; Made with ❤️</p>
+    </div>
+</div>
+</body>
+</html>

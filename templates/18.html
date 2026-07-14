@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveGO | Elite UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Montserrat:ital,wght@0,900;1,900&display=swap');
+
+        :root {
+            --siri-gradient: conic-gradient(from 0deg, #51a1ff, #9b51ff, #ff51b5, #ff5151, #51a1ff);
+        }
+
+        body {
+            background: #020617; 
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- BACKGROUND DEPTH --- */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            width: 70vw; height: 70vw;
+            border-radius: 50%;
+            filter: blur(140px);
+            z-index: -1;
+            animation: floatOrb 25s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+        body::before { top: -20%; left: -10%; background: rgba(30, 64, 175, 0.3); }
+        body::after { bottom: -20%; right: -10%; background: rgba(14, 165, 233, 0.25); animation-duration: 30s; }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(15vw, 15vh) scale(1.1); }
+            100% { transform: translate(-10vw, 25vh) scale(0.95); }
+        }
+
+        /* --- TOP LEFT ANCHOR SYSTEM --- */
+        .nav-anchor {
+            position: fixed;
+            top: 25px;
+            left: 25px;
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+            perspective: 2000px;
+        }
+
+        /* ENHANCED VISIBILITY SIRI BORDER */
+        .siri-glow-border {
+            position: absolute;
+            inset: -3px;
+            border-radius: 100px;
+            padding: 3px;
+            background: var(--siri-gradient);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            pointer-events: none;
+        }
+
+        .siri-outer-aura {
+            position: absolute;
+            inset: -5px;
+            border-radius: 100px;
+            background: var(--siri-gradient);
+            filter: blur(15px);
+            opacity: 0;
+            transition: opacity 1s ease;
+            pointer-events: none;
+        }
+
+        .expanded .siri-glow-border {
+            opacity: 1;
+            animation: rotateGlow 4s linear infinite;
+        }
+
+        .expanded .siri-outer-aura {
+            opacity: 0.4;
+            animation: rotateGlow 4s linear infinite;
+        }
+
+        @keyframes rotateGlow {
+            from { filter: hue-rotate(0deg); }
+            to { filter: hue-rotate(360deg); }
+        }
+
+        /* --- STRAIGHT LINE GLASS SHELL --- */
+        .nav-shell {
+            position: relative;
+            background: rgba(255, 255, 255, 0.88); 
+            backdrop-filter: blur(40px) saturate(200%);
+            -webkit-backdrop-filter: blur(40px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 1);
+            border-radius: 100px;
+            height: 72px;
+            width: 210px; /* Initial Logo width */
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            /* Straight Cubic Expansion */
+            transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1), background 0.5s ease;
+            transform-style: preserve-3d;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .expanded .nav-shell {
+            width: 1000px; /* Expands straight to the right */
+            background: rgba(255, 255, 255, 0.96);
+        }
+
+        /* --- CONTENT --- */
+        .logo-box {
+            display: flex;
+            align-items: center;
+            padding-left: 25px;
+            min-width: 210px; /* Match initial shell width */
+            z-index: 100;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.8rem;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.6s ease;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .expanded .nav-links {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+            transition-delay: 0.2s;
+        }
+
+        .pro-btn {
+            padding: 10px 16px;
+            border-radius: 50px;
+            color: #475569; 
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .pro-btn:hover {
+            background: rgba(14, 165, 233, 0.08); 
+            color: #0ea5e9;
+        }
+
+        /* Right Side Content within expanded line */
+        .account-zone {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-left: auto;
+            padding-right: 20px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .expanded .account-zone { opacity: 1; transition-delay: 0.4s; }
+
+        .profile-img-container {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            border: 2px solid #f1f5f9;
+            background: white;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav-anchor" id="anchor">
+        <div class="siri-outer-aura"></div>
+        <div class="siri-glow-border"></div>
+
+        <nav class="nav-shell" id="nav" onclick="toggleMenu()">
+            <div class="logo-box">
+                <!-- Flawless Unified SVG Logo with Double-Swoosh and Italic GO -->
+                <svg width="240" height="60" viewBox="0 0 240 60" xmlns="http://www.w3.org/2000/svg">
+                    <style>
+                        .text-drive {
+                            font-family: 'Inter', sans-serif;
+                            font-weight: 900;
+                            font-size: 40px;
+                            fill: #1BA1E2;
+                            letter-spacing: -2px;
+                        }
+                        .text-go {
+                            font-family: 'Montserrat', sans-serif;
+                            font-weight: 900;
+                            font-style: italic;
+                            font-size: 46px;
+                            fill: #1E293B;
+                            letter-spacing: -1px;
+                        }
+                    </style>
+                    
+                    <text x="2" y="52" class="text-drive">Drive</text>
+                    <text x="98" y="52" class="text-go">GO.</text>
+                    
+                    <!-- Aerodynamic Double-Swoosh Car Outline -->
+                    <g transform="translate(92, 4) scale(0.52)">
+                        <!-- Left Swoosh -->
+                        <path d="M 10 38 
+                                 C 8 20, 25 8, 45 4 
+                                 C 70 0, 95 5, 115 15 
+                                 C 125 20, 130 25, 135 30 
+                                 C 125 25, 115 20, 100 16 
+                                 C 80 10, 55 10, 35 18 
+                                 C 22 23, 15 30, 10 38 Z" 
+                              fill="#1E293B"/>
+                        <!-- Right Swoosh -->
+                        <path d="M 90 22 
+                                 C 105 15, 125 15, 150 20 
+                                 C 165 23, 175 28, 180 40 
+                                 C 173 34, 160 27, 145 23 
+                                 C 125 18, 105 18, 90 22 Z" 
+                              fill="#1E293B"/>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="nav-links">
+                <button class="pro-btn">Home</button>
+                <button class="pro-btn">Vehicles</button>
+                <button class="pro-btn">Services</button>
+                <button class="pro-btn">Host</button>
+            </div>
+
+            <div class="account-zone">
+                <button class="text-[10px] text-slate-400 font-bold hover:text-sky-500 transition tracking-widest">LOGOUT</button>
+                <div class="profile-img-container">
+                    <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=200" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </nav>    </div>
+
+    <script>
+        const nav = document.getElementById('nav');
+        const anchor = document.getElementById('anchor');
+        let isExpanded = false;
+
+        function toggleMenu() {
+            isExpanded = !isExpanded;
+            anchor.classList.toggle('expanded');
+        }
+
+        // CLASSY SUBTLE MOTION
+        anchor.addEventListener('mousemove', (e) => {
+            if (!isExpanded) return;
+            const rect = anchor.getBoundingClientRect();
+            const x = (e.clientX - rect.left) - rect.width / 2;
+            const y = (e.clientY - rect.top) - rect.height / 2;
+            
+            nav.style.transform = `rotateY(${x / 140}deg) rotateX(${-y / 70}deg)`;
+        });
+
+        anchor.addEventListener('mouseleave', () => {
+            nav.style.transform = `rotateX(0deg) rotateY(0deg)`;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<script>(function(){var t=localStorage.getItem('drivego_theme')||'light';var r=(t==='system')?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;document.documentElement.setAttribute('data-theme',r);})();</script>
+<style>
+[data-theme="dark"] #chat-widget { background: rgba(15,23,42,0.95) !important; border-color: rgba(71,85,105,0.5) !important; }
+[data-theme="dark"] .chat-header { background: rgba(30,41,59,0.9) !important; }
+[data-theme="dark"] #chat-log { background: radial-gradient(circle at top right, rgba(15,23,42,0.8), rgba(10,20,40,0.9)) !important; }
+[data-theme="dark"] .bot { background: rgba(30,41,59,0.9) !important; color: #e2e8f0 !important; border-color: rgba(71,85,105,0.4) !important; }
+[data-theme="dark"] .chat-footer { background: rgba(15,23,42,0.9) !important; }
+[data-theme="dark"] #chat-input { background: rgba(30,41,59,0.8) !important; color: #e2e8f0 !important; border-color: rgba(71,85,105,0.5) !important; }
+[data-theme="dark"] body { background-color: #0f172a !important; }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    :root {
+        --accent: #0ea5e9;
+        --dark-bg: rgba(255, 255, 255, 0.4);
+        --card-bg: rgba(255, 255, 255, 0.6);
+        --glass: rgba(255, 255, 255, 0.8);
+        --text: #1e293b;
+    }
+
+    /* Floating Toggle Button */
+    #chat-toggle {
+        position: fixed; bottom: 30px; right: 30px;
+        width: 60px; height: 60px; background: var(--accent);
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 24px; cursor: pointer; z-index: 2000;
+        box-shadow: 0 0 20px rgba(0, 168, 255, 0.5);
+    }
+
+    #chat-widget {
+        position: fixed; bottom: 100px; right: 30px;
+        width: 400px; height: 600px;
+        background: var(--dark-bg); border-radius: 24px;
+        display: none; flex-direction: column;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        font-family: 'Poppins', sans-serif; z-index: 1000;
+        overflow: hidden;
+        backdrop-filter: blur(24px);
+    }
+
+    .chat-header {
+        background: var(--card-bg); padding: 20px;
+        display: flex; align-items: center; justify-content: space-between;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .status-dot { width: 8px; height: 8px; background: #00ff00; border-radius: 50%; box-shadow: 0 0 10px #00ff00; }
+
+    #chat-log {
+        flex: 1; padding: 20px; overflow-y: auto;
+        display: flex; flex-direction: column; gap: 15px;
+        background: radial-gradient(circle at top right, rgba(240,249,255,0.4), rgba(224,242,254,0.4));
+    }
+
+    .msg { max-width: 85%; padding: 12px 18px; border-radius: 18px; font-size: 14px; line-height: 1.5; color: var(--text); }
+    .user { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 2px; }
+    .bot { align-self: flex-start; background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.6); border-bottom-left-radius: 2px; }
+
+    .typing { display: none; padding: 10px 20px; color: var(--accent); font-size: 12px; }
+
+    .chat-footer { padding: 20px; background: var(--card-bg); display: flex; align-items: center; gap: 10px; }
+
+    #chat-input {
+        flex: 1; background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.8);
+        color: var(--text); padding: 12px; border-radius: 12px; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .icon-btn { background: none; border: none; color: #8b949e; font-size: 18px; cursor: pointer; transition: 0.3s; }
+    .icon-btn:hover { color: var(--accent); }
+    .recording { color: #ff4d4d !important; animation: pulse 1.5s infinite; }
+
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+</style>
+
+<div id="chat-toggle" onclick="toggleChat()"><i class="fas fa-comment-alt"></i></div>
+
+<div id="chat-widget">
+    <div class="chat-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="font-weight: 800; color: var(--text);">DriveGO AI <span class="status-dot"></span></div>
+        </div>
+        <i class="fas fa-times" style="cursor:pointer; color: var(--text);" onclick="toggleChat()"></i>
+    </div>
+
+    <div id="chat-log">
+        <div class="msg bot">Welcome back, <b>Venn</b>! 🚗 How can I assist with your <b>Lambgini</b> or <b>Rolls-Royce</b> booking in Delhi today?</div>
+    </div>
+    
+    <div id="typing-ui" class="typing">DriveGO AI is analyzing...</div>
+
+    <div class="chat-footer">
+        <button id="voice-btn" class="icon-btn" onclick="startVoice()"><i class="fas fa-microphone"></i></button>
+        <input type="text" id="chat-input" placeholder="Ask anything about rentals..." autocomplete="off">
+        <button id="send-btn" class="icon-btn" style="color: var(--accent);"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</div>
+<script>
+    const chatLog = document.getElementById('chat-log');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+    const typingUi = document.getElementById('typing-ui');
+
+    function toggleChat() {
+        const widget = document.getElementById('chat-widget');
+        widget.style.display = (widget.style.display === 'flex') ? 'none' : 'flex';
+    }
+
+    function addMsg(role, text) {
+        const div = document.createElement('div');
+        div.className = `msg ${role}`;
+        div.innerHTML = text;
+        chatLog.appendChild(div);
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    async function sendMessage(text) {
+        if (!text) return;
+
+        // Cinematic Redirect Logic
+        if (text.toLowerCase().includes("book lambgini")) {
+            addMsg('user', text);
+            typingUi.style.display = 'block';
+            setTimeout(() => {
+                typingUi.style.display = 'none';
+                addMsg('bot', "Excellent choice, Venn! Redirecting you to the <b>Lambgini</b> booking page now...");
+                setTimeout(() => { window.location.href = '/luxury/'; }, 1500);
+            }, 800);
+            return;
+        }
+
+        addMsg('user', text);
+        chatInput.value = '';
+        typingUi.style.display = 'block';
+
+        // Step 3 Emergency Update: Relative Path Fix
+        try {
+            const response = await fetch('/chat/', {  
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/x-www-form-urlencoded' 
+                },
+                body: `message=${encodeURIComponent(text)}`
+            });
+
+            if (!response.ok) {
+                // Helps identify if it's a 404 (URL) or 500 (Python) error
+                addMsg('bot', `⚠️ Server Error: ${response.status}. Check your urls.py.`);
+                typingUi.style.display = 'none';
+                return;
+            }
+
+            const data = await response.json();
+            setTimeout(() => {
+                typingUi.style.display = 'none';
+                addMsg('bot', data.response);
+            }, 800);
+
+        } catch (e) {
+            typingUi.style.display = 'none';
+            addMsg('bot', "⚠️ Connection Refused. Is 'python manage.py runserver' active?");
+        }
+    }
+
+    sendBtn.onclick = () => sendMessage(chatInput.value.trim());
+    chatInput.onkeypress = (e) => { if(e.key === 'Enter') sendBtn.click(); };
+
+    function startVoice() {
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        const voiceBtn = document.getElementById('voice-btn');
+        recognition.onstart = () => voiceBtn.classList.add('recording');
+        recognition.onend = () => voiceBtn.classList.remove('recording');
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            sendMessage(transcript);
+        };
+        recognition.start();
+    }
+</script>
