@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - DriveGO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --blue:#13a4ec; --bg:#0d1117; --header-bg:#161d27;
+            --card-bg:#1a2332; --card-hover:#1e2a3a;
+            --border:rgba(255,255,255,0.06); --text:#e2e8f0; --muted:#4a5568;
+            --green:#4ade80; --red:#f87171; --font:'Plus Jakarta Sans',sans-serif;
+        }
+        html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow:hidden;}
+        .material-symbols-outlined{font-variation-settings:'FILL' 1,'wght' 300,'GRAD' 0,'opsz' 24;line-height:1;vertical-align:middle;}
+        .toast-notif{position:fixed;top:-100px;left:50%;transform:translateX(-50%);background:var(--header-bg);border:1px solid var(--blue);padding:12px 24px;border-radius:12px;display:flex;align-items:center;gap:10px;z-index:1000;transition:top 0.4s cubic-bezier(0.68,-0.55,0.27,1.55);box-shadow:0 10px 30px rgba(0,0,0,0.5);font-size:0.85rem;font-weight:600;white-space:nowrap;}
+        .toast-notif.show{top:20px;}
+        .toast-notif .material-symbols-outlined{color:var(--blue);font-size:1.2rem;}
+        .wrapper{display:grid;grid-template-columns:1fr 1fr;height:100vh;width:100vw;}
+        .left-panel{background:var(--header-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 48px;position:relative;overflow:hidden;}
+        .left-panel::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(19,164,236,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(19,164,236,0.05) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;}
+        .left-panel::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:500px;height:500px;background:radial-gradient(circle,rgba(19,164,236,0.1) 0%,transparent 65%);pointer-events:none;}
+        .brand-content{position:relative;z-index:1;text-align:center;}
+        .brand-logo{font-size:3rem;font-weight:800;color:#fff;letter-spacing:-1px;margin-bottom:16px;display:block;text-decoration:none;}
+        .brand-logo span{color:var(--blue);}
+        .brand-tagline{font-size:1.1rem;color:var(--muted);line-height:1.7;margin-bottom:40px;max-width:340px;}
+        .feature-list{display:flex;flex-direction:column;gap:16px;width:100%;max-width:360px;}
+        .feature-item{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;padding:16px 18px;}
+        .feature-icon{width:40px;height:40px;border-radius:10px;background:rgba(19,164,236,0.12);border:1px solid rgba(19,164,236,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .feature-icon .material-symbols-outlined{color:var(--blue);font-size:1.2rem;}
+        .feature-text{font-size:0.88rem;font-weight:600;color:var(--text);}
+        .feature-sub{font-size:0.75rem;color:var(--muted);margin-top:2px;}
+        .right-panel{background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 48px;overflow-y:auto;}
+        .form-box{width:100%;max-width:420px;animation:fadeUp 0.5s ease both;}
+        .form-box-inner{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:40px 36px;position:relative;overflow:hidden;}
+        .form-box-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--green));}
+        .form-title{margin-bottom:28px;}
+        .form-title h1{font-size:1.6rem;font-weight:800;color:#fff;letter-spacing:-0.5px;margin-bottom:6px;}
+        .form-title p{font-size:0.88rem;color:var(--muted);}
+        .form-fields{display:flex;flex-direction:column;gap:14px;}
+        .input-wrap{position:relative;}
+        .input-wrap .material-symbols-outlined{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1.1rem;pointer-events:none;}
+        .input-wrap input{width:100%;background:var(--card-hover);border:1px solid var(--border);color:var(--text);font-family:var(--font);font-size:0.92rem;border-radius:12px;padding:14px 14px 14px 46px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+        .input-wrap input::placeholder{color:var(--muted);}
+        .input-wrap input:focus{border-color:rgba(19,164,236,0.5);box-shadow:0 0 0 3px rgba(19,164,236,0.1);}
+        .forgot-wrap{text-align:right;}
+        .forgot-wrap a{font-size:0.82rem;font-weight:600;color:var(--blue);text-decoration:none;}
+        .login-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:12px;padding:15px;font-family:var(--font);font-size:1rem;font-weight:800;cursor:pointer;transition:background 0.2s,transform 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+        .login-btn:hover{background:#0f8ac9;transform:translateY(-1px);}
+        .login-btn:active{transform:scale(0.98);}
+        .login-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+        .login-btn .material-symbols-outlined{font-size:1.1rem;}
+        .divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:0.78rem;margin:20px 0 16px;}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+        .signup-row{text-align:center;font-size:0.88rem;color:var(--muted);}
+        .signup-row a{color:var(--blue);font-weight:700;text-decoration:none;}
+        .err-msg{font-size:0.78rem;color:var(--red);padding-left:4px;display:none;}
+        .err-msg.show{display:block;}
+        .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+        #otpStep{display:none;}
+        #otpStep.active{display:block;}
+        #loginStep{display:block;}
+        #loginStep.hidden{display:none;}
+        .otp-boxes{display:flex;gap:10px;justify-content:center;margin:20px 0;}
+        .otp-boxes input{width:48px;height:56px;text-align:center;font-size:1.4rem;font-weight:800;background:var(--card-hover);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--font);outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+        .otp-boxes input:focus{border-color:rgba(19,164,236,0.5);box-shadow:0 0 0 3px rgba(19,164,236,0.1);}
+        .otp-info{font-size:0.85rem;color:var(--muted);text-align:center;margin-bottom:8px;}
+        .otp-info span{color:var(--blue);font-weight:600;}
+        .resend-row{text-align:center;font-size:0.82rem;color:var(--muted);margin-top:12px;}
+        .resend-row button{background:none;border:none;color:var(--blue);font-weight:700;font-family:var(--font);cursor:pointer;font-size:0.82rem;}
+        .resend-row button:disabled{color:var(--muted);cursor:not-allowed;}
+        .back-btn{background:none;border:none;color:var(--muted);font-family:var(--font);font-size:0.82rem;cursor:pointer;display:flex;align-items:center;gap:4px;margin-bottom:16px;padding:0;}
+        .back-btn:hover{color:var(--text);}
+        @media(max-width:768px){html,body{overflow:auto;}.wrapper{grid-template-columns:1fr;height:auto;min-height:100vh;}.left-panel{padding:40px 24px;min-height:260px;}.brand-logo{font-size:2rem;}.feature-list{display:none;}.right-panel{padding:32px 20px;}.form-box-inner{padding:28px 22px;}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+    </style>
+</head>
+<body>
+    <div id="toast" class="toast-notif">
+        <span class="material-symbols-outlined">notifications_active</span>
+        <span id="toast-msg">Welcome back!</span>
+    </div>
+    <div class="wrapper">
+        <div class="left-panel">
+            <div class="brand-content">
+                <a href="{% url 'index' %}" class="brand-logo">Drive<span>GO</span></a>
+                <p class="brand-tagline">Self-drive vehicle rentals powered by AI. Book instantly, drive freely.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon"><span class="material-symbols-outlined">bolt</span></div>
+                        <div><div class="feature-text">AI Smart Search</div><div class="feature-sub">Find the perfect vehicle instantly</div></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><span class="material-symbols-outlined">lock_clock</span></div>
+                        <div><div class="feature-text">Auto-Lock System</div><div class="feature-sub">Access revealed at rental start time</div></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><span class="material-symbols-outlined">verified_user</span></div>
+                        <div><div class="feature-text">Verified Fleet</div><div class="feature-sub">Fully insured, regularly serviced</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="right-panel">
+            <div class="form-box">
+                <div class="form-box-inner">
+                    <div id="loginStep">
+                        <div class="form-title">
+                            <h1>Welcome Back</h1>
+                            <p>Log in to your DriveGO account.</p>
+                        </div>
+                        <form id="loginForm" onsubmit="handleLogin(event)">
+                            <div class="form-fields">
+                                <div class="input-wrap">
+                                    <span class="material-symbols-outlined">email</span>
+                                    <input type="text" id="loginusername" placeholder="Username" autocomplete="username" />
+                                </div>
+                                <div class="err-msg" id="err-user">Please enter your username.</div>
+                                <div class="input-wrap">
+                                    <span class="material-symbols-outlined">lock</span>
+                                    <input type="password" id="loginpassword" placeholder="Password" autocomplete="current-password" />
+                                </div>
+                                <div class="err-msg" id="err-pass">Please enter your password.</div>
+                                <div class="input-wrap">
+                                    <span class="material-symbols-outlined">mark_email_read</span>
+                                    <input type="email" id="loginEmail" placeholder="Your email (for OTP)" autocomplete="email" />
+                                </div>
+                                <div class="err-msg" id="err-email">Please enter a valid email.</div>
+                                <div class="forgot-wrap"><a href="{% url 'changepassword' %}">Forgot Password?</a></div>
+                                <button type="submit" class="login-btn" id="loginBtn">
+                                    <span id="btnText">Log In</span>
+                                    <span class="material-symbols-outlined" id="btnIcon">arrow_forward</span>
+                                    <div class="spinner" id="spinner"></div>
+                                </button>
+                            </div>
+                        </form>
+                        <div class="divider">or</div>
+                        <div class="signup-row">Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></div>
+                    </div>
+                    <div id="otpStep">
+                        <button class="back-btn" onclick="goBack()">
+                            <span class="material-symbols-outlined" style="font-size:1rem">arrow_back</span>Back
+                        </button>
+                        <div class="form-title">
+                            <h1>Verify Email</h1>
+                            <p>Enter the 6-digit code sent to your email.</p>
+                        </div>
+                        <p class="otp-info">Code sent to <span id="otpEmailDisplay"></span></p>
+                        <div class="otp-boxes">
+                            <input type="tel" maxlength="1" id="o0" />
+                            <input type="tel" maxlength="1" id="o1" />
+                            <input type="tel" maxlength="1" id="o2" />
+                            <input type="tel" maxlength="1" id="o3" />
+                            <input type="tel" maxlength="1" id="o4" />
+                            <input type="tel" maxlength="1" id="o5" />
+                        </div>
+                        <div class="err-msg" id="err-otp" style="text-align:center;margin-bottom:10px;"></div>
+                        <button class="login-btn" id="verifyBtn" onclick="verifyOtp()">
+                            <span id="verifyText">Verify & Login</span>
+                            <span class="material-symbols-outlined" id="verifyIcon">verified</span>
+                            <div class="spinner" id="verifySpinner"></div>
+                        </button>
+                        <div class="resend-row">
+                            Didn't receive it?
+                            <button id="resendBtn" onclick="resendOtp()">Resend OTP</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const VEHICLE_ID = 'VH-001';
+        const API_URLS = {
+            startLogin: "{% url 'locksystem:auth_start_login' %}",
+            verifyLoginOtp: "{% url 'locksystem:auth_verify_login_otp' %}"
+        };
+
+        function prettyBackendError(message) {
+            if (!message) return "Server error. Please try again.";
+            if (message.includes("Email is not configured")) {
+                return "OTP mail is not configured on server. Set EMAIL_HOST_USER and EMAIL_HOST_PASSWORD, then restart Django server.";
+            }
+            return message;
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        window.onload = async () => {
+            showToast('DriveGO Systems Online');
+            for (let i = 0; i < 6; i++) {
+                const box = document.getElementById('o' + i);
+                box.addEventListener('input', () => {
+                    if (box.value && i < 5) document.getElementById('o' + (i + 1)).focus();
+                });
+                box.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && !box.value && i > 0)
+                        document.getElementById('o' + (i - 1)).focus();
+                });
+            }
+        };
+
+        let currentEmail = '';
+        let currentUser = null;
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginusername').value.trim();
+            const password = document.getElementById('loginpassword').value.trim();
+            const email    = document.getElementById('loginEmail').value.trim();
+
+            document.getElementById('err-user').classList.remove('show');
+            document.getElementById('err-pass').classList.remove('show');
+            document.getElementById('err-email').classList.remove('show');
+
+            let valid = true;
+            if (!username) { document.getElementById('err-user').classList.add('show'); valid = false; }
+            if (!password) { document.getElementById('err-pass').classList.add('show'); valid = false; }
+            if (!email || !email.includes('@')) { document.getElementById('err-email').classList.add('show'); valid = false; }
+            if (!valid) return;
+
+            const btn     = document.getElementById('loginBtn');
+            const btnText = document.getElementById('btnText');
+            const btnIcon = document.getElementById('btnIcon');
+            const spinner = document.getElementById('spinner');
+
+            btn.disabled          = true;
+            btnText.textContent   = 'Checking login...';
+            btnIcon.style.display = 'none';
+            spinner.style.display = 'block';
+
+            try {
+                const loginRes = await fetch(API_URLS.startLogin, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                    body: JSON.stringify({ username, password, email, vehicle_id: VEHICLE_ID })
+                });
+                const loginData = await loginRes.json();
+
+                if (!loginData.success) {
+                    throw new Error(prettyBackendError(loginData.message || "Invalid login details."));
+                }
+
+                if (loginData.success) {
+                    currentEmail = email;
+                    document.getElementById('otpEmailDisplay').textContent = currentEmail;
+                    document.getElementById('loginStep').classList.add('hidden');
+                    document.getElementById('otpStep').classList.add('active');
+                    if (loginData.debug_otp) {
+                        showToast(`Debug OTP: ${loginData.debug_otp}`);
+                    }
+                    document.getElementById('o0').focus();
+                    showToast('OTP sent to your email');
+                }
+            } catch (err) {
+                showToast(prettyBackendError(err.message || "Server error. Is the backend running?"));
+            }
+
+            btn.disabled          = false;
+            btnText.textContent   = 'Log In';
+            btnIcon.style.display = '';
+            spinner.style.display = 'none';
+        }
+
+        async function verifyOtp() {
+            let otp = '';
+            for (let i = 0; i < 6; i++) otp += document.getElementById('o' + i).value;
+
+            const errOtp = document.getElementById('err-otp');
+            errOtp.classList.remove('show');
+
+            if (otp.length < 6) {
+                errOtp.textContent = 'Please enter all 6 digits.';
+                errOtp.classList.add('show');
+                return;
+            }
+
+            const btn     = document.getElementById('verifyBtn');
+            const text    = document.getElementById('verifyText');
+            const icon    = document.getElementById('verifyIcon');
+            const spinner = document.getElementById('verifySpinner');
+
+            btn.disabled          = true;
+            text.textContent      = 'Verifying...';
+            icon.style.display    = 'none';
+            spinner.style.display = 'block';
+
+            try {
+                const res  = await fetch(API_URLS.verifyLoginOtp, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                    body: JSON.stringify({ email: currentEmail, otp, vehicle_id: VEHICLE_ID })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    showToast('Verified! Welcome to DriveGO');
+                    setTimeout(() => window.location.href = "{% url 'index' %}", 1200);
+                } else {
+                    errOtp.textContent = prettyBackendError(data.message || "Invalid OTP. Try again.");
+                    errOtp.classList.add('show');
+                    btn.disabled          = false;
+                    text.textContent      = 'Verify & Login';
+                    icon.style.display    = '';
+                    spinner.style.display = 'none';
+                }
+            } catch (err) {
+                showToast(prettyBackendError(err.message || "Server error. Is the backend running?"));
+                btn.disabled          = false;
+                text.textContent      = 'Verify & Login';
+                icon.style.display    = '';
+                spinner.style.display = 'none';
+            }
+        }
+
+        async function resendOtp() {
+            const btn = document.getElementById('resendBtn');
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+            try {
+                const res = await fetch(API_URLS.startLogin, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                    body: JSON.stringify({
+                        username: document.getElementById('loginusername').value.trim(),
+                        password: document.getElementById('loginpassword').value.trim(),
+                        email: currentEmail,
+                        vehicle_id: VEHICLE_ID
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast('New OTP sent');
+                } else {
+                    showToast(prettyBackendError(data.message || "Failed to resend OTP."));
+                }
+            } catch (err) {
+                showToast(prettyBackendError(err.message || "Failed to resend. Try again."));
+            }
+            let secs = 30;
+            const interval = setInterval(() => {
+                btn.textContent = `Resend in ${secs}s`;
+                secs--;
+                if (secs < 0) {
+                    clearInterval(interval);
+                    btn.textContent = 'Resend OTP';
+                    btn.disabled = false;
+                }
+            }, 1000);
+        }
+
+        function goBack() {
+            document.getElementById('otpStep').classList.remove('active');
+            document.getElementById('loginStep').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

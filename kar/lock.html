@@ -1,0 +1,501 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DriveGO - Lock System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    
+    <style>
+        /* CSS STYLES */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --blue: #13a4ec;
+            --bg: #0d1117;
+            --header-bg: #161d27;
+            --card-bg: #1a2332;
+            --card-hover: #1e2a3a;
+            --border: rgba(255,255,255,0.06);
+            --text: #e2e8f0;
+            --muted: #4a5568;
+            --font: 'Plus Jakarta Sans', sans-serif;
+            --green: #22c55e;
+            --red: #ef4444;
+            --orange: #f97316;
+        }
+
+        html, body {
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            overflow-x: hidden;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            line-height: 1;
+            vertical-align: middle;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--header-bg);
+            padding: 0 24px;
+            height: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.92rem;
+        }
+
+        .back-btn .material-symbols-outlined { color: var(--blue); font-size: 1.2rem; }
+
+        .logo { font-size: 1.6rem; font-weight: 800; color: #fff; text-decoration: none; letter-spacing: -0.5px; }
+        .logo span { color: var(--blue); }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--header-bg);
+            border: 1px solid var(--border);
+            padding: 12px 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 999;
+            transition: top 0.4s cubic-bezier(0.68,-0.55,0.27,1.55);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            font-size: 0.82rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .toast.show { top: 16px; }
+        .toast.success { border-color: rgba(34,197,94,0.35); }
+        .toast.success .material-symbols-outlined { color: var(--green); }
+        .toast.error { border-color: rgba(239,68,68,0.35); }
+        .toast.error .material-symbols-outlined { color: var(--red); }
+        .toast.info { border-color: rgba(19,164,236,0.35); }
+        .toast.info .material-symbols-outlined { color: var(--blue); }
+
+        .page { padding-bottom: 80px; }
+        .pg-head { padding: 22px 24px 6px; }
+        .pg-title { font-size: 1.4rem; font-weight: 800; color: #fff; margin-bottom: 4px; }
+        .pg-sub { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+        .content { padding: 0 24px; }
+
+        .sec-label {
+            font-size: 0.67rem;
+            font-weight: 700;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin: 22px 0 12px;
+        }
+
+        .conn-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .conn-bar.online { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); color: #86efac; }
+        .conn-bar.offline { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #fca5a5; }
+        .conn-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .conn-bar.online .conn-dot { background: var(--green); animation: dotPulse 2s infinite; }
+        .conn-bar.offline .conn-dot { background: var(--red); }
+
+        @keyframes dotPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        .email-input {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 0.85rem;
+            border-radius: 12px;
+            padding: 11px 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            margin-bottom: 14px;
+        }
+
+        .email-input:focus { border-color: rgba(19,164,236,0.45); }
+
+        .vehicle-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .v-icon {
+            width: 56px; height: 56px; border-radius: 14px;
+            background: rgba(19,164,236,0.1); border: 1px solid rgba(19,164,236,0.2);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+
+        .v-icon .material-symbols-outlined { font-size: 1.8rem; color: var(--blue); font-variation-settings: 'FILL' 1; }
+        .v-info { flex: 1; }
+        .v-name { font-size: 1rem; font-weight: 700; color: #fff; }
+        .v-plate { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+        .v-booking { font-size: 0.72rem; color: var(--blue); margin-top: 4px; font-weight: 600; }
+
+        .status-badge { font-size: 0.62rem; font-weight: 700; padding: 5px 11px; border-radius: 999px; }
+        .badge-locked { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: var(--red); }
+        .badge-unlocked { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25); color: var(--green); }
+
+        /* Lock Visuals */
+        .lock-control { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 24px; text-align: center; }
+        .lock-visual { position: relative; width: 120px; height: 120px; margin: 0 auto 20px; }
+        .lock-ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--border); animation: ringPulse 3s ease-in-out infinite; }
+        .lock-ring-2 { animation-delay: 1s; }
+        .lock-ring.active { border-color: rgba(34,197,94,0.3); }
+        .lock-ring.locked-ring { border-color: rgba(239,68,68,0.3); }
+
+        @keyframes ringPulse { 0%,100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.08); opacity: 1; } }
+
+        .lock-btn-main {
+            position: absolute; inset: 10px; border-radius: 50%; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px;
+            transition: all 0.3s; font-family: var(--font);
+        }
+
+        .lock-btn-main.is-locked { background: radial-gradient(circle, rgba(239,68,68,0.2), rgba(239,68,68,0.05)); border: 2px solid rgba(239,68,68,0.3); }
+        .lock-btn-main.is-unlocked { background: radial-gradient(circle, rgba(34,197,94,0.2), rgba(34,197,94,0.05)); border: 2px solid rgba(34,197,94,0.3); }
+        .lock-btn-main .material-symbols-outlined { font-size: 2.2rem; font-variation-settings: 'FILL' 1; }
+        .lock-btn-main.is-locked .material-symbols-outlined { color: var(--red); }
+        .lock-btn-main.is-unlocked .material-symbols-outlined { color: var(--green); }
+
+        .method-tabs { display: flex; gap: 8px; margin-bottom: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; padding: 4px; }
+        .method-tab { flex: 1; padding: 9px; border-radius: 9px; border: none; background: transparent; color: var(--muted); font-size: 0.72rem; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+        .method-tab.active { background: var(--card-hover); color: var(--blue); border: 1px solid rgba(19,164,236,0.2); }
+
+        .method-panel { display: none; }
+        .method-panel.active { display: block; }
+
+        .otp-inputs { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+        .oi { width: 42px; height: 50px; border-radius: 10px; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid var(--border); color: #fff; font-size: 1.2rem; font-weight: 700; outline: none; }
+        .oi:focus { border-color: var(--blue); }
+
+        .pinpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 220px; margin: 15px auto; }
+        .pin-key { padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: #fff; font-weight: 700; cursor: pointer; }
+
+        .qr-box { width: 160px; height: 160px; background: #fff; margin: 0 auto; border-radius: 12px; padding: 10px; position: relative; overflow: hidden; }
+        .qr-scanning { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--blue); animation: qrScan 2s linear infinite; }
+        @keyframes qrScan { 0% { top: 0; } 100% { top: 100%; } }
+
+        .lockout-overlay { display: none; position: fixed; inset: 0; background: rgba(13,17,23,0.98); z-index: 500; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .lockout-overlay.show { display: flex; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg); border-top: 1px solid var(--border); padding: 10px 0; }
+        .bottom-nav nav { display: flex; justify-content: space-around; }
+        .nav-item { text-decoration: none; color: var(--muted); font-size: 0.65rem; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .nav-item.active { color: var(--blue); }
+
+        .fade { animation: fadeUp 0.4s ease both; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="toast" class="toast info">
+        <span class="material-symbols-outlined" id="toast-icon">info</span>
+        <span id="toast-msg">Welcome</span>
+    </div>
+
+    <div class="lockout-overlay" id="lockout-overlay">
+        <div class="material-symbols-outlined" style="font-size: 4rem; color: var(--red);">gpp_bad</div>
+        <h2 style="color: #fca5a5; margin: 15px 0;">Access Blocked</h2>
+        <p style="color: var(--muted); font-size: 0.9rem;">Too many failed attempts.</p>
+        <div id="lockout-timer" style="font-size: 3rem; font-weight: 800; color: var(--red); margin: 20px 0;">00:30</div>
+    </div>
+
+    <header>
+        <a href="{% url 'index' %}" class="back-btn"><span class="material-symbols-outlined">arrow_back_ios</span>Home</a>
+        <a href="{% url 'index' %}" class="logo">Drive<span>GO</span></a>
+    </header>
+
+    <div class="page">
+        <div class="pg-head fade">
+            <div class="pg-title">🔐 Lock System</div>
+            <div class="pg-sub">Real backend connected. OTP via Gmail.</div>
+        </div>
+
+        <div class="content">
+            <div class="conn-bar offline fade" id="conn-bar">
+                <div class="conn-dot"></div>
+                <span id="conn-text">Checking server...</span>
+            </div>
+
+            <div class="sec-label fade">Registered Email</div>
+            <input type="email" class="email-input fade" id="user-email" placeholder="Enter your email..."/>
+
+            <div class="sec-label fade">Your Vehicle</div>
+            <div class="vehicle-card fade">
+                <div class="v-icon"><span class="material-symbols-outlined">directions_car</span></div>
+                <div class="v-info">
+                    <div class="v-name" id="v-name">Toyota Innova Crysta</div>
+                    <div class="v-plate" id="v-plate">KA-01-AB-1234</div>
+                </div>
+                <div class="v-status">
+                    <div class="status-badge badge-locked" id="vehicle-badge">Locked</div>
+                    <div style="font-size:0.65rem;color:var(--muted);" id="lock-time">--:--</div>
+                </div>
+            </div>
+
+            <div class="lock-control fade">
+                <div class="lock-visual">
+                    <div class="lock-ring locked-ring" id="ring1"></div>
+                    <div class="lock-ring locked-ring lock-ring-2" id="ring2"></div>
+                    <button class="lock-btn-main is-locked" id="lock-main-btn" onclick="quickToggle()">
+                        <span class="material-symbols-outlined" id="lock-main-icon">lock</span>
+                        <span class="lock-btn-label" id="lock-btn-lbl">Locked</span>
+                    </button>
+                </div>
+                <div class="lock-status-text locked" id="lock-status-txt" style="font-size: 1.1rem; font-weight: 800;">Vehicle Locked</div>
+                <div class="lock-status-sub" id="lock-status-sub" style="font-size: 0.8rem; color: var(--muted); margin-bottom: 20px;">Choose a method to unlock</div>
+
+                <div class="method-tabs">
+                    <button class="method-tab active" onclick="switchTab('otp',this)"><span class="material-symbols-outlined">email</span>OTP</button>
+                    <button class="method-tab" onclick="switchTab('pin',this)"><span class="material-symbols-outlined">pin</span>PIN</button>
+                    <button class="method-tab" onclick="switchTab('qr',this)"><span class="material-symbols-outlined">qr_code_scanner</span>QR</button>
+                </div>
+
+                <div class="method-panel active" id="panel-otp">
+                    <button class="btn-sm" id="send-otp-btn" onclick="sendOTP()" style="background: var(--blue); color: #fff; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 700; cursor: pointer; margin-bottom: 15px;">Send OTP</button>
+                    <div id="otp-section" style="display:none;">
+                        <div class="otp-inputs">
+                            <input class="oi" id="o1" maxlength="1" type="text" inputmode="numeric" oninput="otpNext(this,'o2')"/>
+                            <input class="oi" id="o2" maxlength="1" type="text" inputmode="numeric" oninput="otpNext(this,'o3')"/>
+                            <input class="oi" id="o3" maxlength="1" type="text" inputmode="numeric" oninput="otpNext(this,'o4')"/>
+                            <input class="oi" id="o4" maxlength="1" type="text" inputmode="numeric" oninput="otpNext(this,'o5')"/>
+                            <input class="oi" id="o5" maxlength="1" type="text" inputmode="numeric" oninput="otpNext(this,'o6')"/>
+                            <input class="oi" id="o6" maxlength="1" type="text" inputmode="numeric" oninput="otpNext(this,null)"/>
+                        </div>
+                        <button class="btn-blue" id="verify-otp-btn" onclick="verifyOTP()" style="width: 100%; padding: 12px; background: var(--blue); color: #fff; border: none; border-radius: 10px; font-weight: 700;">Verify & Unlock</button>
+                    </div>
+                </div>
+
+                <div class="method-panel" id="panel-pin">
+                    <div class="pinpad">
+                        <button class="pin-key" onclick="pinKey('1')">1</button>
+                        <button class="pin-key" onclick="pinKey('2')">2</button>
+                        <button class="pin-key" onclick="pinKey('3')">3</button>
+                        <button class="pin-key" onclick="pinKey('4')">4</button>
+                        <button class="pin-key" onclick="pinKey('5')">5</button>
+                        <button class="pin-key" onclick="pinKey('6')">6</button>
+                        <button class="pin-key" onclick="pinKey('7')">7</button>
+                        <button class="pin-key" onclick="pinKey('8')">8</button>
+                        <button class="pin-key" onclick="pinKey('9')">9</button>
+                        <button class="pin-key" style="background: rgba(19,164,236,0.2);" onclick="pinConfirm()">OK</button>
+                        <button class="pin-key" onclick="pinKey('0')">0</button>
+                        <button class="pin-key" onclick="pinDel()">DEL</button>
+                    </div>
+                </div>
+
+                <div class="method-panel" id="panel-qr">
+                    <div class="qr-box">
+                        <div class="qr-scanning"></div>
+                        <svg viewBox="0 0 100 100" style="width:100%;height:100%"><rect width="100" height="100" fill="white"/><path d="M10 10h30v30H10zM60 10h30v30H60zM10 60h30v30H10z" fill="#0d1117"/></svg>
+                    </div>
+                    <button onclick="generateQR()" style="margin-top: 15px; background: none; border: 1px solid var(--blue); color: var(--blue); padding: 5px 15px; border-radius: 15px; font-size: 0.8rem; cursor: pointer;">Regenerate QR</button>
+                </div>
+            </div>
+            
+            <div id="lock-action-section" style="display:none; margin-top: 15px;">
+                <button onclick="lockVehicle()" style="width: 100%; padding: 15px; background: rgba(239,68,68,0.1); border: 1px solid var(--red); color: var(--red); border-radius: 12px; font-weight: 800; cursor: pointer;">LOCK VEHICLE</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <nav>
+            <a href="#" class="nav-item"><span class="material-symbols-outlined">home</span>Home</a>
+            <a href="#" class="nav-item active"><span class="material-symbols-outlined">apps</span>Services</a>
+            <a href="#" class="nav-item"><span class="material-symbols-outlined">person</span>Account</a>
+        </nav>
+    </div>
+
+    <script>
+        /* JAVASCRIPT LOGIC */
+        const API_URLS = {
+            healthCheck: "{% url 'locksystem:health_check' %}",
+            vehicle: "{% url 'locksystem:get_vehicle' vehicle_id='PLACEHOLDER' %}".replace('PLACEHOLDER', ''),
+            sendOtp: "{% url 'locksystem:send_otp' %}",
+            verifyOtp: "{% url 'locksystem:verify_otp' %}",
+            verifyPin: "{% url 'locksystem:verify_pin' %}",
+            lock: "{% url 'locksystem:lock_vehicle' %}",
+            logs: "{% url 'locksystem:get_logs' vehicle_id='PLACEHOLDER' %}".replace('PLACEHOLDER', ''),
+            login: "{% url 'Login' %}"
+        };
+
+        const VEHICLE_ID = 'VH-001';
+        let isLocked = true;
+        let pinBuffer = '';
+
+        function showToast(msg, type = 'info') {
+            const t = document.getElementById('toast');
+            t.className = `toast ${type} show`;
+            document.getElementById('toast-msg').textContent = msg;
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        async function checkServer() {
+            const bar = document.getElementById('conn-bar');
+            try {
+                const res = await fetch(API_URLS.healthCheck);
+                if(res.ok) {
+                    bar.className = 'conn-bar online fade';
+                    document.getElementById('conn-text').textContent = '✓ Server Online';
+                }
+            } catch {
+                bar.className = 'conn-bar offline fade';
+                document.getElementById('conn-text').textContent = '✗ Server Offline';
+            }
+        }
+
+        function switchTab(name, btn) {
+            document.querySelectorAll('.method-tab').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.method-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('panel-' + name).classList.add('active');
+        }
+
+        function otpNext(el, nid) {
+            if (el.value.length === 1 && nid) document.getElementById(nid).focus();
+            if (!nid && el.value.length === 1) verifyOTP();
+        }
+
+        async function sendOTP() {
+            const email = document.getElementById('user-email').value;
+            if(!email) return showToast('Enter email', 'error');
+            
+            const btn = document.getElementById('send-otp-btn');
+            btn.textContent = 'Sending...';
+            
+            try {
+                const res = await fetch(API_URLS.sendOtp, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+                    body: JSON.stringify({ email, vehicle_id: VEHICLE_ID })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    document.getElementById('otp-section').style.display = 'block';
+                    showToast('OTP Sent!', 'success');
+                }
+            } catch { showToast('Server Error', 'error'); }
+            btn.textContent = 'Resend OTP';
+        }
+
+        async function verifyOTP() {
+            const otp = Array.from(document.querySelectorAll('.oi')).map(i => i.value).join('');
+            if(otp.length < 6) return;
+
+            const res = await fetch(API_URLS.verifyOtp, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+                body: JSON.stringify({ email: document.getElementById('user-email').value, otp, vehicle_id: VEHICLE_ID })
+            });
+            const data = await res.json();
+            if(data.success) {
+                setLockUI(false);
+                showToast('Unlocked!', 'success');
+            } else {
+                showToast('Wrong OTP', 'error');
+            }
+        }
+
+        function pinKey(n) { if(pinBuffer.length < 4) pinBuffer += n; }
+        function pinDel() { pinBuffer = pinBuffer.slice(0,-1); }
+        async function pinConfirm() {
+            if(pinBuffer.length < 4) return;
+            const res = await fetch(API_URLS.verifyPin, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+                body: JSON.stringify({ vehicle_id: VEHICLE_ID, pin: pinBuffer })
+            });
+            const data = await res.json();
+            if(data.success) {
+                setLockUI(false);
+                showToast('Unlocked!', 'success');
+            } else {
+                showToast(data.message || 'Incorrect PIN', 'error');
+            }
+            pinBuffer='';
+        }
+
+        function setLockUI(locked) {
+            isLocked = locked;
+            document.getElementById('lock-main-btn').className = 'lock-btn-main ' + (locked ? 'is-locked' : 'is-unlocked');
+            document.getElementById('lock-main-icon').textContent = locked ? 'lock' : 'lock_open';
+            document.getElementById('lock-status-txt').textContent = locked ? 'Vehicle Locked' : 'Vehicle Unlocked';
+            document.getElementById('vehicle-badge').className = 'status-badge ' + (locked ? 'badge-locked' : 'badge-unlocked');
+            document.getElementById('vehicle-badge').textContent = locked ? 'Locked' : 'Active';
+            document.getElementById('lock-action-section').style.display = locked ? 'none' : 'block';
+            document.getElementById('ring1').className = 'lock-ring ' + (locked ? 'locked-ring' : 'active');
+            document.getElementById('ring2').className = 'lock-ring ' + (locked ? 'locked-ring' : 'active') + ' lock-ring-2';
+        }
+
+        async function lockVehicle() {
+            const res = await fetch(API_URLS.lock, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+                body: JSON.stringify({ vehicle_id: VEHICLE_ID })
+            });
+            const data = await res.json();
+            if(data.success) {
+                setLockUI(true);
+                showToast('Vehicle Locked', 'success');
+            } else {
+                showToast('Lock failed', 'error');
+            }
+        }
+
+        function quickToggle() {
+            if(!isLocked) lockVehicle();
+            else showToast('Choose an unlock method', 'info');
+        }
+
+        function generateQR() {
+            showToast('QR Regenerated', 'info');
+        }
+
+        checkServer();
+    </script>
+</body>
+</html>

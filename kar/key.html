@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DriveGO - Smart Key</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --blue: #13a4ec;
+            --bg: #0d1117;
+            --header-bg: #161d27;
+            --card-bg: #1a2332;
+            --border: rgba(255,255,255,0.06);
+            --text: #e2e8f0;
+            --muted: #4a5568;
+            --green: #4ade80;
+            --red: #ef4444;
+            --font: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); overflow-x: hidden; }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            line-height: 1; vertical-align: middle;
+        }
+
+        /* TOAST */
+        .toast-notif {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+            background: var(--header-bg); border: 1px solid var(--blue);
+            padding: 12px 24px; border-radius: 12px;
+            display: flex; align-items: center; gap: 10px;
+            z-index: 1000; transition: top 0.4s cubic-bezier(0.68,-0.55,0.27,1.55);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            font-size: 0.85rem; font-weight: 600; white-space: nowrap;
+        }
+        .toast-notif.show { top: 20px; }
+        .toast-notif .material-symbols-outlined { color: var(--blue); font-size: 1.2rem; }
+        .toast-notif.locked { border-color: var(--red); }
+        .toast-notif.locked .material-symbols-outlined { color: var(--red); }
+        .toast-notif.unlocked { border-color: var(--green); }
+        .toast-notif.unlocked .material-symbols-outlined { color: var(--green); }
+
+        /* HEADER */
+        header {
+            position: sticky; top: 0; z-index: 100;
+            background: var(--header-bg); padding: 0 32px; height: 62px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+        .logo { font-size: 1.6rem; font-weight: 800; color: #fff; text-decoration: none; letter-spacing: -0.5px; }
+        .logo span { color: var(--blue); }
+        .header-right { display: flex; align-items: center; gap: 10px; }
+        .host-btn {
+            display: flex; align-items: center; gap: 7px;
+            background: rgba(19,164,236,0.1); border: 1px solid rgba(19,164,236,0.25);
+            border-radius: 999px; padding: 7px 16px; text-decoration: none;
+            color: var(--blue); font-size: 0.85rem; font-weight: 700;
+            transition: all 0.2s; cursor: pointer; white-space: nowrap;
+        }
+        .host-btn:hover { background: rgba(19,164,236,0.2); border-color: rgba(19,164,236,0.5); transform: translateY(-1px); }
+        .host-btn .material-symbols-outlined { font-size: 1.05rem; color: var(--blue); }
+        .user-chip {
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 999px; padding: 6px 8px 6px 16px;
+            color: var(--text); font-size: 0.9rem; font-weight: 700;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .user-chip:hover { background: rgba(255,255,255,0.1); }
+        .user-avatar-wrap { position: relative; width: 32px; height: 32px; }
+        .user-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--blue); display: flex; align-items: center; justify-content: center;
+        }
+        .user-avatar .material-symbols-outlined {
+            font-size: 1.15rem; color: #fff;
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .online-dot {
+            position: absolute; bottom: 1px; right: 1px;
+            width: 9px; height: 9px; border-radius: 50%;
+            background: var(--green); border: 2px solid var(--header-bg);
+            animation: dotPulse 2s infinite;
+        }
+        @keyframes dotPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(.8)} }
+
+        @media(max-width:460px){.host-text{display:none}.host-btn{padding:7px 10px}}
+
+        /* PAGE */
+        .page { display: flex; flex-direction: column; min-height: calc(100vh - 62px); padding-bottom: 72px; }
+
+        /* SHOWROOM — full viewport width, tall */
+        .showroom-container {
+            position: relative;
+            width: 100vw;
+            margin-left: calc(-50vw + 50%);
+            height: 520px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #05080e 0%, #0a1520 55%, #101e30 100%);
+        }
+        @media(max-width:600px){.showroom-container{height:360px}}
+
+        #car-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+        }
+
+        /* Ground reflection line */
+        .ground-line {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(19,164,236,0.3) 30%, rgba(19,164,236,0.5) 50%, rgba(19,164,236,0.3) 70%, transparent 100%);
+        }
+
+        /* Status overlay */
+        .car-status-overlay {
+            position: absolute; top: 20px; left: 20px;
+            display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+        }
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(0,0,0,0.55); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px; padding: 8px 14px;
+            font-size: 0.72rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px; transition: all 0.4s;
+        }
+        .status-badge .dot { width:7px;height:7px;border-radius:50%;background:var(--green);animation:dotPulse 2s infinite; }
+        .status-badge.locked-state .dot{background:var(--red)}
+        .status-badge.locked-state{border-color:rgba(239,68,68,.2)}
+        .status-badge.unlocked-state{border-color:rgba(74,222,128,.2)}
+        .car-name-badge { font-size:0.68rem;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase;font-weight:600; }
+
+        /* Door lock visual overlay — 4 corner indicators */
+        .door-indicators {
+            position: absolute; inset: 0; pointer-events: none;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .door-indicators.visible { opacity: 1; }
+        .door-ind {
+            position: absolute; width: 44px; height: 44px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; font-weight: 900;
+            backdrop-filter: blur(8px);
+            animation: doorPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+        }
+        .door-ind.locked-ind {
+            background: rgba(239,68,68,0.22);
+            border: 1.5px solid rgba(239,68,68,0.6);
+            color: var(--red);
+            box-shadow: 0 0 18px rgba(239,68,68,0.35);
+        }
+        .door-ind.unlocked-ind {
+            background: rgba(74,222,128,0.18);
+            border: 1.5px solid rgba(74,222,128,0.5);
+            color: var(--green);
+            box-shadow: 0 0 18px rgba(74,222,128,0.3);
+        }
+        /* positions: front-left, front-right, rear-left, rear-right */
+        .door-ind:nth-child(1){ top:38%; left:28%; animation-delay:0s; }
+        .door-ind:nth-child(2){ top:38%; right:28%; animation-delay:0.07s; }
+        .door-ind:nth-child(3){ top:55%; left:35%; animation-delay:0.14s; }
+        .door-ind:nth-child(4){ top:55%; right:35%; animation-delay:0.21s; }
+        @keyframes doorPop {
+            0%{opacity:0;transform:scale(0.3)}
+            70%{opacity:1;transform:scale(1.15)}
+            100%{opacity:1;transform:scale(1)}
+        }
+
+        /* Lock/unlock ring burst */
+        .lock-burst {
+            position: absolute; top: 50%; left: 50%;
+            width: 0; height: 0;
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%,-50%);
+            opacity: 0;
+        }
+        .lock-burst.fire {
+            animation: burstRing 0.65s ease-out forwards;
+        }
+        .lock-burst.red { border: 2px solid rgba(239,68,68,0.7); }
+        .lock-burst.green-b { border: 2px solid rgba(74,222,128,0.7); }
+        @keyframes burstRing {
+            0%  { width:0;height:0;opacity:0.9 }
+            100%{ width:340px;height:340px;opacity:0 }
+        }
+
+        /* Headlight glow */
+        .headlight-glow {
+            position: absolute; width: 80px; height: 80px; border-radius: 50%;
+            pointer-events: none; transition: opacity 0.5s; opacity: 0;
+        }
+        .headlight-glow.on { opacity: 1; }
+        .glow-left { left: 22%; top: 52%; box-shadow: 0 0 50px 25px rgba(220,240,255,0.6), 0 0 100px 50px rgba(180,220,255,0.2); }
+        .glow-right { right: 22%; top: 52%; box-shadow: 0 0 50px 25px rgba(220,240,255,0.6), 0 0 100px 50px rgba(180,220,255,0.2); }
+        @keyframes headlightFlash{0%{opacity:0}15%{opacity:1}30%{opacity:0}45%{opacity:1}60%{opacity:0}75%{opacity:1}100%{opacity:1}}
+        .headlight-flash{animation:headlightFlash .8s ease forwards}
+
+        .open-indicator {
+            position: absolute; bottom: 16px; right: 16px;
+            display: flex; align-items: center; gap: 6px;
+            background: rgba(0,0,0,0.55); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px; padding: 8px 14px;
+            font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,.6);
+            text-transform: uppercase; letter-spacing: .8px;
+            pointer-events: none; opacity: 0; transition: opacity .3s;
+        }
+        .open-indicator.visible { opacity: 1; }
+
+        /* Loading */
+        .canvas-loader {
+            position: absolute; inset: 0; display: flex;
+            align-items: center; justify-content: center; flex-direction: column; gap: 12px;
+            background: linear-gradient(180deg, #07090d 0%, #0d1520 100%);
+            z-index: 5; transition: opacity 0.6s;
+        }
+        .canvas-loader.hidden{opacity:0;pointer-events:none}
+        .loader-spinner{width:40px;height:40px;border:3px solid rgba(19,164,236,.2);border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .loader-text{font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+
+        /* SMART KEY PANEL */
+        .smart-key-section {
+            padding: 0 24px; margin-top: -44px;
+            position: relative; z-index: 10; display: flex; justify-content: center;
+        }
+        .smart-key-card {
+            width: 100%; max-width: 520px; background: var(--card-bg);
+            border: 1px solid var(--border); border-radius: 20px; padding: 28px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .key-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:24px; }
+        .key-header-left h3{font-size:1.1rem;font-weight:800;color:#fff}
+        .key-header-left p{font-size:.75rem;color:var(--muted);margin-top:2px}
+        .connection-pill {
+            display:flex;align-items:center;gap:5px;
+            background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.2);
+            border-radius:999px;padding:5px 12px;
+            font-size:.68rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;
+        }
+        .connection-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:dotPulse 2s infinite}
+
+        /* Lock button */
+        .lock-btn-wrap{display:flex;justify-content:center;margin-bottom:24px}
+        .lock-btn {
+            position:relative;width:100px;height:100px;border-radius:50%;border:none;
+            cursor:pointer;display:flex;align-items:center;justify-content:center;
+            transition:all .4s cubic-bezier(.34,1.56,.64,1);outline:none;
+        }
+        .lock-btn.unlocked{background:radial-gradient(circle at 30% 30%,#22d3ee,#13a4ec);box-shadow:0 0 40px rgba(19,164,236,.4),0 0 80px rgba(19,164,236,.15),inset 0 -3px 6px rgba(0,0,0,.2)}
+        .lock-btn.locked{background:radial-gradient(circle at 30% 30%,#f87171,#dc2626);box-shadow:0 0 40px rgba(239,68,68,.4),0 0 80px rgba(239,68,68,.15),inset 0 -3px 6px rgba(0,0,0,.2)}
+        .lock-btn:hover{transform:scale(1.08)}
+        .lock-btn:active{transform:scale(.95)}
+        .lock-btn .material-symbols-outlined{font-size:2.6rem;color:#fff;font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 48;transition:transform .3s}
+        .lock-btn .ripple-ring{position:absolute;width:100%;height:100%;border-radius:50%;border:2px solid rgba(255,255,255,.3);animation:rippleOut 1.5s ease-out infinite;pointer-events:none}
+        @keyframes rippleOut{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.7);opacity:0}}
+        .lock-status-text{text-align:center;font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:24px;transition:color .3s}
+        .lock-status-text.unlocked{color:var(--blue)}
+        .lock-status-text.locked{color:var(--red)}
+
+        /* Quick actions */
+        .quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+        .action-btn{
+            display:flex;flex-direction:column;align-items:center;gap:6px;
+            background:rgba(255,255,255,.04);border:1px solid var(--border);
+            border-radius:14px;padding:16px 8px;cursor:pointer;
+            transition:all .25s;text-decoration:none;color:var(--text);
+        }
+        .action-btn:hover{background:rgba(19,164,236,.08);border-color:rgba(19,164,236,.2);transform:translateY(-2px)}
+        .action-btn:active{transform:scale(.95)}
+        .action-btn .material-symbols-outlined{font-size:1.4rem;color:var(--blue)}
+        .action-btn span:last-child{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);text-align:center}
+        .action-btn.active-action{background:rgba(19,164,236,.12);border-color:rgba(19,164,236,.3)}
+        .action-btn.active-action span:last-child{color:var(--blue)}
+
+        /* Vehicle info */
+        .vehicle-info-section{padding:24px;display:flex;justify-content:center}
+        .vehicle-info-card{width:100%;max-width:520px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:24px}
+        .vehicle-info-card h4{font-size:.9rem;font-weight:800;color:#fff;margin-bottom:16px}
+        .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .info-item{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px}
+        .info-item .material-symbols-outlined{font-size:1.3rem;color:var(--blue);opacity:.7}
+        .info-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:700}
+        .info-value{font-size:.88rem;font-weight:700;color:#fff;margin-top:2px}
+
+        @media(max-width:420px){.info-grid{grid-template-columns:1fr}.quick-actions{grid-template-columns:repeat(2,1fr)}}
+
+        /* Bottom nav */
+        .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--bg);border-top:1px solid var(--border);padding:10px 0 14px}
+        .bottom-nav nav{display:flex;justify-content:space-around;align-items:center}
+        .nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;color:var(--muted);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;transition:color .2s;padding:2px 20px}
+        .nav-item .material-symbols-outlined{font-size:1.35rem}
+        .nav-item.active{color:var(--blue)}
+        .nav-item.active .material-symbols-outlined{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24}
+        .nav-item:hover{color:var(--blue)}
+
+        /* Fade animations */
+        .fade{animation:fadeUp .5s ease both}
+        .fade-1{animation-delay:.05s}
+        .fade-2{animation-delay:.15s}
+        .fade-3{animation-delay:.25s}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    </style>
+</head>
+<body>
+
+<div id="toast" class="toast-notif">
+    <span class="material-symbols-outlined">notifications_active</span>
+    <span id="toast-msg">Welcome!</span>
+</div>
+
+<header>
+    <a href="#" class="logo">Drive<span>GO</span></a>
+    <div class="header-right">
+        <a href="#" class="host-btn">
+            <span class="material-symbols-outlined">handshake</span>
+            <span class="host-text">Become a Host</span>
+        </a>
+        <div class="user-chip">
+            <span>Driver</span>
+            <div class="user-avatar-wrap">
+                <div class="user-avatar">
+                    <span class="material-symbols-outlined">account_circle</span>
+                </div>
+                <span class="online-dot"></span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="page">
+    <div class="showroom-container fade fade-1">
+        <div class="canvas-loader" id="canvasLoader">
+            <div class="loader-spinner"></div>
+            <div class="loader-text">Loading vehicle…</div>
+        </div>
+        <canvas id="car-canvas"></canvas>
+        <div class="ground-line"></div>
+        <div class="headlight-glow glow-left" id="glowL"></div>
+        <div class="headlight-glow glow-right" id="glowR"></div>
+
+        <!-- Door lock indicators -->
+        <div class="door-indicators" id="doorIndicators">
+            <div class="door-ind" id="di1">🔒</div>
+            <div class="door-ind" id="di2">🔒</div>
+            <div class="door-ind" id="di3">🔒</div>
+            <div class="door-ind" id="di4">🔒</div>
+        </div>
+        <!-- Ring burst on lock -->
+        <div class="lock-burst" id="lockBurst"></div>
+
+        <div class="car-status-overlay">
+            <div class="status-badge unlocked-state" id="statusBadge">
+                <span class="dot"></span>
+                <span id="statusText">UNLOCKED</span>
+            </div>
+            <div class="car-name-badge">Ford Mustang GT · 2024</div>
+        </div>
+        <div class="open-indicator" id="openIndicator">
+            <span class="material-symbols-outlined" style="font-size:1rem">info</span>
+            <span id="openIndicatorText">Trunk Open</span>
+        </div>
+    </div>
+
+    <div class="smart-key-section fade fade-2">
+        <div class="smart-key-card">
+            <div class="key-header">
+                <div class="key-header-left">
+                    <h3>Smart Key</h3>
+                    <p>Bluetooth LE · 2.4 m away</p>
+                </div>
+                <div class="connection-pill"><span class="dot"></span>Connected</div>
+            </div>
+            <div class="lock-btn-wrap">
+                <button class="lock-btn unlocked" id="lockBtn" onclick="toggleLock()">
+                    <span class="material-symbols-outlined" id="lockIcon">lock_open</span>
+                    <div class="ripple-ring"></div>
+                </button>
+            </div>
+            <div class="lock-status-text unlocked" id="lockStatusText">Tap to lock vehicle</div>
+            <div class="quick-actions">
+                <button class="action-btn" id="btnTrunk" onclick="toggleTrunk()">
+                    <span class="material-symbols-outlined">inventory_2</span><span>Trunk</span>
+                </button>
+                <button class="action-btn" id="btnHood" onclick="toggleHood()">
+                    <span class="material-symbols-outlined">construction</span><span>Hood</span>
+                </button>
+                <button class="action-btn" id="btnLights" onclick="toggleLights()">
+                    <span class="material-symbols-outlined">lightbulb</span><span>Lights</span>
+                </button>
+                <button class="action-btn" id="btnHorn" onclick="honkHorn()">
+                    <span class="material-symbols-outlined">volume_up</span><span>Horn</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="vehicle-info-section fade fade-3">
+        <div class="vehicle-info-card">
+            <h4>Vehicle Details</h4>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="material-symbols-outlined">local_gas_station</span>
+                    <div><div class="info-label">Fuel</div><div class="info-value">78%</div></div>
+                </div>
+                <div class="info-item">
+                    <span class="material-symbols-outlined">speed</span>
+                    <div><div class="info-label">Mileage</div><div class="info-value">24,310 mi</div></div>
+                </div>
+                <div class="info-item">
+                    <span class="material-symbols-outlined">thermostat</span>
+                    <div><div class="info-label">Engine</div><div class="info-value">72 °F</div></div>
+                </div>
+                <div class="info-item">
+                    <span class="material-symbols-outlined">tire_repair</span>
+                    <div><div class="info-label">Tire PSI</div><div class="info-value">34 avg</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <nav>
+        <a href="#" class="nav-item"><span class="material-symbols-outlined">home</span>Home</a>
+        <a href="#" class="nav-item active"><span class="material-symbols-outlined">key</span>Key</a>
+        <a href="#" class="nav-item"><span class="material-symbols-outlined">receipt_long</span>Activity</a>
+        <a href="#" class="nav-item"><span class="material-symbols-outlined">person</span>Account</a>
+    </nav>
+</div>
+
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+
+/* ─── state ─── */
+let isLocked = false, lightsOn = false, trunkOpen = false, hoodOpen = false;
+let carModel = null;
+let headlightMeshes = [], tailLightMeshes = [];
+let headlightPointLights = [];
+let scene, camera, renderer, controls;
+let autoRotate = true;
+
+// Door visual — 4 door panel meshes on the car (built into fallback)
+let doorMeshes = [];
+let doorOrigColors = [];
+
+/* ─── toast ─── */
+function showToast(msg, type=''){
+    const t=document.getElementById('toast'), m=document.getElementById('toast-msg');
+    m.textContent=msg; t.className='toast-notif show '+type;
+    clearTimeout(t._tid); t._tid=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+/* ─── canvas sizing ─── */
+const container = document.querySelector('.showroom-container');
+const canvas = document.getElementById('car-canvas');
+
+function getSize(){ return { w: container.clientWidth, h: container.clientHeight }; }
+
+renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+const sz = getSize();
+renderer.setSize(sz.w, sz.h);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.95;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+/* ─── scene ─── */
+scene = new THREE.Scene();
+scene.background = new THREE.Color(0x06101a);
+scene.fog = new THREE.FogExp2(0x06101a, 0.022);
+
+/* ─── camera ─── */
+camera = new THREE.PerspectiveCamera(36, sz.w/sz.h, 0.1, 200);
+camera.position.set(5.5, 2.6, 8);
+
+/* ─── controls ─── */
+controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.maxPolarAngle = Math.PI / 2.05;
+controls.minDistance = 3;
+controls.maxDistance = 22;
+controls.target.set(0, 0.6, 0);
+controls.enablePan = false;
+controls.addEventListener('start', ()=>{ autoRotate=false; });
+controls.addEventListener('end', ()=>{ setTimeout(()=>{ autoRotate=true; }, 5000); });
+
+/* ─── HDRI environment ─── */
+new RGBELoader()
+    .setPath('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/')
+    .load('aircraft_workshop_01_1k.hdr', (texture)=>{
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        scene.environment = texture;
+    });
+
+/* ─── FLOOR ─── */
+const floorGeo = new THREE.CircleGeometry(22, 64);
+const floorMat = new THREE.MeshStandardMaterial({
+    color: 0x080f18, roughness: 0.06, metalness: 0.92, envMapIntensity: 1.8
+});
+const floor = new THREE.Mesh(floorGeo, floorMat);
+floor.rotation.x = -Math.PI/2; floor.position.y = -0.01; floor.receiveShadow = true;
+scene.add(floor);
+
+const gridHelper = new THREE.GridHelper(38, 76, 0x0d2035, 0x0a1820);
+gridHelper.position.y = 0.001;
+scene.add(gridHelper);
+
+/* ─── LIGHTING ─── */
+const ambient = new THREE.AmbientLight(0x223344, 0.3);
+scene.add(ambient);
+
+const keyLight = new THREE.DirectionalLight(0xfff5e6, 2.0);
+keyLight.position.set(-6, 10, 4);
+keyLight.castShadow = true;
+keyLight.shadow.mapSize.set(2048,2048);
+keyLight.shadow.camera.near = 0.5; keyLight.shadow.camera.far = 40;
+keyLight.shadow.camera.left = -8; keyLight.shadow.camera.right = 8;
+keyLight.shadow.camera.top = 8; keyLight.shadow.camera.bottom = -8;
+keyLight.shadow.bias = -0.0005;
+scene.add(keyLight);
+
+const fillLight = new THREE.DirectionalLight(0x8ab4d8, 0.8);
+fillLight.position.set(6, 5, -4);
+scene.add(fillLight);
+
+const topLight = new THREE.DirectionalLight(0xffffff, 0.45);
+topLight.position.set(0, 12, 0);
+scene.add(topLight);
+
+const neonBlue1 = new THREE.PointLight(0x13a4ec, 1.4, 14, 2);
+neonBlue1.position.set(-7, 3, -5);
+scene.add(neonBlue1);
+const neonBlue2 = new THREE.PointLight(0x1a7ecf, 1.0, 12, 2);
+neonBlue2.position.set(7, 3, 5);
+scene.add(neonBlue2);
+
+const underGlow = new THREE.PointLight(0x0d2a4a, 2.2, 5, 2);
+underGlow.position.set(0, -0.5, 0);
+scene.add(underGlow);
+
+const hlL = new THREE.SpotLight(0xddeeff, 0, 18, Math.PI/7, 0.3, 1.5);
+hlL.position.set(-2.8, 0.6, -0.6);
+hlL.target.position.set(-10, 0, -1);
+scene.add(hlL); scene.add(hlL.target);
+headlightPointLights.push(hlL);
+
+const hlR = new THREE.SpotLight(0xddeeff, 0, 18, Math.PI/7, 0.3, 1.5);
+hlR.position.set(-2.8, 0.6, 0.6);
+hlR.target.position.set(-10, 0, 1);
+scene.add(hlR); scene.add(hlR.target);
+headlightPointLights.push(hlR);
+
+/* ─── REFLECTION DECAL ─── */
+const decal = new THREE.Mesh(
+    new THREE.CircleGeometry(4, 64),
+    new THREE.MeshStandardMaterial({
+        color: 0x000000, roughness: 0.02, metalness: 0.98,
+        transparent: true, opacity: 0.65, envMapIntensity: 2.5
+    })
+);
+decal.rotation.x = -Math.PI/2; decal.position.y = 0.002;
+scene.add(decal);
+
+/* ─── NEON FLOOR STRIP ─── */
+const pts = [new THREE.Vector3(-9,0.02,0), new THREE.Vector3(9,0.02,0)];
+const neonLine = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(pts),
+    new THREE.LineBasicMaterial({color:0x13a4ec})
+);
+scene.add(neonLine);
+const neonPL = new THREE.PointLight(0x13a4ec, 0.7, 10, 2);
+neonPL.position.set(0, 0.02, 0);
+scene.add(neonPL);
+
+/* ─── LOAD GLTF CAR ─── */
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/');
+const loader = new GLTFLoader();
+loader.setDRACOLoader(dracoLoader);
+
+loader.load(
+    'https://threejs.org/examples/models/gltf/ferrari.glb',
+    (gltf) => {
+        carModel = gltf.scene;
+        carModel.traverse((child) => {
+            if (!child.isMesh) return;
+            child.castShadow = true; child.receiveShadow = true;
+            const m = child.material;
+            if (!m) return;
+            if (m.name && (m.name.toLowerCase().includes('body') || m.name.toLowerCase().includes('paint'))) {
+                m.color = new THREE.Color(0xc0382b);
+                m.roughness = 0.05; m.metalness = 0.92; m.envMapIntensity = 2.8;
+            }
+            if (m.name && (m.name.toLowerCase().includes('chrome') || m.name.toLowerCase().includes('wheel'))) {
+                m.roughness = 0.03; m.metalness = 1.0; m.envMapIntensity = 3.5;
+            }
+            if (m.name && m.name.toLowerCase().includes('glass')) {
+                m.roughness = 0.0; m.metalness = 0.1; m.transparent = true;
+                m.opacity = 0.22; m.envMapIntensity = 2.0;
+            }
+            if (m.name && m.name.toLowerCase().includes('light')) {
+                m.emissive = new THREE.Color(0x220000);
+                m.emissiveIntensity = 0.5;
+                tailLightMeshes.push(child);
+            }
+            if (m.envMapIntensity !== undefined) m.envMapIntensity = Math.max(m.envMapIntensity, 1.8);
+        });
+
+        scene.add(carModel);
+        document.getElementById('canvasLoader').classList.add('hidden');
+        setTimeout(()=>showToast('🚗 Smart Key Connected',''),400);
+    },
+    (xhr) => {
+        const pct = Math.round(xhr.loaded/xhr.total*100);
+        document.querySelector('.loader-text').textContent = `Loading vehicle… ${pct}%`;
+    },
+    (err) => {
+        console.warn('Fallback car:', err);
+        buildFallbackCar();
+        document.getElementById('canvasLoader').classList.add('hidden');
+        setTimeout(()=>showToast('🚗 Smart Key Connected',''),400);
+    }
+);
+
+/* ─── FALLBACK CAR ─── */
+function buildFallbackCar() {
+    const g = new THREE.Group();
+    const paint = new THREE.MeshPhysicalMaterial({color:0xc0302a,roughness:0.05,metalness:0.9,clearcoat:1.0,clearcoatRoughness:0.03,reflectivity:1,envMapIntensity:3.0});
+    const chrome = new THREE.MeshPhysicalMaterial({color:0xdddddd,roughness:0.02,metalness:1.0,envMapIntensity:4.0});
+    const glass = new THREE.MeshPhysicalMaterial({color:0x88aacc,roughness:0,metalness:0,transmission:0.9,transparent:true,opacity:0.22,ior:1.52,thickness:0.3,envMapIntensity:2.0});
+    const rubber = new THREE.MeshStandardMaterial({color:0x111111,roughness:0.95,metalness:0});
+    const interior = new THREE.MeshStandardMaterial({color:0x1a1010,roughness:0.85,metalness:0});
+    const tailGlow = new THREE.MeshStandardMaterial({color:0xff1111,emissive:0xff1100,emissiveIntensity:0.8,roughness:0.1,metalness:0.4});
+
+    // Door paint material (separate so we can flash it)
+    const doorPaint = paint.clone();
+    doorPaint.color = new THREE.Color(0xc0302a);
+
+    function rbox(w,h,d,mat){ const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d,1,1,1),mat); m.castShadow=true; return m; }
+
+    const bodyLow = rbox(4.2,0.72,1.9,paint); bodyLow.position.set(0,0.56,0);
+    const cabin = rbox(1.85,0.62,1.65,paint); cabin.position.set(-0.1,1.19,0);
+    const roofRear = rbox(1.6,0.06,1.62,paint); roofRear.position.set(0.85,1.38,0); roofRear.rotation.z=-0.18;
+    const hood = rbox(1.4,0.07,1.78,paint); hood.position.set(-1.45,0.965,0);
+    const trunk = rbox(0.95,0.06,1.78,paint); trunk.position.set(1.55,0.97,0);
+
+    // Door panels (4) — these will be flashed on lock/unlock
+    const doorFL = rbox(0.88,0.52,0.08,doorPaint); doorFL.position.set(-0.48,0.62,-0.97); g.add(doorFL);
+    const doorFR = rbox(0.88,0.52,0.08,doorPaint); doorFR.position.set(-0.48,0.62,0.97); g.add(doorFR);
+    const doorRL = rbox(0.88,0.52,0.08,doorPaint); doorRL.position.set(0.52,0.62,-0.97); g.add(doorRL);
+    const doorRR = rbox(0.88,0.52,0.08,doorPaint); doorRR.position.set(0.52,0.62,0.97); g.add(doorRR);
+    doorMeshes = [doorFL, doorFR, doorRL, doorRR];
+    doorOrigColors = doorMeshes.map(()=>new THREE.Color(0xc0302a));
+
+    for(const [xf,zf] of [[-1.6,-1.02],[-1.6,1.02],[1.55,-1.02],[1.55,1.02]]) {
+        const fl=rbox(0.85,0.6,0.24,paint); fl.position.set(xf,0.55,zf>0?zf-0.06:zf+0.06); g.add(fl);
+    }
+    for(const zs of [-0.97,0.97]){const sk=rbox(3.8,0.12,0.08,paint);sk.position.set(0,0.24,zs);g.add(sk);}
+
+    const front=rbox(0.12,0.52,1.8,paint);front.position.set(-2.13,0.56,0);
+    const rear=rbox(0.1,0.52,1.8,paint);rear.position.set(2.13,0.56,0);
+    const fBumper=rbox(0.05,0.12,1.82,chrome);fBumper.position.set(-2.17,0.38,0);
+    const rBumper=rbox(0.05,0.12,1.82,chrome);rBumper.position.set(2.17,0.38,0);
+
+    const wshield=new THREE.Mesh(new THREE.PlaneGeometry(0.92,0.58),glass);
+    wshield.position.set(-0.96,1.28,0); wshield.rotation.set(0,0,0.52);
+    const rWin=new THREE.Mesh(new THREE.PlaneGeometry(1.0,0.5),glass);
+    rWin.position.set(0.72,1.26,0); rWin.rotation.set(0,0,-0.22);
+    for(const zw of [-0.85,0.85]){const sw=new THREE.Mesh(new THREE.PlaneGeometry(1.05,0.46),glass);sw.position.set(-0.08,1.22,zw);sw.rotation.y=Math.PI/2;g.add(sw);}
+
+    const grilleMat=new THREE.MeshStandardMaterial({color:0x080808,roughness:0.6,metalness:0.8});
+    const grille=rbox(0.06,0.28,0.9,grilleMat);grille.position.set(-2.16,0.68,0);
+    const gSurround=rbox(0.04,0.33,0.96,chrome);gSurround.position.set(-2.18,0.68,0);
+
+    for(const zhl of [-0.62,0.62]){
+        const hlH=rbox(0.06,0.16,0.28,chrome);hlH.position.set(-2.14,0.78,zhl);
+        const hlLens=new THREE.Mesh(new THREE.PlaneGeometry(0.24,0.13),new THREE.MeshStandardMaterial({color:0xaaccff,emissive:0x88bbff,emissiveIntensity:0.3,roughness:0.05,metalness:0.2,transparent:true,opacity:0.85}));
+        hlLens.position.set(-2.18,0.78,zhl);hlLens.rotation.y=Math.PI/2;
+        headlightMeshes.push(hlLens);g.add(hlH,hlLens);
+    }
+
+    const tlBar=rbox(0.04,0.1,1.62,tailGlow);tlBar.position.set(2.16,0.72,0);tailLightMeshes.push(tlBar);
+    for(const ze of [-0.32,0.32]){const p=new THREE.Mesh(new THREE.CylinderGeometry(0.048,0.055,0.15,14),chrome);p.rotation.z=Math.PI/2;p.position.set(2.2,0.26,ze);g.add(p);}
+
+    function buildWheel(x,z){
+        const wg=new THREE.Group();
+        const tire=new THREE.Mesh(new THREE.TorusGeometry(0.32,0.115,16,32),rubber);tire.rotation.x=Math.PI/2;wg.add(tire);
+        const rim=new THREE.Mesh(new THREE.CylinderGeometry(0.29,0.26,0.2,22),chrome);rim.rotation.x=Math.PI/2;wg.add(rim);
+        const cap=new THREE.Mesh(new THREE.SphereGeometry(0.08,12,12),chrome);wg.add(cap);
+        for(let i=0;i<10;i++){const sp=new THREE.Mesh(new THREE.BoxGeometry(0.028,0.22,0.18),chrome);sp.rotation.z=(i/10)*Math.PI*2;wg.add(sp);}
+        const caliper=new THREE.Mesh(new THREE.BoxGeometry(0.08,0.11,0.14),new THREE.MeshStandardMaterial({color:0xcc1111,roughness:0.35,metalness:0.5}));
+        caliper.position.set(0,0.18,z>0?0.12:-0.12);wg.add(caliper);
+        wg.position.set(x,0.32,z);
+        return wg;
+    }
+    [[-1.5,-1.06],[-1.5,1.06],[1.52,-1.06],[1.52,1.06]].forEach(([x,z])=>g.add(buildWheel(x,z)));
+
+    for(const zm of [-0.88,0.88]){
+        const mir=new THREE.Group();
+        const mArm=rbox(0.06,0.04,0.14,paint);mir.add(mArm);
+        const mHead=rbox(0.13,0.09,0.06,paint);mHead.position.set(0,0,zm>0?0.1:-0.1);mir.add(mHead);
+        mir.position.set(-0.98,1.1,zm);g.add(mir);
+    }
+
+    const dash=rbox(1.1,0.16,1.5,interior);dash.position.set(-0.5,0.82,0);
+    for(const zs of [-0.35,0.35]){const s=new THREE.Mesh(new THREE.BoxGeometry(0.44,0.14,0.38),interior);s.position.set(0.25,0.62,zs);g.add(s);}
+    const swTorus=new THREE.Mesh(new THREE.TorusGeometry(0.115,0.014,8,20),new THREE.MeshStandardMaterial({color:0x222,roughness:.6}));
+    swTorus.position.set(-0.46,0.96,-0.36);swTorus.rotation.set(0.38,0.3,0);
+    const scoop=rbox(0.35,0.065,0.24,new THREE.MeshStandardMaterial({color:0x0a0a0a,roughness:.5,metalness:.7}));
+    scoop.position.set(-1.45,1.01,0);
+
+    g.add(bodyLow,cabin,roofRear,hood,trunk,front,rear,fBumper,rBumper,wshield,rWin,grille,gSurround,tlBar,dash,swTorus,scoop);
+    carModel = g;
+    scene.add(g);
+}
+
+/* ─── ANIMATE ─── */
+const clock = new THREE.Clock();
+let lockFlashTimer = 0, isFlashing = false;
+let doorFlashTimer = 0, isDoorFlashing = false, doorFlashColor = new THREE.Color();
+
+function animate(){
+    requestAnimationFrame(animate);
+    const dt = clock.getDelta();
+    const t = clock.getElapsedTime();
+    controls.update();
+    if(carModel && autoRotate) carModel.rotation.y += 0.003;
+
+    // Headlight pulse
+    if(lightsOn && !isFlashing){
+        const p = 0.85 + Math.sin(t*2.5)*0.15;
+        headlightPointLights.forEach(l=>{ l.intensity = 14*p; });
+        headlightMeshes.forEach(m=>{
+            if(m.material.emissiveIntensity !== undefined)
+                m.material.emissiveIntensity = p*2;
+        });
+    }
+
+    // Lock flash (headlights)
+    if(isFlashing){
+        lockFlashTimer += dt;
+        const on = Math.sin(lockFlashTimer*28)>0;
+        headlightMeshes.forEach(m=>{
+            if(m.material.emissiveIntensity !== undefined){
+                m.material.emissive = new THREE.Color(on?0xffffff:0x000000);
+                m.material.emissiveIntensity = on?3:0;
+            }
+        });
+        if(lockFlashTimer > 0.85){
+            isFlashing = false; lockFlashTimer = 0;
+            setLightsVisual(lightsOn);
+        }
+    }
+
+    // Door flash animation — flash the door panels red/green
+    if(isDoorFlashing){
+        doorFlashTimer += dt;
+        const cycle = Math.sin(doorFlashTimer * 22);
+        const t01 = Math.max(0, cycle);
+        const faded = doorFlashTimer / 1.1; // fade out over 1.1s
+        const alpha = Math.max(0, 1 - faded);
+        const blendColor = new THREE.Color().lerpColors(
+            new THREE.Color(0xc0302a),
+            doorFlashColor,
+            t01 * alpha
+        );
+        doorMeshes.forEach(m => {
+            if(m.material && m.material.color) m.material.color.copy(blendColor);
+            // Emissive pulse
+            if(m.material.emissive !== undefined)
+                m.material.emissive.copy(doorFlashColor).multiplyScalar(t01 * alpha * 0.6);
+        });
+        if(doorFlashTimer > 1.1){
+            isDoorFlashing = false; doorFlashTimer = 0;
+            doorMeshes.forEach(m=>{
+                if(m.material && m.material.color) m.material.color.set(0xc0302a);
+                if(m.material && m.material.emissive) m.material.emissive.set(0x000000);
+            });
+        }
+    }
+
+    renderer.render(scene, camera);
+}
+animate();
+
+/* ─── RESIZE ─── */
+window.addEventListener('resize', ()=>{
+    const { w, h } = getSize();
+    camera.aspect = w/h; camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+});
+
+/* ─── LIGHTS HELPER ─── */
+function setLightsVisual(on){
+    const intensity = on ? 14 : 0;
+    headlightPointLights.forEach(l=>{ l.intensity = intensity; });
+    headlightMeshes.forEach(m=>{
+        if(m.material && m.material.emissiveIntensity !== undefined){
+            m.material.emissive = new THREE.Color(on ? 0xffffff : 0x000000);
+            m.material.emissiveIntensity = on ? 1.5 : 0;
+        }
+    });
+    document.getElementById('glowL').classList.toggle('on', on);
+    document.getElementById('glowR').classList.toggle('on', on);
+}
+
+/* ─── DOOR LOCK VISUAL ─── */
+function triggerDoorAnimation(locking){
+    const color = locking ? 0xff2222 : 0x22ff66;
+    doorFlashColor.set(color);
+    isDoorFlashing = true;
+    doorFlashTimer = 0;
+    doorMeshes.forEach(m=>{
+        if(m.material) { m.material.emissiveIntensity = 0; }
+    });
+
+    // CSS overlay indicators
+    const inds = document.getElementById('doorIndicators');
+    const emoji = locking ? '🔒' : '🔓';
+    const cls = locking ? 'locked-ind' : 'unlocked-ind';
+    document.querySelectorAll('.door-ind').forEach(d=>{
+        d.textContent = emoji;
+        d.className = 'door-ind ' + cls;
+    });
+
+    // Remove & re-add to retrigger animation
+    inds.classList.remove('visible');
+    void inds.offsetWidth;
+    inds.classList.add('visible');
+    setTimeout(()=>inds.classList.remove('visible'), 1600);
+
+    // Burst ring
+    const burst = document.getElementById('lockBurst');
+    burst.className = 'lock-burst ' + (locking ? 'red' : 'green-b');
+    void burst.offsetWidth;
+    burst.classList.add('fire');
+    setTimeout(()=>burst.className='lock-burst', 700);
+}
+
+/* ─── EXPOSED ACTIONS ─── */
+window.toggleLock = function(){
+    isLocked = !isLocked;
+    const btn=document.getElementById('lockBtn');
+    const icon=document.getElementById('lockIcon');
+    const statusTxt=document.getElementById('lockStatusText');
+    const badge=document.getElementById('statusBadge');
+    const badgeTxt=document.getElementById('statusText');
+
+    btn.className='lock-btn '+(isLocked?'locked':'unlocked');
+    icon.textContent=isLocked?'lock':'lock_open';
+    statusTxt.className='lock-status-text '+(isLocked?'locked':'unlocked');
+    statusTxt.textContent=isLocked?'Tap to unlock vehicle':'Tap to lock vehicle';
+    badge.className='status-badge '+(isLocked?'locked-state':'unlocked-state');
+    badgeTxt.textContent=isLocked?'LOCKED':'UNLOCKED';
+
+    // Headlight flash
+    isFlashing=true; lockFlashTimer=0;
+    const gL=document.getElementById('glowL'), gR=document.getElementById('glowR');
+    gL.classList.remove('headlight-flash'); gR.classList.remove('headlight-flash');
+    void gL.offsetWidth;
+    gL.classList.add('headlight-flash','on'); gR.classList.add('headlight-flash','on');
+    setTimeout(()=>{
+        if(!lightsOn){ gL.classList.remove('on','headlight-flash'); gR.classList.remove('on','headlight-flash'); }
+        else { gL.classList.remove('headlight-flash'); gR.classList.remove('headlight-flash'); }
+    }, 950);
+
+    // NEW: door glow animation
+    triggerDoorAnimation(isLocked);
+
+    if(isLocked){
+        if(trunkOpen){ trunkOpen=false; document.getElementById('btnTrunk').classList.remove('active-action'); }
+        if(hoodOpen){ hoodOpen=false; document.getElementById('btnHood').classList.remove('active-action'); }
+        document.getElementById('openIndicator').classList.remove('visible');
+    }
+    showToast(isLocked?'🔒 Vehicle Locked':'🔓 Vehicle Unlocked', isLocked?'locked':'unlocked');
+};
+
+window.toggleTrunk = function(){
+    if(isLocked){ showToast('🔒 Unlock vehicle first','locked'); return; }
+    trunkOpen=!trunkOpen;
+    document.getElementById('btnTrunk').classList.toggle('active-action',trunkOpen);
+    const ind=document.getElementById('openIndicator');
+    if(trunkOpen){ document.getElementById('openIndicatorText').textContent='Trunk Open'; ind.classList.add('visible'); }
+    else if(!hoodOpen){ ind.classList.remove('visible'); }
+    showToast(trunkOpen?'📦 Trunk Opened':'📦 Trunk Closed','');
+};
+
+window.toggleHood = function(){
+    if(isLocked){ showToast('🔒 Unlock vehicle first','locked'); return; }
+    hoodOpen=!hoodOpen;
+    document.getElementById('btnHood').classList.toggle('active-action',hoodOpen);
+    const ind=document.getElementById('openIndicator');
+    if(hoodOpen){ document.getElementById('openIndicatorText').textContent='Hood Open'; ind.classList.add('visible'); }
+    else if(!trunkOpen){ ind.classList.remove('visible'); }
+    showToast(hoodOpen?'🔧 Hood Opened':'🔧 Hood Closed','');
+};
+
+window.toggleLights = function(){
+    if(isLocked){ showToast('🔒 Unlock vehicle first','locked'); return; }
+    lightsOn=!lightsOn;
+    setLightsVisual(lightsOn);
+    document.getElementById('btnLights').classList.toggle('active-action',lightsOn);
+    showToast(lightsOn?'💡 Lights On':'💡 Lights Off','');
+};
+
+window.honkHorn = function(){
+    showToast('📢 Horn Activated','');
+    if(!lightsOn){
+        setLightsVisual(true);
+        setTimeout(()=>{ if(!lightsOn) setLightsVisual(false); }, 320);
+    }
+    try{
+        const ctx=new(window.AudioContext||window.webkitAudioContext)();
+        const osc=ctx.createOscillator();
+        const gain=ctx.createGain();
+        osc.type='sawtooth';
+        osc.frequency.setValueAtTime(240,ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(195,ctx.currentTime+0.35);
+        gain.gain.setValueAtTime(0.28,ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.55);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(); osc.stop(ctx.currentTime+0.55);
+    }catch(e){}
+};
+
+setTimeout(()=>showToast('🚗 Smart Key Connected',''),1200);
+</script>
+</body>
+</html>

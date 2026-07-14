@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DriveGO - Become a Host</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --blue:#13a4ec; --bg:#0d1117; --header-bg:#161d27;
+            --card-bg:#1a2332; --card-hover:#1e2a3a;
+            --border:rgba(255,255,255,0.06); --text:#e2e8f0;
+            --muted:#4a5568; --green:#4ade80; --red:#f87171; --orange:#fb923c;
+            --font:'Plus Jakarta Sans',sans-serif;
+        }
+        html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden}
+        .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;line-height:1;vertical-align:middle}
+        .toast-notif{position:fixed;top:-100px;left:50%;transform:translateX(-50%);background:var(--header-bg);border:1px solid var(--blue);padding:12px 24px;border-radius:12px;display:flex;align-items:center;gap:10px;z-index:1000;transition:top 0.4s cubic-bezier(0.68,-0.55,0.27,1.55);box-shadow:0 10px 30px rgba(0,0,0,0.5);font-size:.85rem;font-weight:600;white-space:nowrap}
+        .toast-notif.show{top:20px}.toast-notif .material-symbols-outlined{color:var(--blue);font-size:1.2rem}
+        header{position:sticky;top:0;z-index:100;background:var(--header-bg);padding:0 32px;height:62px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+        .logo{font-size:1.6rem;font-weight:800;color:#fff;text-decoration:none;letter-spacing:-.5px}.logo span{color:var(--blue)}
+        .user-chip{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:7px 18px;text-decoration:none;color:var(--text);font-size:.9rem;font-weight:700;transition:background .2s}
+        .user-chip:hover{background:rgba(255,255,255,.1)}.user-chip .material-symbols-outlined{font-size:1.3rem;color:var(--blue)}
+        .page{display:flex;flex-direction:column;min-height:calc(100vh - 62px);padding-bottom:72px}
+        .content{padding:28px 32px 0}
+        @media(max-width:900px){.content{padding:20px 16px 0}header{padding:0 16px}}
+        .section-title{font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:8px}
+        .section-sub{font-size:.88rem;color:var(--muted);margin-bottom:20px;line-height:1.6}
+        .hero-banner{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:32px 28px;margin-bottom:24px;position:relative;overflow:hidden}
+        .hero-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--green))}
+        .hero-banner-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+        .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.2);border-radius:999px;padding:4px 12px;font-size:.72rem;font-weight:700;color:var(--green);margin-bottom:10px}
+        .hero-badge .material-symbols-outlined{font-size:.85rem}
+        .hero-title{font-size:1.8rem;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.2;margin-bottom:8px}.hero-title span{color:var(--blue)}
+        .hero-desc{font-size:.88rem;color:var(--muted);line-height:1.65;max-width:480px}
+        .earn-box{background:rgba(19,164,236,.08);border:1px solid rgba(19,164,236,.18);border-radius:16px;padding:20px 24px;text-align:center;flex-shrink:0}
+        .earn-amount{font-size:2rem;font-weight:800;color:var(--green);letter-spacing:-1px}
+        .earn-label{font-size:.75rem;color:var(--muted);margin-top:4px;line-height:1.4}
+        .hero-btn{display:inline-flex;align-items:center;gap:8px;margin-top:20px;background:var(--blue);color:#fff;border:none;border-radius:12px;padding:12px 24px;font-family:var(--font);font-size:.9rem;font-weight:700;cursor:pointer;text-decoration:none;transition:background .2s,transform .15s}
+        .hero-btn:hover{background:#0f8ac9;transform:translateY(-1px)}.hero-btn .material-symbols-outlined{font-size:1.1rem}
+        .hero-bg-icon{position:absolute;right:-20px;bottom:-30px;font-size:12rem;color:rgba(19,164,236,.04);transform:rotate(-15deg);pointer-events:none}
+        .steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+        @media(max-width:900px){.steps-grid{grid-template-columns:repeat(2,1fr)}}
+        .step-card{position:relative;background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:22px 18px;overflow:hidden;transition:background .25s,border-color .25s,transform .2s}
+        .step-card:hover{background:var(--card-hover);border-color:rgba(19,164,236,.25);transform:translateY(-2px)}
+        .step-num{font-size:.68rem;font-weight:800;color:var(--blue);letter-spacing:1px;margin-bottom:10px;text-transform:uppercase}
+        .step-icon-wrap{width:40px;height:40px;background:rgba(19,164,236,.1);border:1px solid rgba(19,164,236,.18);border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+        .step-icon-wrap .material-symbols-outlined{color:var(--blue);font-size:1.2rem}
+        .step-title{font-size:.9rem;font-weight:800;color:#fff;margin-bottom:6px}
+        .step-desc{font-size:.78rem;color:var(--muted);line-height:1.55}
+        .step-bg-icon{position:absolute;right:-8px;bottom:-14px;font-size:5.5rem;color:rgba(19,164,236,.06);transform:rotate(-15deg);pointer-events:none}
+        .calc-card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px}
+        .calc-header{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+        .calc-header .material-symbols-outlined{color:var(--blue);font-size:1.2rem}
+        .calc-header span{font-size:1rem;font-weight:800;color:#fff}
+        .calc-body{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px}
+        @media(max-width:700px){.calc-body{grid-template-columns:1fr 1fr}}
+        .calc-field label{display:block;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px}
+        .calc-field input,.calc-field select{width:100%;background:var(--card-hover);border:1px solid var(--border);color:var(--text);font-family:var(--font);font-size:.9rem;font-weight:600;border-radius:10px;padding:11px 13px;outline:none;transition:border-color .2s}
+        .calc-field input:focus,.calc-field select:focus{border-color:var(--blue)}
+        .calc-field select option{background:var(--card-bg)}
+        .calc-result{background:var(--card-hover);border:1px solid var(--border);border-radius:12px;padding:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+        .calc-result-rows{display:flex;flex-direction:column;gap:6px}
+        .calc-row{display:flex;align-items:center;justify-content:space-between;gap:20px;font-size:.82rem}
+        .calc-row .key{color:var(--muted)}.calc-row .val{font-weight:700}.calc-row .val.red{color:var(--red)}
+        .calc-total-wrap{text-align:right}
+        .calc-total-label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+        .calc-total-val{font-size:2rem;font-weight:800;color:var(--green);letter-spacing:-1px}
+        .form-card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px;position:relative;overflow:hidden}
+        .form-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--green))}
+        .form-card-title{font-size:1rem;font-weight:800;color:#fff;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+        .form-card-title .material-symbols-outlined{color:var(--blue);font-size:1.1rem}
+        .form-card-sub{font-size:.8rem;color:var(--muted);margin-bottom:20px}
+        .step-dots{display:flex;gap:0;margin-bottom:24px}
+        .sdot-wrap{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+        .sdot-wrap::before{content:'';position:absolute;top:13px;left:50%;right:-50%;height:2px;background:var(--border);z-index:0}
+        .sdot-wrap:last-child::before{display:none}
+        .sdot{width:26px;height:26px;border-radius:50%;background:var(--card-hover);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;color:var(--muted);position:relative;z-index:1;transition:all .3s;margin-bottom:5px}
+        .sdot.active{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 0 10px rgba(19,164,236,.35)}
+        .sdot.done{background:var(--green);border-color:var(--green);color:#000}
+        .sdot-label{font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+        .sdot-label.active{color:var(--blue)}
+        .panels-clip{overflow:hidden}
+        .panels-row{display:flex;transition:transform .4s cubic-bezier(.4,0,.2,1)}
+        .fpanel{width:100%;flex-shrink:0;display:flex;flex-direction:column;gap:14px}
+        .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        @media(max-width:500px){.field-row{grid-template-columns:1fr}}
+        .field{display:flex;flex-direction:column;gap:6px}
+        .field label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+        .field input,.field select,.field textarea{background:var(--card-hover);border:1px solid var(--border);color:var(--text);font-family:var(--font);font-size:.88rem;border-radius:10px;padding:11px 13px;outline:none;transition:border-color .2s;width:100%}
+        .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue)}
+        .field input::placeholder,.field textarea::placeholder{color:var(--muted)}
+        .field select option{background:var(--card-bg)}.field textarea{resize:vertical;min-height:80px}
+        .upload-box{border:2px dashed var(--border);border-radius:12px;padding:24px 16px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
+        .upload-box:hover{border-color:var(--blue);background:rgba(19,164,236,.03)}
+        .upload-box.done{border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.04)}
+        .upload-box .material-symbols-outlined{font-size:1.8rem;color:var(--blue);display:block;margin-bottom:6px}
+        .upload-box.done .material-symbols-outlined{color:var(--green)}
+        .upload-box p{font-size:.78rem;color:var(--muted)}.upload-box strong{color:var(--text)}
+        .check-row{display:flex;align-items:flex-start;gap:10px;cursor:pointer}
+        .check-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--blue);margin-top:3px;flex-shrink:0}
+        .check-row span{font-size:.82rem;color:var(--muted);line-height:1.5}
+        .check-row span a{color:var(--blue);text-decoration:none}
+        .addon-chips{display:flex;flex-wrap:wrap;gap:8px}
+        .addon-chip{display:flex;align-items:center;gap:6px;background:var(--card-hover);border:1px solid var(--border);border-radius:999px;padding:7px 13px;font-size:.78rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;user-select:none}
+        .addon-chip.selected{border-color:rgba(19,164,236,.35);color:var(--blue);background:rgba(19,164,236,.08)}
+        .addon-chip .material-symbols-outlined{font-size:.9rem}
+        .form-nav{display:flex;gap:10px;margin-top:22px}
+        .btn-back{padding:11px 20px;border-radius:10px;background:none;border:1px solid var(--border);color:var(--muted);font-family:var(--font);font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s}
+        .btn-back:hover{color:var(--text);border-color:rgba(255,255,255,.15)}
+        .btn-next{flex:1;padding:12px;border-radius:10px;background:var(--blue);color:#fff;border:none;font-family:var(--font);font-size:.9rem;font-weight:800;cursor:pointer;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+        .btn-next:hover{background:#0f8ac9}.btn-next .material-symbols-outlined{font-size:1rem}
+        .success-state{text-align:center;padding:32px 16px;display:none}
+        .success-circle{width:72px;height:72px;border-radius:50%;background:rgba(74,222,128,.1);border:2px solid rgba(74,222,128,.25);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;animation:popIn .4s cubic-bezier(.23,1,.32,1)}
+        .success-circle .material-symbols-outlined{font-size:2.2rem;color:var(--green);font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24}
+        @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+        .success-title{font-size:1.2rem;font-weight:800;color:#fff;margin-bottom:8px}
+        .success-desc{font-size:.85rem;color:var(--muted);line-height:1.65}
+        .benefits-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+        @media(max-width:700px){.benefits-grid{grid-template-columns:1fr 1fr}}
+        .benefit-card{position:relative;background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:22px 18px;overflow:hidden;transition:background .25s,border-color .25s,transform .2s}
+        .benefit-card:hover{background:var(--card-hover);border-color:rgba(19,164,236,.25);transform:translateY(-2px)}
+        .benefit-icon-wrap{width:40px;height:40px;background:rgba(19,164,236,.1);border:1px solid rgba(19,164,236,.18);border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+        .benefit-icon-wrap .material-symbols-outlined{color:var(--blue);font-size:1.2rem}
+        .benefit-name{font-size:.88rem;font-weight:800;color:#fff;margin-bottom:5px}
+        .benefit-desc{font-size:.76rem;color:var(--muted);line-height:1.55}
+        .faq-list{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+        .faq-item{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s}
+        .faq-item.open{border-color:rgba(19,164,236,.25)}
+        .faq-q{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;cursor:pointer;gap:12px}
+        .faq-q-text{font-size:.88rem;font-weight:700;color:#fff}
+        .faq-q .material-symbols-outlined{color:var(--muted);font-size:1.1rem;transition:transform .3s;flex-shrink:0}
+        .faq-item.open .faq-q .material-symbols-outlined{transform:rotate(180deg);color:var(--blue)}
+        .faq-a{padding:0 18px;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease}
+        .faq-item.open .faq-a{max-height:200px;padding:0 18px 16px}
+        .faq-a p{font-size:.82rem;color:var(--muted);line-height:1.7}
+        .dashboard-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+        @media(max-width:600px){.dashboard-grid{grid-template-columns:1fr}}
+        .db-card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:20px}
+        .db-card-label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+        .db-card-label .material-symbols-outlined{font-size:.9rem}
+        .db-stat{font-size:2rem;font-weight:800;letter-spacing:-1px;margin-bottom:3px}
+        .db-stat.green{color:var(--green)}.db-stat.blue{color:var(--blue)}.db-stat.orange{color:var(--orange)}
+        .db-stat-sub{font-size:.75rem;color:var(--muted)}
+        .db-v-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+        .db-v-row:last-child{border-bottom:none}
+        .db-v-ico{font-size:1.6rem}.db-v-name{font-size:.85rem;font-weight:700;color:#fff;margin-bottom:2px}
+        .db-v-status{font-size:.7rem}.db-v-status.active{color:var(--green)}.db-v-status.pending{color:var(--orange)}
+        .db-v-earn{font-size:.85rem;font-weight:700;color:var(--blue);margin-left:auto}
+        .db-bk-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);gap:10px}
+        .db-bk-row:last-child{border-bottom:none}
+        .db-bk-ref{font-size:.7rem;color:var(--muted)}.db-bk-veh{font-size:.82rem;font-weight:700;color:#fff}
+        .db-bk-amt{font-size:.85rem;font-weight:700;color:var(--green);white-space:nowrap}
+        .db-bk-badge{font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:999px}
+        .db-bk-badge.active{color:var(--green);background:rgba(74,222,128,.1)}
+        .db-bk-badge.done{color:var(--muted);background:rgba(100,116,139,.1)}
+        .mini-chart{display:flex;align-items:flex-end;gap:5px;height:48px;margin-top:12px}
+        .chart-bar{flex:1;border-radius:4px 4px 0 0;background:rgba(19,164,236,.25);transition:background .2s}
+        .chart-bar:hover,.chart-bar.hi{background:var(--blue)}
+        .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--bg);border-top:1px solid var(--border);padding:10px 0 14px}
+        .bottom-nav nav{display:flex;justify-content:space-around;align-items:center}
+        .nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;color:var(--muted);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;transition:color .2s;padding:2px 20px}
+        .nav-item .material-symbols-outlined{font-size:1.35rem}
+        .nav-item.active{color:var(--blue)}
+        .nav-item.active .material-symbols-outlined{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24}
+        .nav-item:hover{color:var(--blue)}
+        .fade{animation:fadeUp .5s ease both}
+        .fade-1{animation-delay:.05s}.fade-2{animation-delay:.12s}.fade-3{animation-delay:.19s}.fade-4{animation-delay:.26s}.fade-5{animation-delay:.33s}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    </style>
+</head>
+<body>
+    <div id="toast" class="toast-notif"><span class="material-symbols-outlined">notifications_active</span><span id="toast-msg">Welcome!</span></div>
+    <header>
+        <a href="index.html" class="logo">Drive<span>GO</span></a>
+        <a href="account.html" class="user-chip"><span>John</span><span class="material-symbols-outlined">account_circle</span></a>
+    </header>
+    <div class="page">
+        <div class="content">
+            <!-- HERO -->
+            <div class="hero-banner fade fade-1">
+                <div class="hero-banner-inner">
+                    <div>
+                        <div class="hero-badge"><span class="material-symbols-outlined">handshake</span>Open to Vehicle Owners Across India</div>
+                        <div class="hero-title">Turn Your Vehicle Into<br/><span>Steady Income</span></div>
+                        <div class="hero-desc">List your car, bike or scooter on DriveGO. We handle bookings, payments and support — you just earn.</div>
+                        <a href="#list-vehicle" class="hero-btn"><span class="material-symbols-outlined">add_circle</span>List Your Vehicle</a>
+                    </div>
+                    <div class="earn-box"><div class="earn-amount">₹18,000</div><div class="earn-label">avg. monthly earnings<br/>per vehicle</div></div>
+                </div>
+                <span class="material-symbols-outlined hero-bg-icon">directions_car</span>
+            </div>
+            <!-- HOW IT WORKS -->
+            <h2 class="section-title fade fade-2">How It Works</h2>
+            <p class="section-sub fade fade-2">Getting started as a DriveGO host takes less than 10 minutes.</p>
+            <div class="steps-grid fade fade-2">
+                <div class="step-card"><div class="step-num">Step 01</div><div class="step-icon-wrap"><span class="material-symbols-outlined">app_registration</span></div><div class="step-title">Register as Host</div><div class="step-desc">Create your free host account with name, phone and city.</div><span class="material-symbols-outlined step-bg-icon">app_registration</span></div>
+                <div class="step-card"><div class="step-num">Step 02</div><div class="step-icon-wrap"><span class="material-symbols-outlined">directions_car</span></div><div class="step-title">List Your Vehicle</div><div class="step-desc">Add photos, specs, pricing and availability. Approved in 24 hrs.</div><span class="material-symbols-outlined step-bg-icon">directions_car</span></div>
+                <div class="step-card"><div class="step-num">Step 03</div><div class="step-icon-wrap"><span class="material-symbols-outlined">receipt_long</span></div><div class="step-title">Receive Bookings</div><div class="step-desc">Customers book through DriveGO. Get instant notifications.</div><span class="material-symbols-outlined step-bg-icon">receipt_long</span></div>
+                <div class="step-card"><div class="step-num">Step 04</div><div class="step-icon-wrap"><span class="material-symbols-outlined">account_balance</span></div><div class="step-title">Get Paid</div><div class="step-desc">Earnings transferred to your bank within 3 working days.</div><span class="material-symbols-outlined step-bg-icon">account_balance</span></div>
+            </div>
+            <!-- CALCULATOR -->
+            <h2 class="section-title fade fade-3">Earnings Calculator</h2>
+            <p class="section-sub fade fade-3">See how much you can earn every month.</p>
+            <div class="calc-card fade fade-3">
+                <div class="calc-header"><span class="material-symbols-outlined">calculate</span><span>Monthly Earnings Estimate</span></div>
+                <div class="calc-body">
+                    <div class="calc-field"><label>Vehicle Type</label><select id="calcType" onchange="calcEarnings()"><option value="800">Scooter</option><option value="1500" selected>Car — Budget</option><option value="2500">Car — Family/SUV</option><option value="8000">Luxury Car</option><option value="1000">Bike</option></select></div>
+                    <div class="calc-field"><label>Your Daily Rate (₹)</label><input type="number" id="calcRate" value="1500" min="200" max="20000" oninput="calcEarnings()" /></div>
+                    <div class="calc-field"><label>Rental Days / Month</label><input type="number" id="calcDays" value="18" min="1" max="30" oninput="calcEarnings()" /></div>
+                </div>
+                <div class="calc-result">
+                    <div class="calc-result-rows">
+                        <div class="calc-row"><span class="key">Gross Revenue</span><span class="val" id="calcGross">₹27,000</span></div>
+                        <div class="calc-row"><span class="key">DriveGO Commission (20%)</span><span class="val red" id="calcComm">−₹5,400</span></div>
+                    </div>
+                    <div class="calc-total-wrap"><div class="calc-total-label">Your Monthly Earnings</div><div class="calc-total-val" id="calcNet">₹21,600</div></div>
+                </div>
+            </div>
+            <!-- FORM -->
+            <h2 class="section-title fade fade-4" id="list-vehicle">List Your Vehicle</h2>
+            <p class="section-sub fade fade-4">Fill in the details — our team reviews and approves within 24 hours.</p>
+            <div class="form-card fade fade-4">
+                <div class="form-card-title"><span class="material-symbols-outlined">add_circle</span>Vehicle Listing Application</div>
+                <div class="form-card-sub">4 quick steps · Takes about 5 minutes</div>
+                <div class="step-dots" id="stepDots">
+                    <div class="sdot-wrap"><div class="sdot active" id="sd0">1</div><div class="sdot-label active" id="sl0">Owner</div></div>
+                    <div class="sdot-wrap"><div class="sdot" id="sd1">2</div><div class="sdot-label" id="sl1">Vehicle</div></div>
+                    <div class="sdot-wrap"><div class="sdot" id="sd2">3</div><div class="sdot-label" id="sl2">Pricing</div></div>
+                    <div class="sdot-wrap"><div class="sdot" id="sd3">4</div><div class="sdot-label" id="sl3">Docs</div></div>
+                </div>
+                <div class="panels-clip"><div class="panels-row" id="panelsRow">
+                    <div class="fpanel">
+                        <div class="field-row"><div class="field"><label>Full Name *</label><input type="text" id="ownerName" placeholder="Your full name" /></div><div class="field"><label>Phone Number *</label><input type="tel" id="ownerPhone" placeholder="+91 98765 43210" /></div></div>
+                        <div class="field-row"><div class="field"><label>Email *</label><input type="email" id="ownerEmail" placeholder="you@example.com" /></div><div class="field"><label>City *</label><select id="ownerCity"><option value="">Select city</option><option>Bengaluru</option><option>Mumbai</option><option>Delhi</option><option>Hyderabad</option><option>Chennai</option><option>Pune</option><option>Kochi</option><option>Jaipur</option><option>Ahmedabad</option><option>Kolkata</option></select></div></div>
+                        <div class="field"><label>How many vehicles to list?</label><select id="vCount"><option>1 vehicle</option><option>2–5 vehicles</option><option>6–10 vehicles</option><option>10+ vehicles (Fleet)</option></select></div>
+                    </div>
+                    <div class="fpanel">
+                        <div class="field-row"><div class="field"><label>Vehicle Type *</label><select id="vType"><option>Car</option><option>SUV</option><option>Luxury Car</option><option>Bike</option><option>Scooter</option></select></div><div class="field"><label>Brand & Model *</label><input type="text" id="vModel" placeholder="e.g. Maruti Swift" /></div></div>
+                        <div class="field-row"><div class="field"><label>Year *</label><input type="number" id="vYear" placeholder="e.g. 2022" /></div><div class="field"><label>Registration No. *</label><input type="text" id="vReg" placeholder="e.g. KA01AB1234" /></div></div>
+                        <div class="field"><label>Vehicle Photos</label><div class="upload-box" id="photoBox" onclick="document.getElementById('photoInput').click()"><span class="material-symbols-outlined">cloud_upload</span><p><strong>Click to upload photos</strong><br/>Front, back, interior — JPG/PNG, max 5MB each</p><input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="handlePhoto(this)" /></div></div>
+                        <div class="field"><label>Special Features</label><textarea id="vFeatures" placeholder="e.g. AC, GPS tracker, sunroof..."></textarea></div>
+                    </div>
+                    <div class="fpanel">
+                        <div class="field-row"><div class="field"><label>Your Daily Rate (₹) *</label><input type="number" id="fRate" placeholder="e.g. 1500" min="200" /></div><div class="field"><label>Minimum Duration</label><select id="fMinDur"><option>Half day (4 hrs)</option><option>1 day</option><option>2 days</option><option>Weekly only</option></select></div></div>
+                        <div class="field-row"><div class="field"><label>Available From</label><input type="date" id="fAvailFrom" /></div><div class="field"><label>Pickup Location *</label><input type="text" id="fPickup" placeholder="Exact pickup address" /></div></div>
+                        <div class="field"><label>Additional Services</label><div class="addon-chips"><div class="addon-chip" onclick="toggleChip(this)"><span class="material-symbols-outlined">person</span>Driver</div><div class="addon-chip" onclick="toggleChip(this)"><span class="material-symbols-outlined">local_shipping</span>Home Delivery</div><div class="addon-chip" onclick="toggleChip(this)"><span class="material-symbols-outlined">route</span>One-Way Trips</div><div class="addon-chip" onclick="toggleChip(this)"><span class="material-symbols-outlined">flight</span>Airport Transfers</div></div></div>
+                    </div>
+                    <div class="fpanel">
+                        <div class="field"><label>RC Book *</label><div class="upload-box" id="rcBox" onclick="document.getElementById('rcInput').click()"><span class="material-symbols-outlined">upload_file</span><p><strong>Upload RC Book</strong><br/>JPG, PNG or PDF — max 5MB</p><input type="file" id="rcInput" accept=".jpg,.jpeg,.png,.pdf" style="display:none" onchange="handleDoc(this,'rcBox','RC Book')" /></div></div>
+                        <div class="field"><label>Insurance Certificate *</label><div class="upload-box" id="insBox" onclick="document.getElementById('insInput').click()"><span class="material-symbols-outlined">upload_file</span><p><strong>Upload Insurance</strong><br/>JPG, PNG or PDF — max 5MB</p><input type="file" id="insInput" accept=".jpg,.jpeg,.png,.pdf" style="display:none" onchange="handleDoc(this,'insBox','Insurance')" /></div></div>
+                        <div class="field-row"><div class="field"><label>Bank Account Number *</label><input type="text" id="bankAcc" placeholder="Account number" /></div><div class="field"><label>IFSC Code *</label><input type="text" id="bankIFSC" placeholder="e.g. SBIN0001234" /></div></div>
+                        <label class="check-row"><input type="checkbox" id="termsCheck" /><span>I agree to the DriveGO <a href="#">Host Terms of Service</a> and <a href="#">Partner Agreement</a>. I confirm this vehicle is legally mine to rent.</span></label>
+                    </div>
+                </div></div>
+                <div class="success-state" id="successState"><div class="success-circle"><span class="material-symbols-outlined">check_circle</span></div><div class="success-title">Application Submitted! 🎉</div><div class="success-desc">Our team will review your listing and contact you within <strong style="color:var(--text)">24 hours</strong> via email and phone.</div></div>
+                <div class="form-nav" id="formNav"><button class="btn-back" id="btnBack" onclick="prevStep()" style="display:none">← Back</button><button class="btn-next" id="btnNext" onclick="nextStep()"><span id="btnNextTxt">Continue</span><span class="material-symbols-outlined" id="btnNextIco">arrow_forward</span></button></div>
+            </div>
+            <!-- DASHBOARD PREVIEW -->
+            <h2 class="section-title fade fade-3">Host Dashboard Preview</h2>
+            <p class="section-sub fade fade-3">Track your vehicles, bookings and earnings all in one place.</p>
+            <div class="dashboard-grid fade fade-3">
+                <div class="db-card"><div class="db-card-label"><span class="material-symbols-outlined">account_balance_wallet</span>This Month</div><div class="db-stat green">₹21,600</div><div class="db-stat-sub">↑ 14% from last month</div><div class="mini-chart"><div class="chart-bar" style="height:40%"></div><div class="chart-bar" style="height:55%"></div><div class="chart-bar" style="height:38%"></div><div class="chart-bar" style="height:72%"></div><div class="chart-bar" style="height:60%"></div><div class="chart-bar hi" style="height:88%"></div><div class="chart-bar" style="height:76%"></div></div></div>
+                <div class="db-card"><div class="db-card-label"><span class="material-symbols-outlined">directions_car</span>My Vehicles</div><div class="db-v-row"><div class="db-v-ico">🚗</div><div><div class="db-v-name">Maruti Swift</div><div class="db-v-status active">● Active</div></div><div class="db-v-earn">₹9,600</div></div><div class="db-v-row"><div class="db-v-ico">🚙</div><div><div class="db-v-name">Honda City</div><div class="db-v-status active">● Active</div></div><div class="db-v-earn">₹12,000</div></div><div class="db-v-row"><div class="db-v-ico">🛵</div><div><div class="db-v-name">Honda Activa</div><div class="db-v-status pending">● Pending</div></div><div class="db-v-earn">—</div></div></div>
+                <div class="db-card"><div class="db-card-label"><span class="material-symbols-outlined">bar_chart</span>Overview</div><div style="display:flex;flex-direction:column;gap:12px;margin-top:4px"><div><div class="db-stat blue" style="font-size:1.5rem">18</div><div class="db-stat-sub">Rental days this month</div></div><div style="height:1px;background:var(--border)"></div><div><div class="db-stat orange" style="font-size:1.5rem">3</div><div class="db-stat-sub">Active bookings now</div></div></div></div>
+                <div class="db-card"><div class="db-card-label"><span class="material-symbols-outlined">receipt_long</span>Recent Bookings</div><div class="db-bk-row"><div><div class="db-bk-ref">BK-100123</div><div class="db-bk-veh">Maruti Swift</div></div><div style="text-align:right"><div class="db-bk-amt">₹2,400</div><div class="db-bk-badge active">Active</div></div></div><div class="db-bk-row"><div><div class="db-bk-ref">BK-100119</div><div class="db-bk-veh">Honda City</div></div><div style="text-align:right"><div class="db-bk-amt">₹5,400</div><div class="db-bk-badge done">Completed</div></div></div><div class="db-bk-row"><div><div class="db-bk-ref">BK-100115</div><div class="db-bk-veh">Maruti Swift</div></div><div style="text-align:right"><div class="db-bk-amt">₹2,400</div><div class="db-bk-badge done">Completed</div></div></div></div>
+            </div>
+            <!-- BENEFITS -->
+            <h2 class="section-title fade fade-4">Why Host With DriveGO?</h2>
+            <p class="section-sub fade fade-4">Simple, safe and profitable.</p>
+            <div class="benefits-grid fade fade-4">
+                <div class="benefit-card"><div class="benefit-icon-wrap"><span class="material-symbols-outlined">currency_rupee</span></div><div class="benefit-name">80% Revenue</div><div class="benefit-desc">You keep 80% of every booking. We take only 20%.</div></div>
+                <div class="benefit-card"><div class="benefit-icon-wrap"><span class="material-symbols-outlined">shield</span></div><div class="benefit-name">Full Insurance</div><div class="benefit-desc">Every rental is insured by our partners. No extra cost to you.</div></div>
+                <div class="benefit-card"><div class="benefit-icon-wrap"><span class="material-symbols-outlined">lock_clock</span></div><div class="benefit-name">Auto-Lock System</div><div class="benefit-desc">Time-based access control. Zero unauthorized use.</div></div>
+                <div class="benefit-card"><div class="benefit-icon-wrap"><span class="material-symbols-outlined">support_agent</span></div><div class="benefit-name">24/7 Support</div><div class="benefit-desc">Dedicated host manager always available for you.</div></div>
+                <div class="benefit-card"><div class="benefit-icon-wrap"><span class="material-symbols-outlined">account_balance</span></div><div class="benefit-name">Fast Payouts</div><div class="benefit-desc">Bank transfer within 3 working days after each rental.</div></div>
+                <div class="benefit-card"><div class="benefit-icon-wrap"><span class="material-symbols-outlined">trending_up</span></div><div class="benefit-name">Demand Insights</div><div class="benefit-desc">See peak demand dates in your city to maximise earnings.</div></div>
+            </div>
+            <!-- FAQ -->
+            <h2 class="section-title fade fade-5">Frequently Asked Questions</h2>
+            <p class="section-sub fade fade-5">Everything you need to know before listing.</p>
+            <div class="faq-list fade fade-5">
+                <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this.parentElement)"><span class="faq-q-text">Is it free to list my vehicle?</span><span class="material-symbols-outlined">expand_more</span></div><div class="faq-a"><p>Yes, listing on DriveGO is completely free. We only charge a 20% commission when your vehicle is successfully rented. No upfront or monthly fees.</p></div></div>
+                <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this.parentElement)"><span class="faq-q-text">What documents do I need?</span><span class="material-symbols-outlined">expand_more</span></div><div class="faq-a"><p>You need your vehicle's RC Book, valid insurance certificate, and bank account details for payouts. All reviewed securely by our team.</p></div></div>
+                <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this.parentElement)"><span class="faq-q-text">How does the auto-lock system protect my vehicle?</span><span class="material-symbols-outlined">expand_more</span></div><div class="faq-a"><p>Our time-based system only reveals vehicle access details to the renter during their confirmed booking window. Before and after — all details are locked. No hardware required.</p></div></div>
+                <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this.parentElement)"><span class="faq-q-text">Can I set my own pricing and availability?</span><span class="material-symbols-outlined">expand_more</span></div><div class="faq-a"><p>Yes. You control your daily rate, minimum rental duration, available dates and blackout periods. Update anytime from your host dashboard.</p></div></div>
+                <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this.parentElement)"><span class="faq-q-text">Can I list multiple vehicles?</span><span class="material-symbols-outlined">expand_more</span></div><div class="faq-a"><p>Yes! Many hosts list entire fleets. With 6+ vehicles you qualify for our Fleet Partner program with additional benefits and a dedicated account manager.</p></div></div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom-nav"><nav>
+        <a href="index.html" class="nav-item"><span class="material-symbols-outlined">home</span>Home</a>
+        <a href="Services.html" class="nav-item"><span class="material-symbols-outlined">apps</span>Services</a>
+        <a href="activity.html" class="nav-item"><span class="material-symbols-outlined">receipt_long</span>Activity</a>
+        <a href="account.html" class="nav-item active"><span class="material-symbols-outlined">person</span>Account</a>
+    </nav></div>
+    <script>
+        function showToast(msg){const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+        window.onload=async()=>{try{await fetch('http://localhost:3000/');showToast('DriveGO Systems Online ✅');}catch(e){showToast('Welcome, Host Partner! 👋');}const tom=new Date();tom.setDate(tom.getDate()+1);document.getElementById('fAvailFrom').value=tom.toISOString().split('T')[0];};
+        function calcEarnings(){const r=parseFloat(document.getElementById('calcRate').value)||0,d=parseInt(document.getElementById('calcDays').value)||0,g=r*d,c=g*.2,n=g-c;document.getElementById('calcGross').textContent='₹'+g.toLocaleString('en-IN');document.getElementById('calcComm').textContent='−₹'+c.toLocaleString('en-IN');document.getElementById('calcNet').textContent='₹'+n.toLocaleString('en-IN');}
+        calcEarnings();
+        let step=0;const TOTAL=4;
+        function updateStepUI(){for(let i=0;i<TOTAL;i++){const d=document.getElementById('sd'+i),l=document.getElementById('sl'+i);if(i<step){d.className='sdot done';d.textContent='✓';l.className='sdot-label';}else if(i===step){d.className='sdot active';d.textContent=i+1;l.className='sdot-label active';}else{d.className='sdot';d.textContent=i+1;l.className='sdot-label';}}document.getElementById('panelsRow').style.transform='translateX(-'+(step*100)+'%)';document.getElementById('btnBack').style.display=step===0?'none':'block';const last=step===TOTAL-1;document.getElementById('btnNextTxt').textContent=last?'Submit Application':'Continue';document.getElementById('btnNextIco').textContent=last?'send':'arrow_forward';}
+        function validateStep(){if(step===0){if(!document.getElementById('ownerName').value.trim()||!document.getElementById('ownerPhone').value.trim()||!document.getElementById('ownerEmail').value.trim()||!document.getElementById('ownerCity').value){showToast('Please fill all required fields ⚠️');return false;}}if(step===1){if(!document.getElementById('vModel').value.trim()||!document.getElementById('vYear').value||!document.getElementById('vReg').value.trim()){showToast('Please fill vehicle details ⚠️');return false;}}if(step===2){if(!document.getElementById('fRate').value||!document.getElementById('fPickup').value.trim()){showToast('Please enter rate and pickup location ⚠️');return false;}}if(step===3){if(!document.getElementById('bankAcc').value.trim()||!document.getElementById('bankIFSC').value.trim()){showToast('Please enter bank account details ⚠️');return false;}if(!document.getElementById('termsCheck').checked){showToast('Please agree to Host Terms ⚠️');return false;}}return true;}
+        function nextStep(){if(!validateStep())return;if(step<TOTAL-1){step++;updateStepUI();}else submitForm();}
+        function prevStep(){if(step>0){step--;updateStepUI();}}
+        function submitForm(){document.getElementById('panelsRow').style.display='none';document.getElementById('formNav').style.display='none';document.getElementById('stepDots').style.display='none';document.getElementById('successState').style.display='block';showToast("Application submitted! We'll contact you in 24hrs 🎉");}
+        function handlePhoto(input){if(!input.files.length)return;const b=document.getElementById('photoBox');b.classList.add('done');b.querySelector('p').innerHTML='<strong>✅ '+input.files.length+' photo(s) uploaded</strong><br/>Click to change';b.querySelector('.material-symbols-outlined').textContent='check_circle';}
+        function handleDoc(input,boxId,label){if(!input.files.length)return;const f=input.files[0];if(!['image/jpeg','image/png','application/pdf'].includes(f.type)||f.size>5242880){showToast('Invalid file. Max 5MB, JPG/PNG/PDF only ⚠️');return;}const b=document.getElementById(boxId);b.classList.add('done');b.querySelector('p').innerHTML='<strong>✅ '+f.name+'</strong>';b.querySelector('.material-symbols-outlined').textContent='check_circle';}
+        function toggleChip(el){el.classList.toggle('selected');}
+        function toggleFaq(item){const o=item.classList.contains('open');document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));if(!o)item.classList.add('open');}
+    </script>
+</body>
+</html>
