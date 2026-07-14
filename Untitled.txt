@@ -1,0 +1,49 @@
+
+        
+        def signup(request):
+    if (request.method =='GET'): 
+        return render(request,'signup.html')
+    else:
+     
+        postData = request.POST
+        first_name = postData.get('first_name')
+        last_name = postData.get('last_name')
+        phone = postData.get('phone')
+        email = postData.get('email')
+        password = postData.get('password')
+        re_enter_password = postData.get('re_enter_password')
+
+
+        #validation
+        error_message = None
+        if(not first_name):
+            error_message = 'First name Required'
+        #saving
+        if not error_message:
+            print(first_name, phone, email, password, re_enter_password)
+            customer = Customer (first_name = first_name,
+                            last_name = last_name,
+                            phone = phone,
+                            email = email,
+                            password = password,
+                            re_enter_password = re_enter_password)
+            customer.register()
+        else:
+         return render(request, 'signup.html',{'error':error_message})
+
+
+
+
+#signup,
+   <div id="mobile-menu" class="md:hidden hidden bg-card-dark opacity-0 transform -translate-y-2">
+          <div class="flex flex-col items-center space-y-4 py-4 px-4">
+              <a href="#" class="block text-primary-start font-bold py-2 px-4 rounded-full hover:bg-primary-start/10 w-full text-center">
+                  Host
+              </a>
+              <a href={% url 'login' %} class="block text-slate-200 font-bold py-2 px-4 rounded-full hover:bg-white/10 w-full text-center">
+                  Login
+              </a>
+              <a href={% url 'signup' %} class="block bg-gradient-to-r from-primary-start to-primary-end text-white font-bold py-2 px-5 rounded-full hover:shadow-primary-glow w-full text-center">
+                  Signup
+              </a>
+          </div>
